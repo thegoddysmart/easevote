@@ -29,8 +29,12 @@ export default async function Home() {
   const apiClient = createServerApiClient();
   let votingEvents: any[] = [];
   let ticketingEvents: any[] = [];
+  let banners: any[] = [];
 
   try {
+    const bannerRes = await apiClient.get<any[]>("/cms/banners").catch(() => []);
+    banners = Array.isArray(bannerRes) ? bannerRes : (bannerRes as any).data || [];
+
     const res = await apiClient.get<any>("/events?limit=100").catch(() => null);
     if (res) {
       const allEvents = res.data || res.events || (Array.isArray(res) ? res : []);
@@ -53,7 +57,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <Hero />
+      <Hero banners={banners} />
       <LiveEvents events={votingEvents} />
       <LiveTickets events={ticketingEvents} />
       <Partners />

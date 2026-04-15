@@ -6,18 +6,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { russoOne } from "../ui/fonts";
 
-const SLIDE_IMAGES = [
-  "/images/hero/slide-1.webp",
-  "/images/hero/slide-2.webp",
-  "/images/hero/slide-3.webp",
-  "/images/hero/slide-4.webp",
-  "/images/hero/slide-5.webp",
-  "/images/hero/slide-6.webp",
+const FALLBACK_SLIDES = [
+  { imageUrl: "/images/hero/slide-1.webp", title: "EaseVote Ghana" },
+  { imageUrl: "/images/hero/slide-2.webp", title: "EaseVote Ghana" },
+  { imageUrl: "/images/hero/slide-3.webp", title: "EaseVote Ghana" },
+  { imageUrl: "/images/hero/slide-4.webp", title: "EaseVote Ghana" },
+  { imageUrl: "/images/hero/slide-5.webp", title: "EaseVote Ghana" },
+  { imageUrl: "/images/hero/slide-6.webp", title: "EaseVote Ghana" },
 ];
 
-const Hero = () => {
+interface Banner {
+  _id: string;
+  imageUrl: string;
+  title?: string;
+  linkUrl?: string;
+}
+
+interface HeroProps {
+  banners?: Banner[];
+}
+
+const Hero = ({ banners }: HeroProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
+
+  const displayBanners = banners && banners.length > 0 ? banners : FALLBACK_SLIDES;
 
   // Responsive logic for carousel items
   useEffect(() => {
@@ -37,7 +50,7 @@ const Hero = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const maxIndex = SLIDE_IMAGES.length - itemsPerView;
+  const maxIndex = displayBanners.length - itemsPerView;
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
@@ -122,20 +135,21 @@ const Hero = () => {
                 }%)`,
               }}
             >
-              {SLIDE_IMAGES.map((img, idx) => (
+              {displayBanners.map((banner: any, idx) => (
                 <div
-                  key={idx}
-                  className="flex-shrink-0 relative"
+                  key={banner._id || idx}
+                  className="flex-shrink-0 relative cursor-pointer"
                   style={{ width: `calc(${100 / itemsPerView}% - 16px)` }} // Adjust for gap
+                  onClick={() => banner.linkUrl && (window.location.href = banner.linkUrl)}
                 >
                   <img
-                    src={img}
-                    alt={`Event Slide ${idx + 1}`}
+                    src={banner.imageUrl}
+                    alt={banner.title || `Event Slide ${idx + 1}`}
                     className="w-full h-64 object-cover rounded-xl shadow-md hover:shadow-lg transition-shadow"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-deep/80 to-transparent rounded-xl flex items-end p-4">
                     <span className="text-white font-bold text-sm">
-                      EaseVote Ghana
+                      {banner.title || "EaseVote Ghana"}
                     </span>
                   </div>
                 </div>
@@ -147,7 +161,7 @@ const Hero = () => {
           <div className="flex justify-between items-center mt-6">
             <div className="flex gap-2">
               {Array.from({
-                length: Math.ceil(SLIDE_IMAGES.length / itemsPerView),
+                length: Math.ceil(displayBanners.length / itemsPerView),
               }).map((_, idx) => (
                 <button
                   key={idx}

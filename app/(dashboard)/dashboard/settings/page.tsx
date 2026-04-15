@@ -24,20 +24,6 @@ export default async function SettingsPage() {
 
   const config = [
     {
-      key: "payment_gateway",
-      label: "Active Payment Gateway",
-      description:
-        "Select the primary payment processor used to process payments platform-wide.",
-      type: "select",
-      value: getValue("payment_gateway", "paystack"),
-      options: [
-        { value: "paystack", label: "Paystack" },
-        { value: "flutterwave", label: "Flutterwave" },
-        { value: "appsmobile", label: "Apps & Mobile Setup" },
-      ],
-      icon: Settings,
-    },
-    {
       key: "maintenance_mode",
       label: "Maintenance Mode",
       description:
@@ -61,30 +47,6 @@ export default async function SettingsPage() {
       type: "boolean" as const,
       value: getValue("allow_signups", true),
       icon: UserPlus,
-    },
-    {
-      key: "ussd_provider",
-      label: "USSD Provider",
-      description: "Select the gateway used for processing USSD requests.",
-      type: "select",
-      value: getValue("ussd_provider", "nalo"),
-      options: [
-        { value: "nalo", label: "Nalo Solutions" },
-      ],
-      icon: Settings,
-    },
-    {
-      key: "ussd_payment_gateway",
-      label: "USSD Payment Gateway",
-      description: "Select the primary payment processor for USSD transactions.",
-      type: "select",
-      value: getValue("ussd_payment_gateway", "appsmobile"),
-      options: [
-        { value: "paystack", label: "Paystack" },
-        { value: "flutterwave", label: "Flutterwave" },
-        { value: "appsmobile", label: "Apps & Mobile (Default)" },
-      ],
-      icon: Settings,
     },
   ] as const;
 

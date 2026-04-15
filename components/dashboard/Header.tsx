@@ -29,8 +29,8 @@ type HeaderProps = {
 export function Header({ 
   user, 
   onMobileMenuToggle,
-  profileUrl = "#",
-  settingsUrl = "#"
+  profileUrl = "/dashboard/account",
+  settingsUrl = "/dashboard/settings"
 }: HeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);

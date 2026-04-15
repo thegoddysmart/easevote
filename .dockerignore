@@ -1,0 +1,27 @@
+node_modules
+.next
+dist
+build
+.env
+.env.local
+.env.*.local
+.vscode
+.idea
+pnpm-debug.log
+.git
+coverage
+*.log
+
+# debug/dev scripts and data dumps
+test_*.js
+check_*.js
+set_event_live.js
+extract_apis.js
+submit_search.js
+event_*.json
+api_audit.txt
+submit_search.txt
+
+# CI/docs
+.github
+*.md

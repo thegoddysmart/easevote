@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function SuperAdminPayoutsPage() {
   const session = await getServerSession(authOptions);
   const apiClient = createServerApiClient(session?.accessToken as string | undefined);
-  const payouts = await apiClient.get("/admin/payouts").catch(() => []);
+  const payouts = await apiClient.get("/payouts/admin/all").catch(() => []);
 
   return (
     <div className="space-y-6">

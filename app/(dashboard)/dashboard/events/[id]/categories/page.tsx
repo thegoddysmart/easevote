@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { CategoriesManager } from "@/app/components/events/CategoriesManager";
+import { CategoriesManager } from "@/components/events/CategoriesManager";
 
 export default function ManageCategoriesPage({
   params,

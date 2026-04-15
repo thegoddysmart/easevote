@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createServerApiClient } from "@/lib/api-client";
 import { notFound } from "next/navigation";
-import { AdminEventManager } from "@/app/components/events/AdminEventManager";
+import { AdminEventManager } from "@/components/events/AdminEventManager";
 
 export const dynamic = "force-dynamic";
 

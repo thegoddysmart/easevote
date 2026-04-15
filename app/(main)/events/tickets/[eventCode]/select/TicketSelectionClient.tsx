@@ -12,7 +12,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { TicketConfirmation } from "./TicketConfirmation";
-import { AppsnCheckoutModal } from "@/app/components/payment/AppsnCheckoutModal";
+import { AppsnCheckoutModal } from "@/components/payment/AppsnCheckoutModal";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api-client";

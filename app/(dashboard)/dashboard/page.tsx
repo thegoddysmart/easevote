@@ -23,7 +23,7 @@ export default async function DashboardPage() {
     const [usersRes, eventsRes, statsRes] = await Promise.allSettled([
       apiClient.get("/users"),
       apiClient.get("/events/admin/all?limit=200"),
-      apiClient.get("/admin/stats/transactions"),
+      apiClient.get("/admin/stats/revenue"),
     ]);
 
     // ── Users ──
@@ -38,11 +38,11 @@ export default async function DashboardPage() {
     const activeEvents = events.filter((e) => e.status === "LIVE" || e.status === "PUBLISHED" || e.status === "APPROVED").length;
 
     // ── Transaction Stats (New Source of Truth) ──
-    const statsRaw = statsRes.status === "fulfilled" ? statsRes.value : { data: { totalVolume: 0, netRevenue: 0 } };
-    const stats = statsRaw.data || statsRaw;
-
-    const totalRevenue = stats.totalVolume || 0;
-    const platformFee = stats.netRevenue || 0;
+    const statsRaw = statsRes.status === "fulfilled" ? statsRes.value : { data: {} };
+    const statsData = statsRaw.data || statsRaw || {};
+    
+    const totalRevenue = statsData.totalVolume || statsData.totalRevenue || 0;
+    const platformFee = statsData.netRevenue || statsData.netCommission || 0;
     const pendingPayouts = totalRevenue - platformFee;
 
     // ── Derive other stats from event data ──

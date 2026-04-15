@@ -17,7 +17,7 @@ export default async function AdminTransactionsPage() {
   const apiClient = createServerApiClient(session?.accessToken);
 
   const [statsRes, transactionsRes] = await Promise.all([
-    apiClient.get("/admin/stats/transactions").catch(() => ({
+    apiClient.get("/admin/stats/revenue").catch(() => ({
       data: {
         totalVolume: 0,
         netRevenue: 0,
@@ -29,7 +29,13 @@ export default async function AdminTransactionsPage() {
   ]);
 
   // Robust extraction for stats and transactions
-  const stats = statsRes.data || statsRes || { totalVolume: 0, netRevenue: 0, successRate: 0, pendingCount: 0 };
+  const rawStats = statsRes.data || statsRes || {};
+  const stats = {
+    totalVolume: rawStats.totalVolume || rawStats.totalRevenue || 0,
+    netRevenue: rawStats.netRevenue || rawStats.netCommission || 0,
+    successRate: rawStats.successRate || 0,
+    pendingCount: rawStats.pendingCount || 0
+  };
   const rawTransactions = transactionsRes.data || transactionsRes.purchases || (Array.isArray(transactionsRes) ? transactionsRes : []);
 
   // Map backend Purchase model to frontend Transaction UI type

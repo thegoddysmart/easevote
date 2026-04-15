@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { EventForm } from "@/app/components/events/EventForm";
+import { EventForm } from "@/components/events/EventForm";
 
 export default function EditEventPage({
   params,

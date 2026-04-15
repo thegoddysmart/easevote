@@ -13,6 +13,7 @@ import { createServerApiClient } from "@/lib/api-client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { PreviewBanner } from "@/components/preview/PreviewBanner";
+import { BackButton } from "@/components/ui/BackButton";
 
 export default async function TicketEventDetailPage({
   params,
@@ -34,7 +35,8 @@ export default async function TicketEventDetailPage({
     event = res?.data || res?.event || res;
   } else {
     // Lookup by short eventCode
-    const res = await apiClient.get<any>(`/events?eventCode=${eventCode}`).catch((err) => {
+    // We explicitly request several statuses to ensure the lookup finds APPROVED or ENDED events 
+    const res = await apiClient.get<any>(`/events?eventCode=${eventCode}&status=APPROVED,PUBLISHED,LIVE,ENDED`).catch((err) => {
       console.error(`[TicketEventPage] Error fetching code ${eventCode}:`, err.message);
       return null;
     });
@@ -52,7 +54,9 @@ export default async function TicketEventDetailPage({
   // Preview Mode Logic
   let showPreviewBanner = false;
 
-  if (event.status !== "LIVE") {
+  const isPubliclyVisible = ["LIVE", "PUBLISHED", "APPROVED", "ENDED"].includes(event.status);
+  
+  if (!isPubliclyVisible) {
     const session = await getServerSession(authOptions);
     const userRole = session?.user?.role;
     const organizerId = session?.user?.organizerId;
@@ -106,13 +110,8 @@ export default async function TicketEventDetailPage({
           />
           <div className="absolute inset-0 bg-linear-to-t from-primary-900 via-transparent to-transparent"></div>
           <div className="absolute inset-0 bg-linear-to-t from-primary-900 via-transparent to-transparent"></div>
-          <div className="absolute top-0 left-0 w-full p-6 z-20">
-            <Link
-              href="/events/ticketing"
-              className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-colors"
-            >
-              <ArrowLeft size={20} />
-            </Link>
+          <div className="absolute top-0 left-0 w-full p-6 z-30">
+            <BackButton fallback="/events/ticketing" />
           </div>
           <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 z-20">
             <div className="max-w-7xl mx-auto">

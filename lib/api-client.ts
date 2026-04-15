@@ -18,6 +18,7 @@ class ApiClient {
       ...options,
       headers: {
         "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
         ...(session?.accessToken && {
           Authorization: `Bearer ${session.accessToken}`,
         }),
@@ -120,9 +121,12 @@ export const api = new ApiClient();
  * Uses a provided JWT token instead of client-side session.
  */
 export function createServerApiClient(token?: string) {
-  const SERVER_API_BASE =
-    process.env.API_URL ||
-    "https://e-voting-and-ticketing-backend.onrender.com/api";
+  const RAW_SERVER_URL =
+    process.env.API_URL || process.env.NEXTAUTH_URL || "http://localhost:5000";
+
+  const SERVER_API_BASE = RAW_SERVER_URL.endsWith("/api")
+    ? RAW_SERVER_URL
+    : `${RAW_SERVER_URL}/api`;
 
   return {
     async request<T = any>(path: string, options?: RequestInit): Promise<T> {
@@ -130,6 +134,7 @@ export function createServerApiClient(token?: string) {
         ...options,
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
           ...(token && { Authorization: `Bearer ${token}` }),
           ...options?.headers,
         },

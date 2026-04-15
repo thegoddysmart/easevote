@@ -1,0 +1,1 @@
+import { createServerApiClient } from '../lib/api-client'; async function d() { const api = createServerApiClient(); const res = await api.get('/events?eventCode=B11F99&status=PUBLISHED'); console.log(JSON.stringify(res, null, 2)); } d();

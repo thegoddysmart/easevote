@@ -144,6 +144,7 @@ export interface Partner {
 
 export interface Event {
   id: string;
+  _id?: string;
   title: string;
   category:
     | "Awards"
@@ -172,6 +173,7 @@ export interface Event {
     | "CANCELLED"
     | "ARCHIVED";
   costPerVote?: number; // Price per single vote
+  votePrice?: number; // Alias for costPerVote/price
   minVotesPerPurchase?: number; // Minimum votes required in one transaction
   maxVotesPerPurchase?: number; // Maximum votes allowed in one transaction (optional)
   location?: string;

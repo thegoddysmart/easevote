@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
-const BACKEND_URL =
+const RAW_BACKEND_URL =
   process.env.API_URL ||
-  "https://e-voting-and-ticketing-backend.onrender.com/api";
+  process.env.NEXTAUTH_URL ||
+  "http://localhost:5000";
+
+// Ensure the URL has the /api prefix if it's missing
+const BACKEND_URL = RAW_BACKEND_URL.endsWith("/api")
+  ? RAW_BACKEND_URL
+  : `${RAW_BACKEND_URL}/api`;
 
 /**
  * Proxy route: /api/proxy/[...path]
  * Forwards requests from the browser (client components) to the real backend,
  * bypassing CORS since the request originates from the Next.js server.
- *
- * Auth endpoints like register, forgot-password, reset-password, verify-email
- * don't have a session token, so they must go through here rather than the
- * server-side api-client (which requires a token).
  */
 async function handler(
   req: NextRequest,
@@ -33,7 +35,10 @@ async function handler(
   }
 
   const { path } = await params;
-  const pathStr = path.join("/");
+  const pathStr = (path || []).join("/");
+
+  // LOUD LOGGING for debugging connectivity
+  console.log(`\n🚀 [Proxy] ${req.method} request received for: /${pathStr}`);
   const backendUrl = `${BACKEND_URL}/${pathStr}`;
 
   // Forward query params if any
@@ -50,8 +55,7 @@ async function handler(
   }
 
   // Forward Authorization header if present
-  const auth =
-    req.headers.get("Authorization") || req.headers.get("authorization");
+  const auth = req.headers.get("Authorization") || req.headers.get("authorization");
   if (auth) headers["Authorization"] = auth;
 
   let body: ArrayBuffer | undefined;
@@ -66,13 +70,6 @@ async function handler(
   try {
     if (process.env.NODE_ENV !== "production") {
       console.log(`[Proxy] Forwarding ${req.method} to ${targetUrl}`);
-      console.log(
-        `[Proxy] Headers sent:`,
-        Object.keys(headers).map(
-          (k) =>
-            `${k}: ${k.toLowerCase() === "authorization" ? "Bearer [HIDDEN]" : headers[k]}`,
-        ),
-      );
     }
 
     const backendRes = await fetch(targetUrl, {

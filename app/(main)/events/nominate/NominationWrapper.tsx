@@ -35,8 +35,42 @@ export default function NominationWrapper({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // File Upload State (Simulated for now, would be S3/UploadThing in prod)
   const [photoUrl, setPhotoUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size is too large (max 5MB)");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("folder", "nominations");
+
+      const response = await api.uploadFormData<{ url: string; success: boolean }>(
+        "/upload/image",
+        formData
+      );
+
+      if (response.success || response.url) {
+        setPhotoUrl(response.url);
+        toast.success("Photo uploaded successfully");
+      } else {
+        toast.error("Upload failed");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload photo");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const {
     register,
@@ -130,7 +164,7 @@ export default function NominationWrapper({
           </div>
         )}
         <button
-          onClick={() => (window.location.href = `/events/${event.eventCode}`)}
+          onClick={() => (window.location.href = `/events/${event.id}`)}
           className="bg-primary-600 text-white px-8 py-3 rounded-full font-bold hover:bg-primary-700 transition-colors"
         >
           Return to Event
@@ -341,9 +375,16 @@ export default function NominationWrapper({
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     Nominee Photo *
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={isUploading}
+                    />
                     {photoUrl ? (
-                      <div className="space-y-2">
+                      <div className="space-y-2 relative z-10">
                         <div className="relative w-32 h-32 mx-auto rounded-xl overflow-hidden shadow-sm">
                           <Image
                             src={photoUrl}
@@ -362,29 +403,28 @@ export default function NominationWrapper({
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <UploadCloud
-                          className="mx-auto text-gray-400"
-                          size={40}
-                        />
-                        <p className="text-sm text-gray-500">
-                          <span
-                            className="text-magenta-600 font-bold cursor-pointer"
-                            onClick={() => {
-                              // Simulate upload for now by setting a dummy URL or prompt
-                              const url = prompt(
-                                "Enter image URL for testing (Simulated Upload):",
-                                "https://via.placeholder.com/300"
-                              );
-                              if (url) setPhotoUrl(url);
-                            }}
-                          >
-                            Click to upload
-                          </span>{" "}
-                          or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          SVG, PNG, JPG or GIF (max. 5MB)
-                        </p>
+                        {isUploading ? (
+                          <div className="py-4">
+                            <Loader2 className="mx-auto text-magenta-600 animate-spin" size={32} />
+                            <p className="text-sm text-gray-500 mt-2">Uploading...</p>
+                          </div>
+                        ) : (
+                          <>
+                            <UploadCloud
+                              className="mx-auto text-gray-400"
+                              size={40}
+                            />
+                            <p className="text-sm text-gray-500">
+                              <span className="text-magenta-600 font-bold">
+                                Click to upload
+                              </span>{" "}
+                              or drag and drop
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              SVG, PNG, JPG or GIF (max. 5MB)
+                            </p>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>

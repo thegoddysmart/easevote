@@ -1,13 +1,14 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error("NEXTAUTH_SECRET environment variable is required");
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === "production") {
+  throw new Error("NEXTAUTH_SECRET environment variable is required in production");
 }
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "development-secret-only";
 
 const API_URL =
   process.env.API_URL ||
-  "https://e-voting-and-ticketing-backend.onrender.com/api";
+  (process.env.NEXTAUTH_URL ? `${process.env.NEXTAUTH_URL}/api` : "https://e-voting-and-ticketing-backend.onrender.com/api");
 
 declare module "next-auth" {
   interface Session {
@@ -139,7 +140,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 24 * 60 * 60,
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: NEXTAUTH_SECRET,
 };
 
 export function getRoleRedirectPath(role: string): string {

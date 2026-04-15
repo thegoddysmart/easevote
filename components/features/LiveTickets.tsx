@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { russoOne } from "../ui/fonts";
 import SearchBar from "../ui/SearchBar";
+import { getEventStatus } from "@/lib/utils/event-status";
+
 export default function LiveTickets({ events }: { events: any[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -97,7 +99,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {paginatedTickets.map((ticket) => (
             <div
-              key={ticket.id}
+              key={ticket._id || ticket.id || ticket.eventCode}
               className="group relative bg-slate-900 rounded-2xl overflow-hidden hover:transform hover:scale-[1.02] transition-all duration-300 shadow-2xl shadow-black/50 flex flex-col"
               style={{
                 clipPath:
@@ -106,21 +108,32 @@ export default function LiveTickets({ events }: { events: any[] }) {
             >
               {/* Image Section */}
               <div className="relative h-48 bg-gray-800">
-                <img
-                  src={
-                    ticket.imageUrl ||
-                    ticket.coverImage ||
-                    ticket.image ||
-                    "https://images.unsplash.com/photo-1540039155733-d730a53bf30c?q=80&w=2667&auto=format&fit=crop"
-                  }
-                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                  alt={ticket.title}
-                />
-                {ticket.ticketTypes && ticket.ticketTypes.length > 0 && (
-                  <div className="absolute top-4 right-4 bg-brand-bright text-white text-sm font-bold pl-3 px-3 py-1 rounded-md font-bold text-sm">
-                    GHS {ticket.ticketTypes[0].price}.00
+                  <img
+                    src={
+                      ticket.imageUrl ||
+                      ticket.coverImage ||
+                      ticket.image ||
+                      "https://images.unsplash.com/photo-1540039155733-d730a53bf30c?q=80&w=2667&auto=format&fit=crop"
+                    }
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    alt={ticket.title}
+                  />
+                  
+                  <div className="absolute top-4 left-4 flex gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm text-white ${
+                        getEventStatus(ticket).color
+                      } ${getEventStatus(ticket).isActive ? "animate-pulse" : ""}`}
+                    >
+                      {getEventStatus(ticket).label}
+                    </span>
                   </div>
-                )}
+
+                  {ticket.ticketTypes && ticket.ticketTypes.length > 0 && (
+                    <div className="absolute top-4 right-4 bg-brand-bright text-white text-sm font-bold pl-3 px-3 py-1 rounded-md font-bold text-sm">
+                      GHS {ticket.ticketTypes[0].price}.00
+                    </div>
+                  )}
               </div>
 
               {/* Stub Details - The "Rip-off" effect using a border-dashed line */}
@@ -147,7 +160,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
                   </div>
 
                   <Link
-                    href={`/events/tickets/${ticket.eventCode}`}
+                    href={`/events/tickets/${ticket._id || ticket.id}`}
                     className="w-full py-3 bg-secondary-700 text-white! font-bold rounded-lg hover:bg-primary-800 transition-colors flex items-center justify-center group/btn"
                   >
                     Get Tickets

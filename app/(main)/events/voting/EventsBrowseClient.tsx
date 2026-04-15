@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { getEventStatus } from "@/lib/utils/event-status";
 
 interface ClientEvent {
   id: string;
@@ -24,6 +25,12 @@ interface ClientEvent {
   status: string;
   location: string;
   votePrice?: number;
+  votingStartsAt?: string;
+  votingEndsAt?: string;
+  nominationStartsAt?: string;
+  nominationEndsAt?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 interface EventsBrowseClientProps {
@@ -42,6 +49,14 @@ export default function EventsBrowseClient({
     window.scrollTo(0, 0);
   }, []);
 
+  // Dynamically extract unique categories from events
+  const categoriesSet = new Set<string>();
+  categoriesSet.add("All");
+  initialEvents.forEach((e) => {
+    if (e.category) categoriesSet.add(e.category);
+  });
+  const categories = Array.from(categoriesSet);
+
   /**
    * ---------------------------------------------------------------------
    * FILTER LOGIC
@@ -52,10 +67,12 @@ export default function EventsBrowseClient({
       e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.eventCode?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = statusFilter === "All" || e.status === statusFilter;
+    const statusInfo = getEventStatus(e as any);
+    const matchesStatus = 
+      statusFilter === "All" || 
+      statusFilter === statusInfo.label.toUpperCase() ||
+      (statusFilter === "LIVE" && statusInfo.isActive);
 
-    // Use metadata category or type? The mapped data should handle this.
-    // Assuming 'category' field is populated with "Awards", "School" etc.
     const matchesCategory =
       categoryFilter === "All" || e.category === categoryFilter;
 
@@ -107,8 +124,7 @@ export default function EventsBrowseClient({
               <option value="All">All Status</option>
               <option value="LIVE">Live Now</option>
               <option value="UPCOMING">Upcoming</option>
-              {/* Database uses LIVE, PENDING_REVIEW (upcoming?), ENDED */}
-              <option value="ENDED">Ended</option>
+              <option value="CONCLUDED">Concluded</option>
             </select>
 
             <select
@@ -118,13 +134,9 @@ export default function EventsBrowseClient({
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-slate-700 font-medium focus:outline-none focus:border-magenta-500 cursor-pointer hover:bg-gray-50"
             >
-              <option value="All">All Categories</option>
-              {/* We might want to make these dynamic from DB later, but hardcoded for now matches current UI */}
-              <option value="Awards">Awards</option>
-              <option value="Pageantry">Pageantry</option>
-              <option value="School">School Elections</option>
-              <option value="Sports">Sports</option>
-              <option value="Tech">Tech</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
+              ))}
             </select>
           </div>
 
@@ -169,14 +181,13 @@ export default function EventsBrowseClient({
             {filteredEvents.map((event) => (
               <Link
                 key={event.id}
-                href={`/events/${event.eventCode}`}
+                href={`/events/${event.id}`}
                 className={`group bg-white rounded-[2rem] border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer ${
                   viewMode === "list"
                     ? "flex flex-row min-h-[14rem] items-stretch"
                     : "flex flex-col"
                 }`}
               >
-                {/* Image */}
                 <div
                   className={`relative overflow-hidden bg-gray-100 ${
                     viewMode === "list"
@@ -192,13 +203,11 @@ export default function EventsBrowseClient({
 
                   <div className="absolute top-3 left-3 flex gap-2">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm ${
-                        event.status === "LIVE"
-                          ? "bg-red-500 text-white animate-pulse"
-                          : "bg-slate-800 text-white"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm text-white ${
+                        getEventStatus(event as any).color
+                      } ${getEventStatus(event as any).isActive ? "animate-pulse" : ""}`}
                     >
-                      {event.status}
+                      {getEventStatus(event as any).label}
                     </span>
                   </div>
                 </div>

@@ -169,7 +169,7 @@ export function DataTable<T extends { id: string | number }>({
             ) : (
               currentData.map((item) => (
                 <tr
-                  key={item.id}
+                  key={item.id || (item as any)._id}
                   className={clsx(
                     "hover:bg-slate-50 transition-colors",
                     onRowClick && "cursor-pointer",

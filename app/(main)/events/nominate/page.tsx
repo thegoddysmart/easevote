@@ -24,7 +24,7 @@ export default async function NominationPage({ searchParams }: PageProps) {
     event = await apiClient.get<any>(`/events/${eventCode}`).catch(() => null);
   } else {
     // Lookup by short eventCode
-    // The backend sometimes returns all events for this query, so we must manually filter
+    // The backend now handles natural filtering, so we just pass the code.
     const res = await apiClient.get<any>(`/events?eventCode=${eventCode}`).catch(() => null);
     const eventsList = res?.data || res?.events || (Array.isArray(res) ? res : []);
     

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Event, Candidate } from "@/types";
+import { Event as EventData, Candidate } from "@/types";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Share2, Check, Copy, Loader2 } from "lucide-react";
 import { api } from "@/lib/api-client";
 
 interface VoteClientProps {
-  event: Event;
+  event: EventData;
   candidate: Candidate;
 }
 
@@ -199,7 +199,7 @@ export default function VoteClient({ event, candidate }: VoteClientProps) {
           ) : (
             <>
               <Link
-                href={`/events/${event.eventCode}`}
+                href={`/events/${(event as any).eventCode}`}
             className="absolute top-6 left-8 md:left-12 flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-primary-700 transition-colors"
           >
             <ArrowLeft size={18} /> Back

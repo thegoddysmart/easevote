@@ -1,0 +1,1 @@
+import { createServerApiClient } from '../lib/api-client'; async function d() { const api = createServerApiClient(); const res = await api.get('/events?eventCode=A953A6'); console.log('Live Event Natural Lookup:', JSON.stringify(res, null, 2)); } d();

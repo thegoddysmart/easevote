@@ -17,8 +17,8 @@ export default async function TicketSelectionPage({
     event = await apiClient.get<any>(`/events/${eventCode}`).catch(() => null);
   } else {
     // Lookup by short eventCode
-    // The backend sometimes returns all events for this query, so we must manually filter
-    const res = await apiClient.get<any>(`/events?eventCode=${eventCode}`).catch(() => null);
+    // We explicitly request several statuses to ensure the lookup finds APPROVED or ENDED events 
+    const res = await apiClient.get<any>(`/events?eventCode=${eventCode}&status=APPROVED,PUBLISHED,LIVE,ENDED`).catch(() => null);
     const eventsList = res?.data || res?.events || (Array.isArray(res) ? res : []);
     
     if (Array.isArray(eventsList)) {
@@ -31,7 +31,7 @@ export default async function TicketSelectionPage({
   if (!event) return notFound();
 
   const pageEvent = {
-    id: event.id,
+    id: event.id || event._id,
     title: event.title,
     eventCode: event.eventCode,
     image: event.coverImage || "/placeholder-event.jpg",
@@ -50,7 +50,7 @@ export default async function TicketSelectionPage({
     organizer: event.organizer?.businessName || event.organizer?.user?.name || "Organizer",
     description: event.description || "",
     ticketTypes: (event.ticketTypes || []).map((t: any) => ({
-      id: t.id,
+      id: t.id || t._id,
       name: t.name,
       price: Number(t.price),
       available: t.available ?? (t.quantity - t.soldCount),

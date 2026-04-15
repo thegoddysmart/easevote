@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import TicketConfirmClient from "./TicketConfirmClient";
 import { createServerApiClient } from "@/lib/api-client";
+import { Loader2 } from "lucide-react";
 
 export default async function TicketConfirmPage({
   params,
@@ -16,14 +17,28 @@ export default async function TicketConfirmPage({
   const apiClient = createServerApiClient();
 
   try {
-    // We poll this continuously via client, but doing a server initial fetch validates earlier UI paints
-    const result = await apiClient.get<any>(`/purchases/verify/${reference}`);
+    const res = await apiClient.get<any>(`/purchases/verify/${reference}`).catch(() => null);
+    const transaction = res?.data || res?.purchase || res;
+
+    // Auto-Correction: If this was actually a vote, redirect to the vote confirmation
+    if (transaction && transaction.type === "VOTE") {
+      const redirectUrl = `/vote/confirm/${reference}`;
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="animate-spin text-indigo-600 mb-4 mx-auto" size={32} />
+            <p className="text-slate-500 font-medium">Redirecting to vote confirmation...</p>
+            <meta httpEquiv="refresh" content={`0;url=${redirectUrl}`} />
+          </div>
+        </div>
+      );
+    }
 
     return (
       <TicketConfirmClient
         reference={reference}
-        initialStatus={result.data?.status || "PENDING"}
-        initialData={result.data}
+        initialStatus={ (transaction?.status === "PAID" || transaction?.status === "SUCCESS") ? "SUCCESS" : (transaction?.status || "PENDING") }
+        initialData={transaction}
       />
     );
   } catch (error) {

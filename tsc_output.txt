@@ -1,0 +1,4 @@
+app/(main)/events/[eventCode]/EventStatusNotification.tsx(228,3): error TS1005: ',' expected.
+app/(main)/events/[eventCode]/EventStatusNotification.tsx(228,4): error TS1128: Declaration or statement expected.
+app/(main)/events/[eventCode]/EventStatusNotification.tsx(228,21): error TS1005: ';' expected.
+app/(main)/events/[eventCode]/EventStatusNotification.tsx(271,1): error TS1128: Declaration or statement expected.

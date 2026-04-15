@@ -39,12 +39,28 @@ export default function LiveEvents({ events }: { events: any[] }) {
     setCurrentPage(1);
   };
 
-  const filters = ["All", "Awards", "Pageantry", "School"];
+  // Dynamically extract unique categories from events
+  const filtersSet = new Set<string>();
+  filtersSet.add("All");
+  (events || []).forEach((e) => {
+    if (e.categories && Array.isArray(e.categories)) {
+      e.categories.forEach((cat: any) => {
+        if (cat.name) filtersSet.add(cat.name);
+      });
+    } else if (e.category) {
+      filtersSet.add(e.category);
+    } else if (e.type) {
+      filtersSet.add(e.type);
+    }
+  });
+  const filters = Array.from(filtersSet);
 
   const filteredEvents = (events || []).filter((e) => {
     const matchCategory =
       filter === "All" ||
-      (e.categories && e.categories.some((c: any) => c.name === filter));
+      (e.categories && e.categories.some((c: any) => c.name === filter)) ||
+      e.category === filter ||
+      e.type === filter;
     const matchSearch = e.title.toLowerCase().includes(search.toLowerCase());
     return matchCategory && matchSearch;
   });

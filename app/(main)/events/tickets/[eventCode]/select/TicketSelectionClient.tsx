@@ -15,6 +15,7 @@ import { TicketConfirmation } from "./TicketConfirmation";
 import { AppsnCheckoutModal } from "@/app/components/payment/AppsnCheckoutModal";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { api } from "@/lib/api-client";
 
 interface TicketSelectionProps {
   event: any; // Using real Prisma type passed from server
@@ -29,7 +30,6 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
     "select"
   );
   const [isProcessing, setIsProcessing] = useState(false);
-  const [transactionId, setTransactionId] = useState<string>("");
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [paymentRef, setPaymentRef] = useState<string>("");
 
@@ -62,30 +62,59 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
 
     // Find the selected ticket type
     const selectedTierId = Object.keys(cart).find((id) => cart[id] > 0);
-    if (!selectedTierId) return;
+    if (!selectedTierId) {
+      setIsProcessing(false);
+      return;
+    }
+    
+    const selectedTier = tiers.find((t: any) => t.id === selectedTierId);
 
     try {
-      const res = await fetch("/api/tickets/purchase", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          eventId: event.id,
-          ticketTypeId: selectedTierId,
-          quantity: cart[selectedTierId],
-          voterName: formData.name,
-          voterPhone: formData.phone,
-          voterEmail: formData.email,
-        }),
-      });
+      const payload = {
+        eventId: event.id,
+        ticketTypeId: selectedTierId,
+        customerName: formData.name,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
+        quantity: cart[selectedTierId],
+      };
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to initiate purchase");
+      console.log("[TicketSelectionClient] Initializing ticket purchase:", payload);
 
-      setPaymentRef(data.transactionRef);
-      setShowCheckoutModal(true);
+      const res = await api.post("/purchases/tickets/initialize", payload);
+      
+      // Handle both standard envelope {success, data} and direct responses {purchase, paymentUrl, ...}
+      const resultData = res.data || res;
+      const success = res.success === true || resultData.success === true || !!(resultData.paymentUrl || resultData.authorizationUrl || resultData.authorization_url || resultData.reference);
+
+      if (success) {
+        // Support all variations of naming across services/gateways
+        const authUrl = resultData.authorization_url || resultData.authorizationUrl || resultData.payment_url || resultData.paymentUrl;
+        const ref = resultData.reference || resultData.transaction_ref || resultData.transactionRef;
+        const gateway = resultData.gateway;
+
+        // APPSN simulated intercept
+        if (
+          (gateway === "APPSN" && authUrl && authUrl.includes("appsn")) ||
+          (ref && ref.startsWith("TICKET-"))
+        ) {
+          setPaymentRef(ref);
+          setShowCheckoutModal(true);
+          return;
+        }
+
+        // External Gateway Redirect
+        if (authUrl) {
+          window.location.href = authUrl;
+        } else if (ref) {
+          router.push(`/tickets/confirm/${ref}`);
+        }
+      } else {
+        throw new Error(resultData.message || res.message || "Failed to initiate purchase");
+      }
     } catch (err: any) {
-      toast.error(err.message);
-      console.error(err);
+      console.error("Ticket purchase error:", err);
+      toast.error(err.message || "An unexpected error occurred");
     } finally {
       setIsProcessing(false);
     }
@@ -106,7 +135,7 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <button
-            onClick={() => router.push(`/events/tickets/${event.eventCode}`)}
+            onClick={() => router.push(`/events/tickets/${event.id}`)}
             className="text-slate-500 font-bold hover:text-slate-900"
           >
             Cancel
@@ -225,7 +254,7 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
                   </div>
                   <div>
                     <label className="text-sm font-bold text-slate-700">
-                      Phone Number (MoMo)
+                      Phone Number
                     </label>
                     <div className="relative mt-1">
                       <Smartphone

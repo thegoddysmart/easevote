@@ -23,11 +23,14 @@ import CountUp from "react-countup";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TicketCheckoutModal } from "@/components/features/checkout/TicketCheckoutModal";
+import { getEventStatus } from "@/lib/utils/event-status";
 
 interface EventDetailProps {
   event: any;
   onNominate?: (event: any) => void;
 }
+
+import { BackButton } from "@/components/ui/BackButton";
 
 /* -------------------------------------------------------------------------- */
 /* COMPONENT                                                                   */
@@ -39,7 +42,11 @@ export default function EventDetailClient({
 }: EventDetailProps) {
   const [activeTab, setActiveTab] = useState<
     "vote" | "tickets" | "overview" | "results"
-  >(event.type === "TICKETING" ? "tickets" : "vote");
+  >(() => {
+    const status = getEventStatus(event);
+    if (status.phase === "ENDED") return "results";
+    return event.type === "TICKETING" ? "tickets" : "vote";
+  });
   const router = useRouter();
 
   const [votingStep, setVotingStep] = useState<"categories" | "nominees">(
@@ -62,7 +69,8 @@ export default function EventDetailClient({
 
   // Polling for Results
   useEffect(() => {
-    if (activeTab !== "results" || !event.showLiveResults) return;
+    const status = getEventStatus(event);
+    if (activeTab !== "results" || !event.showLiveResults || status.phase === "ENDED") return;
 
     const fetchResults = async () => {
       try {
@@ -138,12 +146,12 @@ export default function EventDetailClient({
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 relative z-10">
-          <Link
-            href="/events/voting"
+          <button
+            onClick={() => window.history.length > 2 ? router.back() : router.push("/events/voting")}
             className="flex items-center gap-2 text-white/70 hover:text-white mb-8 transition-colors"
           >
             <ArrowLeft size={20} /> Back to Events
-          </Link>
+          </button>
 
           <div className="flex flex-col md:flex-row gap-8 items-end">
             <div className="w-32 h-32 md:w-48 md:h-48 rounded-2xl overflow-hidden border-4 border-white/10 shadow-2xl shrink-0 bg-slate-800">
@@ -156,11 +164,11 @@ export default function EventDetailClient({
 
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-3 mb-3">
-                <span className="px-3 py-1 rounded-full bg-magenta-600 text-xs font-bold uppercase tracking-wide">
-                  {event.status}
+                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide text-white ${getEventStatus(event).color}`}>
+                  {getEventStatus(event).label}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-bold uppercase tracking-wide">
-                  {event.category}
+                  {event.type}
                 </span>
               </div>
               <h1 className="text-3xl text-white! md:text-5xl font-display font-bold mb-4">
@@ -179,8 +187,7 @@ export default function EventDetailClient({
                   </div>
                 )}
                 {(event.timelineEnd ||
-                  event.status === "LIVE" ||
-                  event.status === "PUBLISHED") && (
+                  getEventStatus(event).isActive) && (
                   <div className="flex items-center gap-2">
                     <Clock size={18} className="text-secondary-700" />
                     {event.timelineEnd ? (
@@ -243,14 +250,17 @@ export default function EventDetailClient({
           <div className="flex space-x-8">
             {[
               ...(event.type === "VOTING" || event.type === "HYBRID"
-                ? [{ id: "vote", label: "Vote", icon: Trophy }]
+                ? getEventStatus(event).phase !== "ENDED" 
+                  ? [{ id: "vote", label: "Vote", icon: Trophy }]
+                  : []
                 : []),
               ...(event.type === "TICKETING" || event.type === "HYBRID"
                 ? [{ id: "tickets", label: "Tickets", icon: Ticket }]
                 : []),
-              // Show Results tab only if showLiveResults is TRUE
-              ...(event.showLiveResults
-                ? [{ id: "results", label: "Results", icon: Trophy }]
+              // Show Results tab for all Voting/Hybrid events
+              // Prioritize it if ended or if live results are explicitly enabled
+              ...(event.type === "VOTING" || event.type === "HYBRID" 
+                ? [{ id: "results", label: "Results", icon: Trophy }] 
                 : []),
               { id: "overview", label: "About", icon: Info },
             ].map((tab) => (
@@ -293,16 +303,28 @@ export default function EventDetailClient({
                     </div>
                     
                     {/* Phase Indicator */}
-                    <div className={`px-4 py-2 rounded-2xl border flex items-center gap-2 self-start sm:self-center ${
-                      event.isVotingOpen 
-                        ? "bg-green-50 border-green-100 text-green-700" 
-                        : "bg-amber-50 border-amber-100 text-amber-700"
-                    }`}>
-                      <span className={`w-2 h-2 rounded-full ${event.isVotingOpen ? "bg-green-500 animate-pulse" : "bg-amber-500"}`}></span>
-                      <span className="text-xs font-bold uppercase tracking-wider">
-                        {event.isVotingOpen ? "Voting is Live" : "Voting Starting Soon"}
-                      </span>
-                    </div>
+                    {(() => {
+                      const status = getEventStatus(event);
+                      return (
+                        <div className={`px-4 py-2 rounded-2xl border flex items-center gap-2 self-start sm:self-center ${
+                          status.isActive 
+                            ? (status.phase === "VOTING" ? "bg-green-50 border-green-100 text-green-700" : "bg-blue-50 border-blue-100 text-blue-700")
+                            : "bg-slate-50 border-slate-100 text-slate-700"
+                        }`}>
+                          <span className={`w-2 h-2 rounded-full ${
+                            status.phase === "VOTING" ? "bg-green-500 animate-pulse" : 
+                            status.phase === "NOMINATION" ? "bg-blue-500" : 
+                            "bg-slate-400"
+                          }`}></span>
+                          <span className="text-xs font-bold uppercase tracking-wider">
+                            {status.phase === "VOTING" ? "Voting is Live" : 
+                             status.phase === "NOMINATION" ? "Nominations Open" : 
+                             status.phase === "ENDED" ? "Voting Ended" : 
+                             "Voting Starting Soon"}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -405,12 +427,18 @@ export default function EventDetailClient({
                             </div>
                           )}
 
-                          <Link
-                            href={`/events/${event.eventCode}/vote/${candidate._id || candidate.id}`}
-                            className="mt-auto w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-lg shadow-slate-900/20 group-hover:shadow-primary-300/30 flex items-center justify-center"
-                          >
-                            Vote
-                          </Link>
+                          {getEventStatus(event).phase === "ENDED" ? (
+                            <div className="mt-auto w-full bg-slate-200 text-slate-500 py-3 rounded-xl font-bold text-center cursor-not-allowed">
+                              Voting Closed
+                            </div>
+                          ) : (
+                            <Link
+                              href={`/events/${event.eventCode}/vote/${candidate._id || candidate.id}`}
+                              className="mt-auto w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-lg shadow-slate-900/20 group-hover:shadow-primary-300/30 flex items-center justify-center"
+                            >
+                              Vote
+                            </Link>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -493,11 +521,10 @@ export default function EventDetailClient({
           )}
 
         {/* ---------------- RESULTS TAB ---------------- */}
-        {/* ---------------- RESULTS TAB ---------------- */}
-        {activeTab === "results" && event.showLiveResults && (
+        {activeTab === "results" && (
           <div className="max-w-4xl mx-auto">
               <div className="text-center mb-10 relative">
-                {isResultsForbidden ? (
+                {isResultsForbidden && getEventStatus(event).phase !== "ENDED" ? (
                   <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl">
                     <Trophy className="w-12 h-12 text-amber-500 mx-auto mb-4" />
                     <h2 className="text-xl font-bold text-amber-900 mb-2">Results are Hidden</h2>
@@ -507,15 +534,20 @@ export default function EventDetailClient({
                   </div>
                 ) : (
                   <>
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full">
-                      <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-ping"></span>
-                      <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Refreshing Live</span>
-                    </div>
+                    {getEventStatus(event).phase !== "ENDED" && (
+                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full">
+                        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-ping"></span>
+                        <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Refreshing Live</span>
+                      </div>
+                    )}
                     <h2 className="text-3xl font-bold font-display text-slate-900 mb-2">
-                      Live Results
+                      {getEventStatus(event).phase === "ENDED" ? "Final Results" : "Live Results"}
                     </h2>
                     <p className="text-slate-500">
-                      Top performing candidates across all categories.
+                      {getEventStatus(event).phase === "ENDED" 
+                        ? "Official final tallies for all categories." 
+                        : "Top performing candidates across all categories."
+                      }
                     </p>
                   </>
                 )}

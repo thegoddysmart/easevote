@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
 import { createServerApiClient } from "@/lib/api-client";
-import { notFound } from "next/navigation";
 
 import VoteVerifyPolling from "./VoteVerifyPolling";
 
@@ -17,7 +16,21 @@ export default async function VoteConfirmationPage({
   const res = await apiClient.get<any>(`/purchases/verify/${transactionRef}`).catch(() => null);
   const transaction = res?.data || res?.purchase || res;
 
-  const isSuccess = transaction?.status === "SUCCESS" || transaction?.status === "COMPLETED";
+  const isSuccess = transaction?.status === "PAID" || transaction?.status === "SUCCESS" || transaction?.status === "COMPLETED";
+
+  // Auto-Correction: If this was actually a ticket, redirect to the ticket confirmation
+  if (transaction && transaction.type === "TICKET") {
+    const redirectUrl = `/tickets/confirm/${transactionRef}`;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="animate-spin text-indigo-600 mb-4 mx-auto" size={32} />
+          <p className="text-slate-500 font-medium">Redirecting to ticket confirmation...</p>
+          <meta httpEquiv="refresh" content={`0;url=${redirectUrl}`} />
+        </div>
+      </div>
+    );
+  }
 
   if (!transaction || !isSuccess) {
     return (
@@ -56,53 +69,30 @@ export default async function VoteConfirmationPage({
       </div>
       <h1 className="text-4xl font-display font-bold text-slate-900 mb-3 tracking-tight">Vote Successful!</h1>
       <p className="text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed">
-        You have successfully cast your support for <span className="font-bold text-primary-700">{meta.candidateName}</span>. Your contribution has been recorded in real-time.
+        You have successfully cast your support for <span className="font-bold text-primary-700">{meta.candidateName || 'your selected candidate'}</span>. Your contribution has been recorded in real-time.
       </p>
 
-      <div className="bg-white border border-slate-100 rounded-2xl p-6 mb-8 w-full max-w-sm shadow-sm">
+      <div className="bg-white border border-slate-100 rounded-2xl p-6 mb-8 w-full max-w-sm shadow-sm mx-auto">
         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 text-left">Transaction Details</p>
         <div className="space-y-3">
-          <div className="flex justify-between items-center text-sm">
+          <div className="flex justify-between items-center text-sm text-left">
             <span className="text-slate-500">Amount Paid</span>
             <span className="font-bold text-slate-900">GHS {Number(transaction.amount).toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center text-sm">
+          <div className="flex justify-between items-center text-sm text-left">
             <span className="text-slate-500">Votes Cast</span>
             <span className="font-bold text-slate-900">{meta.quantity || 1}</span>
           </div>
-          <div className="flex justify-between items-center pt-3 border-t border-slate-50">
+          <div className="flex justify-between items-center pt-3 border-t border-slate-50 text-left">
             <span className="text-[10px] font-bold text-slate-400 uppercase">Reference</span>
             <span className="font-mono text-[11px] text-slate-600 select-all">{transaction.reference}</span>
           </div>
         </div>
       </div>
 
-      {/* Share Section */}
-      <div className="mb-10">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Every share helps your candidate!</p>
-        <div className="flex items-center justify-center gap-3">
-          <a 
-            href={`https://wa.me/?text=${encodeURIComponent(`I just voted for ${meta.candidateName} in ${meta.eventName || 'the event'}! Support them too! ${process.env.NEXT_PUBLIC_BASE_URL || 'https://easevotegh.com'}/events/${transaction.eventCode}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white rounded-full text-sm font-bold hover:shadow-lg transition-all active:scale-95"
-          >
-            Share on WhatsApp
-          </a>
-          <a 
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`I just voted for ${meta.candidateName} in ${meta.eventName || 'the event'}! Support them too!`)}&url=${encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://easevotegh.com'}/events/${transaction.eventCode}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white rounded-full text-sm font-bold hover:shadow-lg transition-all active:scale-95"
-          >
-            Twitter
-          </a>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3 w-full max-w-xs">
+      <div className="flex flex-col gap-3 w-full max-w-xs mx-auto">
         <Link
-          href={`/events/${transaction.eventCode}`}
+          href={`/events/${transaction.eventCode}?tab=results`}
           className="w-full py-4 bg-primary-900 text-white rounded-2xl font-bold hover:bg-primary-800 transition shadow-lg shadow-primary-900/10"
         >
           View Live Leaderboard
@@ -111,7 +101,7 @@ export default async function VoteConfirmationPage({
           href="/events/voting"
           className="w-full py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl font-bold hover:bg-slate-50 transition"
         >
-          Return to Events
+          View Other Events
         </Link>
       </div>
     </div>

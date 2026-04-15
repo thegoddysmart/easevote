@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { getEventStatus } from "@/lib/utils/event-status";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +14,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+
 interface EventStatusNotificationProps {
   event: {
     eventCode: string;
@@ -20,8 +22,12 @@ interface EventStatusNotificationProps {
     isVotingOpen: boolean;
     nominationStartsAt?: Date | string | null;
     nominationEndsAt?: Date | string | null;
+    nominationStartTime?: Date | string | null;
+    nominationEndTime?: Date | string | null;
     votingStartsAt?: Date | string | null;
     votingEndsAt?: Date | string | null;
+    votingStartTime?: Date | string | null;
+    votingEndTime?: Date | string | null;
     title: string;
   };
 }
@@ -39,6 +45,7 @@ export default function EventStatusNotification({
   } | null>(null);
 
   const router = useRouter();
+  const now = new Date();
 
   useEffect(() => {
     // Determine the status and content
@@ -53,7 +60,10 @@ export default function EventStatusNotification({
 
     if (hasSeenModal) return;
 
-    if (event.isVotingOpen) {
+    const statusInfo = getEventStatus(event as any);
+    const { phase, isVotingOpen, isNominationOpen } = statusInfo;
+
+    if (isVotingOpen) {
       setModalContent({
         title: "Voting is Live! 🗳️",
         description: `Cast your vote for your favorite candidates in ${event.title}. Voting is currently open and active.`,
@@ -77,7 +87,6 @@ export default function EventStatusNotification({
         ),
         actionLabel: "Vote Now",
         action: () => {
-          // Scroll to categories or just close to let them browse
           const element = document.getElementById("categories-section");
           if (element) {
             element.scrollIntoView({ behavior: "smooth" });
@@ -86,7 +95,7 @@ export default function EventStatusNotification({
         },
       });
       setIsOpen(true);
-    } else if (event.isNominationOpen) {
+    } else if (isNominationOpen) {
       setModalContent({
         title: "Nominations are Open! 📝",
         description: `We are currently accepting nominations for ${event.title}. Do you know someone who deserves this award?`,
@@ -116,22 +125,16 @@ export default function EventStatusNotification({
         },
       });
       setIsOpen(true);
-    } else {
-      // Both Closed - check for future dates
-      const now = new Date();
-      const votingStart = event.votingStartsAt
-        ? new Date(event.votingStartsAt)
-        : null;
-      const nominationStart = event.nominationStartsAt
-        ? new Date(event.nominationStartsAt)
-        : null;
+    } else if (phase === "UPCOMING") {
+      const votingStart = event.votingStartsAt || event.votingStartTime;
+      const nominationStart = event.nominationStartsAt || event.nominationStartTime;
 
-      if (votingStart && votingStart > now) {
+      if (votingStart && new Date(votingStart) > new Date()) {
         setModalContent({
           title: "Voting Coming Soon ⏳",
           description: `Voting for ${
             event.title
-          } is scheduled to start on ${format(votingStart, "PPP")}. Get ready!`,
+          } is scheduled to start on ${format(new Date(votingStart), "PPP")}. Get ready!`,
           icon: (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -155,11 +158,11 @@ export default function EventStatusNotification({
           action: () => setIsOpen(false),
         });
         setIsOpen(true);
-      } else if (nominationStart && nominationStart > now) {
+      } else if (nominationStart && new Date(nominationStart) > new Date()) {
         setModalContent({
           title: "Nominations Opening Soon 🔜",
           description: `Nominations for ${event.title} will open on ${format(
-            nominationStart,
+            new Date(nominationStart),
             "PPP"
           )}.`,
           icon: (
@@ -185,7 +188,8 @@ export default function EventStatusNotification({
           action: () => setIsOpen(false),
         });
         setIsOpen(true);
-      } else {
+      }
+    } else {
         // Default generic closed status or completely ended
         // Only show if we explicitly want to inform about "Ended"
         // For now, maybe we don't pop up anything if everything is over, to be less annoying.
@@ -219,7 +223,6 @@ export default function EventStatusNotification({
             action: () => setIsOpen(false),
           });
           setIsOpen(true);
-        }
       }
     }
   }, [event, router]);
@@ -266,3 +269,4 @@ export default function EventStatusNotification({
     </Dialog>
   );
 }
+

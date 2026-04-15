@@ -34,11 +34,21 @@ export default function TrustCenter({
   // Show cookie banner after a short delay on mount
   useEffect(() => {
     if (!enableBanner) return; // Don't show if disabled
+    
+    // Check localStorage for prior acceptance (client-side only)
+    if (typeof window !== "undefined") {
+      const hasAccepted = localStorage.getItem("easevote_cookies_accepted");
+      if (hasAccepted === "true") return; 
+    }
+
     const timer = setTimeout(() => setShowCookieBanner(true), 1500);
     return () => clearTimeout(timer);
   }, [enableBanner]);
 
   const handleAcceptCookies = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("easevote_cookies_accepted", "true");
+    }
     setShowCookieBanner(false);
   };
 

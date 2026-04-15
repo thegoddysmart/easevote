@@ -5,28 +5,18 @@ export const dynamic = "force-dynamic";
 
 export default async function VotingEventsPage() {
   const apiClient = createServerApiClient();
-  
-  // The API doesn't support comma-separated values, so we fetch separately
   let allEvents: any[] = [];
   
   try {
-    const fetchEvents = async (type: string, status: string) => {
-      const res = await apiClient.get<any>(`/events?type=${type}&status=${status}`).catch(() => null);
-      if (res) {
-        const events = res.data || res.events || res;
-        if (Array.isArray(events)) allEvents.push(...events);
+    const res = await apiClient.get<any>("/events?limit=100").catch(() => null);
+    if (res) {
+      const events = res.data || res.events || res;
+      if (Array.isArray(events)) {
+        // Naturally allow the backend to decide which events are visible, 
+        // but we still filter by type on the frontend to ensure this is the 'Voting' page.
+        allEvents = events.filter((e: any) => e.type === "VOTING" || e.type === "HYBRID");
       }
-    };
-
-    // Fetch relevant voting events
-    await Promise.all([
-      fetchEvents("VOTING", "LIVE"),
-      fetchEvents("VOTING", "PUBLISHED"),
-      fetchEvents("VOTING", "APPROVED"),
-      fetchEvents("HYBRID", "LIVE"),
-      fetchEvents("HYBRID", "PUBLISHED"),
-      fetchEvents("HYBRID", "APPROVED"),
-    ]);
+    }
   } catch (error) {
     console.error("Failed to fetch voting events:", error);
   }
@@ -41,6 +31,13 @@ export default async function VotingEventsPage() {
     status: event.status,
     location: event.location || "Online",
     votePrice: event.costPerVote || event.votePrice || 0,
+    // Essential dates for status utility
+    votingStartsAt: event.votingStartsAt || event.votingStartTime,
+    votingEndsAt: event.votingEndsAt || event.votingEndTime,
+    nominationStartsAt: event.nominationStartsAt || event.nominationStartTime,
+    nominationEndsAt: event.nominationEndsAt || event.nominationEndTime,
+    startDate: event.startDate,
+    endDate: event.endDate,
   }));
 
   return <EventsBrowseClient initialEvents={clientEvents} />;

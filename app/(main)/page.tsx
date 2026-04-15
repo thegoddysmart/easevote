@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 };
 
 import { createServerApiClient } from "@/lib/api-client";
+import { getEventStatus } from "@/lib/utils/event-status";
 
 export default async function Home() {
   const apiClient = createServerApiClient();
@@ -30,28 +31,21 @@ export default async function Home() {
   let ticketingEvents: any[] = [];
 
   try {
-    const fetchEvents = async (type: string, status: string) => {
-      const res = await apiClient.get<any>(`/events?type=${type}&status=${status}`).catch(() => null);
-      if (res) {
-        return res.data || res.events || res || [];
-      }
-      return [];
-    };
-
-    const results = await Promise.all([
-      fetchEvents("VOTING", "LIVE"),
-      fetchEvents("VOTING", "PUBLISHED"),
-      fetchEvents("TICKETING", "LIVE"),
-      fetchEvents("TICKETING", "PUBLISHED"),
-      fetchEvents("HYBRID", "LIVE"),
-      fetchEvents("HYBRID", "PUBLISHED"),
-    ]);
-
-    // Voting events = VOTING (LIVE/PUBLISHED) + HYBRID (LIVE/PUBLISHED)
-    votingEvents = [...results[0], ...results[1], ...results[4], ...results[5]];
-    
-    // Ticketing events = TICKETING (LIVE/PUBLISHED) + HYBRID (LIVE/PUBLISHED)
-    ticketingEvents = [...results[2], ...results[3], ...results[4], ...results[5]];
+    const res = await apiClient.get<any>("/events?limit=100").catch(() => null);
+    if (res) {
+      const allEvents = res.data || res.events || (Array.isArray(res) ? res : []);
+      
+      // Filter for PUBLICLY visible events based on backend's natural filtering
+      votingEvents = allEvents.filter((e: any) => 
+        (e.type === "VOTING" || e.type === "HYBRID") && 
+        getEventStatus(e).isActive
+      );
+      
+      ticketingEvents = allEvents.filter((e: any) => 
+        (e.type === "TICKETING" || e.type === "HYBRID") && 
+        getEventStatus(e).isActive
+      );
+    }
     
   } catch (err) {
     console.error("Failed to fetch public events frontpage data:", err);

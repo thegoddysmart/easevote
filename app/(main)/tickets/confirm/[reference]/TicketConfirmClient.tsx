@@ -18,40 +18,30 @@ export default function TicketConfirmClient({
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   const [ticketData, setTicketData] = useState<any>(initialData);
-  const [verifyAttempts, setVerifyAttempts] = useState(0);
 
   useEffect(() => {
-    // If we're not pending anymore, exit loop
+    // Perform a single check on mount if pending
     if (status !== "PENDING") return;
-
-    // Fail after 5 attempts (~15 seconds)
-    if (verifyAttempts >= 5) {
-      setStatus("FAILED");
-      return;
-    }
 
     const verifyTransaction = async () => {
       try {
         const res = await fetch(`/api/proxy/purchases/verify/${reference}`);
         const data = await res.json();
+        const transaction = data.data || data.purchase || data;
 
-        if (data.data?.status === "SUCCESS") {
+        if (transaction.status === "PAID" || transaction.status === "SUCCESS") {
           setStatus("SUCCESS");
-          setTicketData(data.data);
-        } else if (data.data?.status === "FAILED") {
+          setTicketData(transaction);
+        } else if (transaction.status === "FAILED") {
           setStatus("FAILED");
-        } else {
-          // Keep polling if it stays pending
-          setTimeout(() => setVerifyAttempts((prev) => prev + 1), 3000);
         }
       } catch (error) {
         console.error("Verification error:", error);
-        setTimeout(() => setVerifyAttempts((prev) => prev + 1), 3000);
       }
     };
 
     verifyTransaction();
-  }, [reference, status, verifyAttempts]);
+  }, [reference, status]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -106,7 +96,7 @@ export default function TicketConfirmClient({
             </div>
 
             <button
-              onClick={() => router.push("/events")}
+              onClick={() => router.push("/events/ticketing")}
               className="w-full bg-secondary-700 text-white font-bold py-4 rounded-full shadow-lg hover:bg-primary-700 hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               Browse More Events <ArrowRight size={18} />
@@ -136,8 +126,8 @@ export default function TicketConfirmClient({
                 Try Again
               </button>
               <button
-                onClick={() => router.push("/events")}
-                className="w-full bg-white text-slate-700 font-bold py-4 rounded-full border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-[0.98]"
+                onClick={() => router.push("/events/voting")}
+                className="w-full bg-white text-slate-500 font-bold py-4 rounded-full border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-[0.98]"
               >
                 Return to Events
               </button>

@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { PreviewBanner } from "@/components/preview/PreviewBanner";
 import EventStatusNotification from "./EventStatusNotification";
 import { createServerApiClient } from "@/lib/api-client";
+import { getEventStatus } from "@/lib/utils/event-status";
 
 interface PageProps {
   params: Promise<{ eventCode: string }>;
@@ -28,6 +29,7 @@ export default async function EventDetailPage({ params }: PageProps) {
     event = res?.data || res?.event || res;
   } else {
     // Lookup by short eventCode
+    // The backend now handles natural filtering, so we just pass the code.
     const res = await apiClient.get<any>(`/events?eventCode=${eventCode}`).catch((err) => {
       console.error(`[EventPage] Error fetching code ${eventCode}:`, err.message);
       return null;
@@ -65,15 +67,16 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   // Preview Mode Logic
   let showPreviewBanner = false;
-  const isPublished = event.status === "PUBLISHED" || event.status === "LIVE";
+  const isPublished = event.status === "PUBLISHED" || event.status === "LIVE" || event.status === "APPROVED" || event.status === "ENDED";
   if (!isPublished) {
     if (!isAuthorized) return notFound();
     showPreviewBanner = true;
   }
 
-  let { isVotingOpen, isNominationOpen, phase, allowPublicNominations } = event;
-
-  // --- Dynamic Phase Auto-Evaluation ---
+  // --- Unified Status & Phase Evaluation ---
+  const statusInfo = getEventStatus(event);
+  const { phase, isVotingOpen, isNominationOpen } = statusInfo;
+  
   const now = new Date().getTime();
   const rawNomStart = event.nominationStartTime || event.nominationStartsAt;
   const rawNomEnd = event.nominationEndTime || event.nominationEndsAt;
@@ -85,34 +88,8 @@ export default async function EventDetailPage({ params }: PageProps) {
   const voteStart = rawVoteStart ? new Date(rawVoteStart).getTime() : null;
   const voteEnd = rawVoteEnd ? new Date(rawVoteEnd).getTime() : null;
 
-  if (voteStart && now >= voteStart) {
-    if (!voteEnd || now <= voteEnd) {
-      phase = "VOTING";
-      isVotingOpen = true;
-      isNominationOpen = false;
-    } else if (now > voteEnd) {
-      phase = "ENDED";
-      isVotingOpen = false;
-      isNominationOpen = false;
-    }
-  } else if (nomStart && now >= nomStart) {
-    if (!nomEnd || now <= nomEnd) {
-      phase = "NOMINATION";
-      isNominationOpen = allowPublicNominations === true; 
-      isVotingOpen = false;
-    } else if (now > nomEnd) {
-      phase = "UPCOMING"; 
-      isNominationOpen = false;
-      isVotingOpen = false;
-    }
-  } else if (phase !== "ENDED") {
-    phase = "UPCOMING";
-    isNominationOpen = false;
-    isVotingOpen = false;
-  }
-
   // Timeline Display Logic
-  let timelineLabel = new Date(event.startDate).toDateString();
+  let timelineLabel = statusInfo.label;
   let timelineEnd: Date | null = null;
 
   if (phase === "NOMINATION") {
@@ -140,6 +117,8 @@ export default async function EventDetailPage({ params }: PageProps) {
       const gmtDate = new Date(voteStart);
       timelineLabel = `Voting starts ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
       timelineEnd = gmtDate;
+    } else {
+      timelineLabel = "Starting Soon";
     }
   } else if (phase === "ENDED") {
     timelineLabel = "Event Ended";

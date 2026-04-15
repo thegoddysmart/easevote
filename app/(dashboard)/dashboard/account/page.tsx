@@ -22,7 +22,8 @@ export default async function AdminAccountPage() {
     const user = rawUser
     ? {
         id: rawUser._id || rawUser.id || userId,
-        name: rawUser.fullName || rawUser.businessName || "Admin",
+        fullName: rawUser.fullName || "",
+        businessName: rawUser.businessName || "",
         email: rawUser.email,
         phone: rawUser.phone || null,
         avatar: rawUser.avatar || null,

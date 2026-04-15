@@ -8,7 +8,8 @@ import { api } from "@/lib/api-client";
 interface AdminAccountClientProps {
   user: {
     id: string;
-    name: string;
+    fullName: string;
+    businessName: string;
     email: string;
     phone: string | null;
     avatar: string | null;
@@ -36,7 +37,8 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
 
   // Profile Form State
   const [profileData, setProfileData] = useState({
-    name: user.name,
+    fullName: user.fullName,
+    businessName: user.businessName,
     email: user.email,
     phone: user.phone || "",
     avatar: user.avatar || "",
@@ -62,7 +64,8 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
       }
 
       const result = await api.put(`/users/${user.id}`, {
-        fullName: profileData.name,
+        fullName: profileData.fullName,
+        businessName: profileData.businessName,
         email: profileData.email,
         phone: profileData.phone,
         avatar: profileData.avatar,
@@ -190,7 +193,7 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
                       />
                     ) : (
                       <span className="text-3xl font-bold text-gray-400">
-                        {profileData.name.charAt(0).toUpperCase()}
+                        {(profileData.fullName || profileData.businessName || "U").charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
@@ -225,9 +228,9 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
                     />
                     <input
                       type="text"
-                      value={profileData.name}
+                      value={profileData.fullName}
                       onChange={(e) =>
-                        setProfileData({ ...profileData, name: e.target.value })
+                        setProfileData({ ...profileData, fullName: e.target.value })
                       }
                       className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                       placeholder="Enter your name"
@@ -235,6 +238,30 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
                     />
                   </div>
                 </div>
+
+                {user.role === "ORGANIZER" && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Business Name
+                    </label>
+                    <div className="relative">
+                      <CheckCircle2
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                        size={18}
+                      />
+                      <input
+                        type="text"
+                        value={profileData.businessName}
+                        onChange={(e) =>
+                          setProfileData({ ...profileData, businessName: e.target.value })
+                        }
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                        placeholder="Enter business name"
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">

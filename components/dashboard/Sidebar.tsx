@@ -50,9 +50,7 @@ export function Sidebar({
         {!isCollapsed && (
           <div className="flex items-center gap-2">
             {logo || (
-              <div className="w-8 h-8 bg-secondary-600 rounded-lg flex items-center justify-center font-bold">
-                E
-              </div>
+              <img src="/easevote.svg" alt="EaseVote" className="w-8 h-8 rounded-lg" />
             )}
             <div className="flex flex-col">
               <span className="font-semibold text-sm">EaseVote</span>
@@ -61,8 +59,8 @@ export function Sidebar({
           </div>
         )}
         {isCollapsed && (
-          <div className="w-8 h-8 bg-secondary-500 rounded-lg flex items-center justify-center font-bold mx-auto">
-            E
+          <div className="mx-auto">
+            <img src="/easevote.svg" alt="EaseVote" className="w-8 h-8 rounded-lg" />
           </div>
         )}
       </div>

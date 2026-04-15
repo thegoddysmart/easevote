@@ -148,7 +148,10 @@ export const adminNavigation: NavigationSection[] = [
   },
   {
     title: "Settings",
-    items: [{ name: "My Account", href: "/dashboard/account", icon: Settings }],
+    items: [
+      { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
+      { name: "My Account", href: "/dashboard/account", icon: Settings }
+    ],
   },
 ];
 

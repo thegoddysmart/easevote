@@ -32,8 +32,8 @@ type ChartCardProps = {
 };
 
 const defaultColors = [
-  "#f59e0b",
-  "#3b82f6",
+  "#5b0058", // Brand Primary Magenta
+  "#737373", // Neutral Gray
   "#10b981",
   "#8b5cf6",
   "#ec4899",
@@ -144,10 +144,7 @@ export function ChartCard({
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-                labelLine={{ stroke: "#64748b" }}
+                label={false}
               >
                 {data.map((_, index) => (
                   <Cell

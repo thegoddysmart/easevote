@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Plus, UserPlus, Mail, Phone, X, Loader2, CheckCircle2 } from "lucide-react";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import { useRouter } from "next/navigation";
 
 export default function CreateAdminButton() {
@@ -10,6 +11,7 @@ export default function CreateAdminButton() {
   const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
+  const modal = useModal();
 
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,9 +32,11 @@ export default function CreateAdminButton() {
           router.refresh();
         }, 3000);
       } catch (error) {
-        alert(
-          error instanceof Error ? error.message : "Failed to invite admin",
-        );
+        modal.alert({
+          title: "Invitation Failed",
+          message: error instanceof Error ? error.message : "Failed to invite admin",
+          variant: "danger",
+        });
       }
     });
   };

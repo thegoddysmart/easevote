@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import { DataTable } from "@/components/dashboard";
 import Link from "next/link";
 import { UserCog, Trash2, Shield, Eye } from "lucide-react";
@@ -9,21 +10,24 @@ import { useRouter } from "next/navigation";
 
 export default function AdminsTable({ admins }: { admins: any[] }) {
   const router = useRouter();
+  const modal = useModal();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = async (adminId: string, name: string) => {
-    if (
-      confirm(
-        `Are you sure you want to remove admin "${name}"? This action cannot be undone.`,
-      )
-    ) {
-      startTransition(async () => {
-        const result = await api.delete(`/users/${adminId}`);
-        if (!result.success) {
-          alert(result.message);
-        }
-      });
-    }
+    const confirmed = await modal.confirm({
+      title: "Remove Admin",
+      message: `Are you sure you want to remove admin "${name}"? This action cannot be undone.`,
+      variant: "danger",
+      confirmText: "Remove Admin",
+    });
+    if (!confirmed) return;
+
+    startTransition(async () => {
+      const result = await api.delete(`/users/${adminId}`);
+      if (!result.success) {
+        modal.alert({ title: "Delete Failed", message: result.message, variant: "danger" });
+      }
+    });
   };
 
   const columns = [

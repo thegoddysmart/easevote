@@ -4,6 +4,7 @@ import { api } from "@/lib/api-client";
 import { CheckCircle, XCircle, AlertCircle, PauseCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { useModal } from "@/components/providers/ModalProvider";
 
 type Props = {
   eventId: string;
@@ -13,12 +14,26 @@ type Props = {
 
 export default function AdminEventActions({ eventId, status, onStatusChange }: Props) {
   const router = useRouter();
+  const modal = useModal();
   const [isPending, startTransition] = useTransition();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [currentStatus, setCurrentStatus] = useState(status);
 
   const handleAction = async (action: string) => {
-    if (!confirm(`Are you sure you want to ${action} this event?`)) return;
+    const actionLabels: Record<string, { title: string; message: string; variant: "danger" | "warning" | "info" }> = {
+      approve: { title: "Approve Event", message: "Are you sure you want to approve this event? It will go live.", variant: "info" },
+      suspend: { title: "Suspend Event", message: "Are you sure you want to suspend this event? It will be paused for all users.", variant: "warning" },
+      resume: { title: "Resume Event", message: "Are you sure you want to resume this event? It will go live again.", variant: "info" },
+    };
+
+    const config = actionLabels[action] || { title: `${action} Event`, message: `Are you sure you want to ${action} this event?`, variant: "warning" as const };
+    const confirmed = await modal.confirm({
+      title: config.title,
+      message: config.message,
+      variant: config.variant,
+      confirmText: action.charAt(0).toUpperCase() + action.slice(1),
+    });
+    if (!confirmed) return;
 
     setLoadingAction(action);
     startTransition(async () => {
@@ -28,10 +43,10 @@ export default function AdminEventActions({ eventId, status, onStatusChange }: P
           newStatus = "APPROVED";
           break;
         case "reject":
-          newStatus = "CANCELLED"; // Or REJECTED if enum exists, usually CANCELLED or stays PENDING with note. Schema has CANCELLED.
+          newStatus = "CANCELLED";
           break;
         case "suspend":
-          newStatus = "PAUSED"; // Schema has PAUSED.
+          newStatus = "PAUSED";
           break;
         case "resume":
           newStatus = "LIVE";
@@ -54,7 +69,11 @@ export default function AdminEventActions({ eventId, status, onStatusChange }: P
           onStatusChange?.(newStatus);
           router.refresh();
         } catch (error: any) {
-          alert(`Error: ${error.message || "Failed to update status"}`);
+          await modal.alert({
+            title: "Action Failed",
+            message: error.message || "Failed to update status",
+            variant: "danger",
+          });
         }
       }
       setLoadingAction(null);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useModal } from "@/components/providers/ModalProvider";
 import { AppsnCheckoutModal } from "@/components/payment/AppsnCheckoutModal";
 import { api } from "@/lib/api-client";
 
@@ -18,6 +19,7 @@ export function TicketCheckoutModal({
   ticket,
 }: TicketCheckoutModalProps) {
   const router = useRouter();
+  const modal = useModal();
   const [quantity, setQuantity] = useState(1);
   const [buyerName, setBuyerName] = useState("");
   const [buyerEmail, setBuyerEmail] = useState("");
@@ -75,7 +77,7 @@ export function TicketCheckoutModal({
       }
     } catch (error: any) {
       console.error("Ticket purchase initialization error:", error);
-      alert(error.message || "An unexpected error occurred while initiating the purchase.");
+      modal.alert({ title: "Purchase Error", message: error.message || "An unexpected error occurred while initiating the purchase.", variant: "danger" });
       setIsSubmitting(false);
     }
   };

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import {
   Plus,
   Search,
@@ -36,6 +37,7 @@ export default function FAQManager({ initialFaqs }: FAQManagerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [editingFaq, setEditingFaq] = useState<any>(null);
+  const modal = useModal();
 
   // Form State
   const [formData, setFormData] = useState({
@@ -105,7 +107,13 @@ export default function FAQManager({ initialFaqs }: FAQManagerProps) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this FAQ?")) return;
+    const confirmed = await modal.confirm({
+      title: "Delete FAQ",
+      message: "Are you sure you want to delete this FAQ? This action cannot be undone.",
+      variant: "danger",
+      confirmText: "Delete FAQ",
+    });
+    if (!confirmed) return;
 
     try {
       await api.delete(`/cms/faqs/${id}`);

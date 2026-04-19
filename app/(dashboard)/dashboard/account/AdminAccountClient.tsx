@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { User, Lock, Mail, Phone, Camera, Loader2, Save, CheckCircle2, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 
 interface AdminAccountClientProps {
   user: {
@@ -29,6 +30,7 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
+  const modal = useModal();
   
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "security">(
@@ -72,14 +74,14 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
       });
 
       if (result.success !== false) {
-        alert("Profile updated successfully!");
+        await modal.alert({ title: "Profile Updated", message: "Profile updated successfully!", variant: "info" });
         router.refresh();
       } else {
-        alert(result.message || result.error || "Failed to update profile");
+        modal.alert({ title: "Update Failed", message: result.message || result.error || "Failed to update profile", variant: "danger" });
       }
     } catch (error: any) {
       console.error("Profile Update Error:", error);
-      alert(error.message || "An unexpected error occurred");
+      modal.alert({ title: "Error", message: error.message || "An unexpected error occurred", variant: "danger" });
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +90,7 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("New passwords do not match");
+      modal.alert({ title: "Passwords Don't Match", message: "New passwords do not match. Please try again.", variant: "warning" });
       return;
     }
 
@@ -104,7 +106,7 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
       const hasSpecial = /[^A-Za-z0-9]/.test(passwordData.newPassword);
 
       if (passwordData.newPassword.length < 8 || !hasUpper || !hasLower || !hasNumber || !hasSpecial) {
-        alert("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+        modal.alert({ title: "Weak Password", message: "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.", variant: "warning" });
         setIsLoading(false);
         return;
       }
@@ -114,18 +116,18 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
       });
 
       if (result.success !== false) {
-        alert("Password changed successfully!");
+        await modal.alert({ title: "Password Changed", message: "Password changed successfully!", variant: "info" });
         setPasswordData({
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
         });
       } else {
-        alert(result.message || result.error || "Failed to change password");
+        modal.alert({ title: "Change Failed", message: result.message || result.error || "Failed to change password", variant: "danger" });
       }
     } catch (error: any) {
       console.error("Password Change Error:", error);
-      alert(error.message || "An unexpected error occurred");
+      modal.alert({ title: "Error", message: error.message || "An unexpected error occurred", variant: "danger" });
     } finally {
       setIsLoading(false);
     }
@@ -200,8 +202,14 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
                   <button
                     type="button"
                     className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-sm border border-gray-200 text-gray-600 hover:text-primary-600 transition-colors"
-                    onClick={() => {
-                      const url = prompt("Enter image URL");
+                    onClick={async () => {
+                      const url = await modal.prompt({
+                        title: "Update Avatar",
+                        message: "Enter the direct URL to your profile image:",
+                        placeholder: "https://example.com/photo.jpg",
+                        variant: "info",
+                        confirmText: "Update Photo"
+                      });
                       if (url) setProfileData({ ...profileData, avatar: url });
                     }}
                   >

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import { useRouter } from "next/navigation";
 
 interface AdminPayoutsClientProps {
@@ -22,6 +23,7 @@ interface AdminPayoutsClientProps {
 
 export default function AdminPayoutsClient({ initialPayouts }: AdminPayoutsClientProps) {
   const router = useRouter();
+  const modal = useModal();
   const [payouts, setPayouts] = useState(initialPayouts);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
@@ -39,7 +41,15 @@ export default function AdminPayoutsClient({ initialPayouts }: AdminPayoutsClien
   });
 
   const handleUpdateStatus = async (payoutId: string, status: string) => {
-    const notes = window.prompt("Enter any notes for this status update (optional):");
+    const notes = await modal.prompt({
+      title: "Update Payout Status",
+      message: `You are marking this payout as "${status}". Enter any notes for this update (optional):`,
+      variant: status === "REJECTED" ? "danger" : "info",
+      confirmText: `Mark as ${status}`,
+      placeholder: "Admin notes (optional)...",
+    });
+    // notes === null means user cancelled
+    if (notes === null) return;
     setProcessingId(payoutId);
     
     try {
@@ -51,7 +61,7 @@ export default function AdminPayoutsClient({ initialPayouts }: AdminPayoutsClien
       // Optimistic update
       setPayouts(prev => prev.map(p => p._id === payoutId ? { ...p, status } : p));
     } catch (err: any) {
-      alert(err.message || "Failed to update payout status");
+      modal.alert({ title: "Update Failed", message: err.message || "Failed to update payout status", variant: "danger" });
     } finally {
       setProcessingId(null);
     }

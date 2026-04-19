@@ -5,6 +5,7 @@ import { api } from "@/lib/api-client";
 import { Loader2, Save, LucideIcon, Check, X, AlertTriangle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { useModal } from "@/components/providers/ModalProvider";
 
 type SettingItem = {
   key: string;
@@ -23,6 +24,7 @@ export default function SettingsForm({
   iconNode: React.ReactNode;
 }) {
   const { data: session } = useSession();
+  const modal = useModal();
   const [value, setValue] = useState(item.value);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -58,11 +60,19 @@ export default function SettingsForm({
       } else {
         // Rollback on error
         setValue(item.value);
-        alert(res.message || res.error || "Failed to save setting. Rolled back to previous value.");
+        modal.alert({
+          title: "Save Failed",
+          message: res.message || res.error || "Failed to save setting. Rolled back to previous value.",
+          variant: "danger"
+        });
       }
     } catch (err) {
       setValue(item.value);
-      alert("Network error. Failed to save setting. Rolled back to previous value.");
+      modal.alert({
+        title: "Network Error",
+        message: "Network error. Failed to save setting. Rolled back to previous value.",
+        variant: "danger"
+      });
     } finally {
       setLoading(false);
     }

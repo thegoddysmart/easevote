@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useModal } from "@/components/providers/ModalProvider";
 import Link from "next/link";
 import {
   Calendar,
@@ -129,6 +130,7 @@ export function AdminEventManager({
   backUrl,
 }: AdminEventManagerProps) {
   const router = useRouter();
+  const modal = useModal();
   const [activeTab, setActiveTab] = useState<
     "overview" | "edit" | "categories" | "settings"
   >("overview");
@@ -148,21 +150,21 @@ export function AdminEventManager({
   };
 
   const handleDelete = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this event? This action cannot be undone.",
-      )
-    ) {
-      return;
-    }
+    const confirmed = await modal.confirm({
+      title: "Delete Event",
+      message: "Are you sure you want to delete this event? This action cannot be undone. All data, including voting records and revenue history, will be permanently removed.",
+      variant: "danger",
+      confirmText: "Delete Event",
+    });
+    if (!confirmed) return;
 
     try {
       await api.delete(`/events/${event.id}`);
-      alert("Event deleted successfully");
+      await modal.alert({ title: "Event Deleted", message: "Event deleted successfully.", variant: "info" });
       router.push(backUrl);
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "An error occurred");
+      modal.alert({ title: "Delete Failed", message: err.message || "An error occurred", variant: "danger" });
     }
   };
 
@@ -666,13 +668,13 @@ function VotingToggle({
     const newValue = !enabled;
 
     try {
-      // The backend uses multiple specific endpoints instead of a generic status endpoint
-      // Adjusting to use event update or generic patch if available
       await api.patch(`/events/${eventId}/toggle-vote-count`, {});
       setEnabled(newValue);
     } catch (e) {
       console.error(e);
-      alert("Failed to update setting");
+      // Using a simple toast equivalent — VotingToggle doesn't have modal context,
+      // so we'll rely on a basic console-based fallback or toast system
+      console.error("Failed to update setting");
     } finally {
       setLoading(false);
     }

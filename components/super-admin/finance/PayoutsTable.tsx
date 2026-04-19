@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import { useRouter } from "next/navigation";
 
 // Define type based on getGlobalPayouts return
@@ -21,11 +22,17 @@ type PayoutRecord = {
 
 export default function PayoutsTable({ payouts }: { payouts: PayoutRecord[] }) {
   const router = useRouter();
+  const modal = useModal();
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   async function handleStatusUpdate(id: string, newStatus: string) {
-    if (!confirm(`Are you sure you want to mark this payout as ${newStatus}?`))
-      return;
+    const confirmed = await modal.confirm({
+      title: "Update Payout Status",
+      message: `Are you sure you want to mark this payout as ${newStatus}?`,
+      variant: newStatus === "CANCELLED" ? "danger" : "info",
+      confirmText: `Mark as ${newStatus}`,
+    });
+    if (!confirmed) return;
     setProcessingId(id);
     await api.patch(`/super-admin/payouts/${id}/status`, { status: newStatus });
     setProcessingId(null);

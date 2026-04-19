@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 type NominationFieldType = "TEXT" | "TEXTAREA" | "NUMBER" | "EMAIL" | "PHONE" | "SELECT" | "MULTI_SELECT" | "CHECKBOX" | "FILE" | "URL";
 import {
   Plus,
@@ -32,6 +33,7 @@ export default function FormBuilder({
   const [whatsappLink, setWhatsappLink] = useState(
     initialForm?.whatsappLink || ""
   );
+  const modal = useModal();
   const [isSaving, setIsSaving] = useState(false);
   const [editingField, setEditingField] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,7 +110,11 @@ export default function FormBuilder({
       console.error("Status update failed:", error);
       const errMsg = error?.message || "";
       if (errMsg.includes("modify live")) {
-        alert("🔒 This setting is currently locked because the event is LIVE. \n\nPlease ensure your event structure is finalized before publishing.");
+        modal.alert({ 
+          title: "Setting Locked", 
+          message: "🔒 This setting is currently locked because the event is LIVE. \n\nPlease ensure your event structure is finalized before publishing.",
+          variant: "warning"
+        });
       } else {
         toast.error("Failed to update status");
       }
@@ -152,7 +158,11 @@ export default function FormBuilder({
     } catch (error: any) {
       const errMsg = error?.message || "";
       if (errMsg.includes("modify live")) {
-        alert("🔒 This setting is currently locked because the event is LIVE.");
+        modal.alert({
+          title: "Setting Locked",
+          message: "🔒 This setting is currently locked because the event is LIVE.",
+          variant: "warning"
+        });
       } else {
         toast.error("Failed to save duration");
       }
@@ -230,7 +240,13 @@ export default function FormBuilder({
   };
 
   const handleDelete = async (index: number) => {
-    if (!confirm("Delete this field?")) return;
+    const confirmed = await modal.confirm({
+      title: "Delete Field",
+      message: "Are you sure you want to delete this field?",
+      variant: "danger",
+      confirmText: "Delete Field"
+    });
+    if (!confirmed) return;
     try {
       const updatedFields = fields.filter((_, i) => i !== index);
       await api.post(`/nominations/events/${eventId}/form`, {

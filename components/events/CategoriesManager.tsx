@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api-client";
 import Image from "next/image";
+import toast from "react-hot-toast";
+import { useModal } from "@/components/providers/ModalProvider";
 
 type CandidateForm = {
   id?: string;
@@ -70,6 +72,7 @@ export function CategoriesManager({
   backUrl,
 }: CategoriesManagerProps) {
   const router = useRouter();
+  const modal = useModal();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -147,7 +150,7 @@ export function CategoriesManager({
     );
   };
 
-  const removeCategory = (index: number) => {
+  const removeCategory = async (index: number) => {
     const category = categories[index];
     if (category.totalVotes && category.totalVotes > 0) {
       setError(
@@ -156,13 +159,14 @@ export function CategoriesManager({
       return;
     }
 
-    if (
-      !confirm(
-        `Are you sure you want to delete the category "${category.name}"? This will also remove all ${category.candidates.length} candidates. This action cannot be undone.`,
-      )
-    ) {
-      return;
-    }
+    const confirmed = await modal.confirm({
+      title: "Delete Category",
+      message: `Are you sure you want to delete the category "${categories[index].name || "Untitled"}"? This will also remove all its candidates from the selection.`,
+      confirmText: "Delete",
+      variant: "danger"
+    });
+
+    if (!confirmed) return;
 
     if (category.id) {
       setDeletedCategoryIds((prev) => [...prev, category.id!]);
@@ -221,8 +225,8 @@ export function CategoriesManager({
     );
   };
 
-  const removeCandidate = (categoryIndex: number, candidateIndex: number) => {
-    const candidate = categories[categoryIndex].candidates[candidateIndex];
+  const removeCandidate = async (catIdx: number, candIdx: number) => {
+    const candidate = categories[catIdx].candidates[candIdx];
     if (candidate.voteCount && candidate.voteCount > 0) {
       setError(
         `Cannot delete candidate "${candidate.name}" because they have existing votes.`,
@@ -230,20 +234,21 @@ export function CategoriesManager({
       return;
     }
 
-    if (
-      !confirm(
-        `Remove candidate "${candidate.name || "Unknown"}" from "${categories[categoryIndex].name}"?`,
-      )
-    ) {
-      return;
-    }
+    const confirmed = await modal.confirm({
+      title: "Delete Candidate",
+      message: `Are you sure you want to remove ${categories[catIdx].candidates[candIdx].name || "this candidate"}?`,
+      confirmText: "Remove",
+      variant: "danger"
+    });
+
+    if (!confirmed) return;
 
     // Cleanup orphaned image if it exists
     if (candidate.imagePublicId) {
       api.deleteImage(candidate.imagePublicId).catch(console.error);
     }
 
-    const categoryId = categories[categoryIndex].id;
+    const categoryId = categories[catIdx].id;
     if (candidate.id && categoryId) {
       setDeletedCandidateIds((prev) => [
         ...prev,
@@ -253,10 +258,10 @@ export function CategoriesManager({
 
     setCategories((prev) =>
       prev.map((c, i) =>
-        i === categoryIndex
+        i === catIdx
           ? {
               ...c,
-              candidates: c.candidates.filter((_, j) => j !== candidateIndex),
+              candidates: c.candidates.filter((_, j) => j !== candIdx),
             }
           : c,
       ),
@@ -273,13 +278,12 @@ export function CategoriesManager({
     if (!file) return;
 
     // Validate type and size per recommendation
-    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      alert("Invalid format. Please use JPG, PNG, WebP or GIF.");
+    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
+      toast.error("Invalid format. Please use JPG, PNG, WebP or GIF.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert("Image is too large. Max size is 5MB.");
+      toast.error("Image is too large. Max size is 5MB.");
       return;
     }
 
@@ -409,14 +413,15 @@ export function CategoriesManager({
         }
       }
 
-      setSuccess("Categories updated successfully!");
+      toast.success("Changes saved successfully!");
       setDeletedCategoryIds([]);
       setDeletedCandidateIds([]);
-      await fetchEvent();
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update categories",
-      );
+      router.refresh();
+      fetchEvent();
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || "Failed to save changes";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }

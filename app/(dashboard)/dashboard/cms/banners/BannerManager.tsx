@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import {
   Plus,
   Trash2,
@@ -36,6 +37,7 @@ export default function BannerManager({ initialBanners }: BannerManagerProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [uploading, setUploading] = useState(false);
+  const modal = useModal();
 
   // Form State
   const [formData, setFormData] = useState({
@@ -115,7 +117,13 @@ export default function BannerManager({ initialBanners }: BannerManagerProps) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+    const confirmed = await modal.confirm({
+      title: "Delete Banner",
+      message: "Are you sure you want to delete this banner? This action cannot be undone.",
+      variant: "danger",
+      confirmText: "Delete Banner",
+    });
+    if (!confirmed) return;
     try {
       await api.delete(`/cms/banners/${id}`);
       setBanners(banners.filter((b) => b._id !== id));

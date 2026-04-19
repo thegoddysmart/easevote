@@ -4,10 +4,12 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, MessageSquare, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import { clsx } from "clsx";
 
 export default function NotificationForm({ organizers }: { organizers: any[] }) {
   const router = useRouter();
+  const modal = useModal();
   const [recipientType, setRecipientType] = useState<"ALL_ORGANIZERS" | "SELECTED_USERS">("ALL_ORGANIZERS");
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [channels, setChannels] = useState<("EMAIL" | "SMS")[]>(["EMAIL"]);
@@ -48,7 +50,7 @@ export default function NotificationForm({ organizers }: { organizers: any[] }) 
       router.refresh();
     } catch (err) {
       console.error(err);
-      alert("Failed to send notification. Check console for details.");
+      modal.alert({ title: "Send Failed", message: "Failed to send notification. Check console for details.", variant: "danger" });
     } finally {
       setLoading(false);
     }

@@ -12,6 +12,7 @@ import {
 import { clsx } from "clsx";
 import { useState, useTransition } from "react";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 
 type Payout = {
   id: string;
@@ -58,10 +59,16 @@ const statusConfig: Record<
 
 export default function PayoutsTable({ payouts }: { payouts: Payout[] }) {
   const [isPending, startTransition] = useTransition();
+  const modal = useModal();
 
-  const handleStatusUpdate = (id: string, newStatus: string) => {
-    if (!confirm(`Are you sure you want to mark this payout as ${newStatus}?`))
-      return;
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    const confirmed = await modal.confirm({
+      title: "Update Payout Status",
+      message: `Are you sure you want to mark this payout as ${newStatus}?`,
+      variant: newStatus === "FAILED" ? "danger" : "info",
+      confirmText: `Mark as ${newStatus}`,
+    });
+    if (!confirmed) return;
 
     startTransition(async () => {
       await api.patch(`/admin/payouts/${id}/status`, { status: newStatus });

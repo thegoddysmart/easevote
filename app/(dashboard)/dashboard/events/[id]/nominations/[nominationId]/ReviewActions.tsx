@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -15,20 +16,21 @@ export default function ReviewActions({
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const router = useRouter();
+  const modal = useModal();
 
   const handleApprove = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to approve this nomination? A candidate profile will be created immediately.",
-      )
-    )
-      return;
+    const confirmed = await modal.confirm({
+      title: "Approve Nomination",
+      message: "Are you sure you want to approve this nomination? A candidate profile will be created immediately.",
+      variant: "info",
+      confirmText: "Approve",
+    });
+    if (!confirmed) return;
 
     setIsProcessing(true);
     try {
       const result = await api.patch(`/nominations/${nominationId}/approve`);
       if (result.success !== false) {
-        // Because sometimes success is not explicitly returned as boolean on 200
         toast.success("Nomination Approved");
         router.refresh();
       } else {

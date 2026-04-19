@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowLeft, Share2, Check, Copy, Loader2 } from "lucide-react";
 import { api } from "@/lib/api-client";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 interface VoteClientProps {
   event: EventData;
@@ -82,12 +83,12 @@ export default function VoteClient({ event, candidate }: VoteClientProps) {
         router.push(`/vote/confirm/${reference}`);
       } else {
         console.error("[VoteClient] No redirect information found in response:", res);
-        alert("Initialization successful, but no payment link was found.");
+        toast.error("Initialization successful, but no payment link was found.");
         setIsLoading(false);
       }
     } catch (error: any) {
       console.error("Payment error:", error);
-      alert(error.message || "An unexpected error occurred.");
+      toast.error(error.message || "An unexpected error occurred.");
       setIsLoading(false);
     }
   };
@@ -99,19 +100,19 @@ export default function VoteClient({ event, candidate }: VoteClientProps) {
       url: window.location.href,
     };
 
-    if (navigator.share) {
-      try {
+    try {
+      if (navigator.share) {
         await navigator.share(shareData);
-      } catch (err) {
-        console.error("Error sharing:", err);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(window.location.href);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
         setIsCopied(true);
+        toast.success("Link copied!");
         setTimeout(() => setIsCopied(false), 2000);
-      } catch (err) {
-        console.error("Failed to copy:", err);
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        toast.error("Sharing failed. Link copied as fallback!");
+        await navigator.clipboard.writeText(shareData.url);
       }
     }
   };

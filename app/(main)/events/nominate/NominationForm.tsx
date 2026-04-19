@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useModal } from "@/components/providers/ModalProvider";
 import { VotingEvent } from "@/types";
 import {
   User,
@@ -19,6 +20,7 @@ interface NominationFormProps {
 
 export function NominationFormClient({ event }: NominationFormProps) {
   const router = useRouter();
+  const modal = useModal();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [nominationCode, setNominationCode] = useState("");
@@ -53,7 +55,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
 
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || "Failed to submit nomination");
+        modal.alert({ title: "Nomination Failed", message: data.error || "Failed to submit nomination", variant: "danger" });
         setIsSubmitting(false);
         return;
       }
@@ -65,7 +67,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
       }
     } catch (error) {
       console.error("Nomination error:", error);
-      alert("An unexpected error occurred.");
+      modal.alert({ title: "Unexpected Error", message: "An unexpected error occurred. Please try again.", variant: "danger" });
     } finally {
       setIsSubmitting(false);
     }

@@ -3,6 +3,7 @@ import { neuwelt, russoOne, bebas, nexa } from "@/components/ui/fonts";
 import { Metadata } from "next";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { Toaster } from "react-hot-toast";
+import { ModalProvider } from "@/components/providers/ModalProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -91,8 +92,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <Toaster position="top-center" />
-        <SessionProvider>{children}</SessionProvider>
+        <Toaster position="top-right" />
+        <ModalProvider>
+          <SessionProvider>{children}</SessionProvider>
+        </ModalProvider>
       </body>
     </html>
   );

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import NominationDetailsDialog from "./NominationDetailsDialog";
 import { clsx } from "clsx";
+import { useModal } from "@/components/providers/ModalProvider";
 
 type Nomination = {
   id: string;
@@ -53,6 +54,7 @@ export default function NominationsDashboardClient({
   stats,
 }: DashboardProps) {
   const router = useRouter();
+  const modal = useModal();
   const [nominations, setNominations] = useState(initialNominations);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,7 +113,11 @@ export default function NominationsDashboardClient({
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to update status. Please try again.");
+      modal.alert({
+        title: "Update Failed",
+        message: "Failed to update status. Please try again.",
+        variant: "danger"
+      });
     } finally {
       setProcessingId(null);
     }

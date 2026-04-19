@@ -20,9 +20,12 @@ import {
   ExternalLink,
   Clock,
 } from "lucide-react";
+import { getEventStatus } from "@/lib/utils/event-status";
 import { api } from "@/lib/api-client";
 import { clsx } from "clsx";
 import Image from "next/image";
+import toast from "react-hot-toast";
+import { useModal } from "@/components/providers/ModalProvider";
 
 type TicketTypeForm = {
   id: string;
@@ -83,6 +86,7 @@ interface EventFormProps {
 
 export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
   const router = useRouter();
+  const modal = useModal();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -152,16 +156,21 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
     );
   };
 
-  const removeTicketType = (id: string) => {
+  const removeTicketType = async (id: string) => {
     const ticket = ticketTypes.find((t) => t.id === id);
     if (ticket && ticket.soldCount > 0) {
       setError("Cannot remove a ticket type that has sales");
       return;
     }
 
-    if (ticket && !confirm(`Are you sure you want to remove the ticket type "${ticket.name || "Untitled"}"?`)) {
-      return;
-    }
+    const confirmed = await modal.confirm({
+      title: "Remove Ticket Type",
+      message: `Are you sure you want to remove the ticket type "${ticket?.name || "Untitled"}"?`,
+      confirmText: "Remove",
+      variant: "danger"
+    });
+
+    if (!confirmed) return;
 
     if (ticketTypes.length > 1) {
       if (ticket && !ticket.isNew) {
@@ -295,12 +304,20 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
   };
 
   const handleImageDelete = async () => {
-    if (confirm("Are you sure you want to remove the cover image?")) {
+    const confirmed = await modal.confirm({
+      title: "Remove Cover Image",
+      message: "Are you sure you want to remove the current cover image?",
+      confirmText: "Remove",
+      variant: "danger"
+    });
+
+    if (confirmed) {
       try {
         if (formData.imagePublicId) {
           await api.deleteImage(formData.imagePublicId).catch(console.error);
         }
         setFormData((prev) => ({ ...prev, imageUrl: "", imagePublicId: "" }));
+        toast.success("Image removed");
       } catch (err) {
         console.error("Delete failed:", err);
       }
@@ -313,11 +330,11 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
 
     // Validate
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      alert("Invalid file type. Please upload a JPEG, PNG, or WEBP image.");
+      toast.error("Invalid file type. Please upload a JPEG, PNG, or WEBP image.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert("File is too large. Maximum size allowed is 5MB.");
+      toast.error("File is too large. Maximum size allowed is 5MB.");
       return;
     }
 
@@ -338,7 +355,7 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
       }));
       setSuccess("Image uploaded successfully!");
     } catch (err) {
-      alert("Upload failed. Please try again.");
+      toast.error("Upload failed. Please try again.");
     } finally {
       setIsUploadingImage(false);
     }
@@ -430,11 +447,13 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
         }
       }
 
-      setSuccess("Event updated successfully!");
+      toast.success("Event updated successfully!");
       setDeletedTicketTypeIds([]);
       router.refresh();
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || "Failed to update event");
+      const msg = err.response?.data?.message || err.message || "Failed to update event";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }

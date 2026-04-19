@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 import { DataTable } from "@/components/dashboard";
 import {
   MoreHorizontal,
@@ -138,6 +139,7 @@ type EventsTableProps = {
 
 export default function EventsTable({ events, showFilters = ["type", "status"] }: EventsTableProps) {
   const router = useRouter();
+  const modal = useModal();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -221,7 +223,7 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
           await api.post(`/events/${eventId}/restore`);
           router.refresh();
         } catch (error: any) {
-          alert("Failed to restore event");
+          modal.alert({ title: "Restore Failed", message: "Failed to restore event. Please try again.", variant: "danger" });
         }
       });
       return;
@@ -256,7 +258,7 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
         await api.patch(endpoint, payload);
         router.refresh();
       } catch (error: any) {
-        alert(error.message || "Failed to update event status");
+        modal.alert({ title: "Update Failed", message: error.message || "Failed to update event status", variant: "danger" });
       }
     });
   };
@@ -272,7 +274,7 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
         setArchiveModal({ isOpen: false, eventId: null, eventTitle: "" });
         router.refresh();
       } catch (error: any) {
-        alert("Failed to archive event");
+        modal.alert({ title: "Archive Failed", message: "Failed to archive event. Please try again.", variant: "danger" });
       }
     });
   };

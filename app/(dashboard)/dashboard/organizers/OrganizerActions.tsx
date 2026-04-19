@@ -2,8 +2,8 @@
 
 import { useTransition } from "react";
 import { api } from "@/lib/api-client";
-import { CheckCircle, XCircle, Ban, AlertTriangle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { CheckCircle } from "lucide-react";
+import { useModal } from "@/components/providers/ModalProvider";
 
 interface OrganizerActionProps {
   id: string;
@@ -20,23 +20,34 @@ export default function OrganizerActions({
   organizer: OrganizerActionProps;
 }) {
   const [isPending, startTransition] = useTransition();
+  const modal = useModal();
 
-  const handleApprove = () => {
-    if (
-      confirm(
-        "Approve this organizer account? They will be able to create events.",
-      )
-    ) {
-      startTransition(async () => {
-        try {
-          await api.patch(`/admin/approve-organizer/${organizer.id}`);
-          alert("Organizer approved successfully!");
-          window.location.reload();
-        } catch (error: any) {
-          alert(error.message || "Failed to approve organizer");
-        }
-      });
-    }
+  const handleApprove = async () => {
+    const confirmed = await modal.confirm({
+      title: "Approve Organizer",
+      message: "Approve this organizer account? They will be able to create events.",
+      variant: "info",
+      confirmText: "Approve",
+    });
+    if (!confirmed) return;
+
+    startTransition(async () => {
+      try {
+        await api.patch(`/admin/approve-organizer/${organizer.id}`);
+        await modal.alert({
+          title: "Organizer Approved",
+          message: "Organizer approved successfully! They can now create events.",
+          variant: "info",
+        });
+        window.location.reload();
+      } catch (error: any) {
+        modal.alert({
+          title: "Approval Failed",
+          message: error.message || "Failed to approve organizer",
+          variant: "danger",
+        });
+      }
+    });
   };
 
   return (

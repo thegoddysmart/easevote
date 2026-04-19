@@ -3,6 +3,7 @@
 import { api } from "@/lib/api-client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useModal } from "@/components/providers/ModalProvider";
 import { 
   Globe, 
   Smartphone, 
@@ -35,25 +36,27 @@ export default function GatewaySettings({
   configs: GatewayConfig[];
 }) {
   const router = useRouter();
+  const modal = useModal();
   const [loadingObj, setLoadingObj] = useState<string | null>(null);
 
   async function handleSetActive(provider: string, type: string) {
-    if (
-        !confirm(
-          `Switch PRIMARY ${type} gateway to ${provider}? this will take effect immediately.`
-        )
-      )
-        return;
-      const id = `${provider}-${type}`;
-      setLoadingObj(id);
-      try {
-          await api.post("/admin/gateways/primary", { provider, type });
-          router.refresh();
-      } catch (error) {
-          console.error("Failed to switch gateway:", error);
-      } finally {
-          setLoadingObj(null);
-      }
+    const confirmed = await modal.confirm({
+      title: "Switch Primary Gateway",
+      message: `Switch PRIMARY ${type} gateway to ${provider}? This will take effect immediately.`,
+      variant: "warning",
+      confirmText: "Switch Gateway",
+    });
+    if (!confirmed) return;
+    const id = `${provider}-${type}`;
+    setLoadingObj(id);
+    try {
+        await api.post("/admin/gateways/primary", { provider, type });
+        router.refresh();
+    } catch (error) {
+        console.error("Failed to switch gateway:", error);
+    } finally {
+        setLoadingObj(null);
+    }
   }
 
   async function handleReset(provider: string, type: string) {

@@ -4,6 +4,7 @@ import React, { useTransition } from "react";
 import { RotateCcw, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api-client";
+import { useModal } from "@/components/providers/ModalProvider";
 
 interface RestoreButtonProps {
   eventId: string;
@@ -12,9 +13,16 @@ interface RestoreButtonProps {
 export default function RestoreButton({ eventId }: RestoreButtonProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const modal = useModal();
 
   const handleRestore = async () => {
-    if (!confirm("Are you sure you want to restore this event?")) return;
+    const confirmed = await modal.confirm({
+      title: "Restore Event",
+      message: "Are you sure you want to restore this event?",
+      variant: "info",
+      confirmText: "Restore",
+    });
+    if (!confirmed) return;
 
     startTransition(async () => {
       try {
@@ -24,7 +32,11 @@ export default function RestoreButton({ eventId }: RestoreButtonProps) {
         }
       } catch (error: any) {
         console.error("Failed to restore event:", error);
-        alert(error.message || "Failed to restore event. Please try again.");
+        modal.alert({
+          title: "Restore Failed",
+          message: error.message || "Failed to restore event. Please try again.",
+          variant: "danger",
+        });
       }
     });
   };

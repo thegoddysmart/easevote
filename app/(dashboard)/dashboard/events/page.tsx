@@ -68,6 +68,12 @@ export default async function AdminEventsPage(props: Props) {
             Monitor and manage all events across the platform.
           </p>
         </div>
+        <a
+          href="/dashboard/events/new"
+          className="flex items-center gap-2 bg-primary-700 hover:bg-primary-800 text-white! px-4 py-2 rounded-lg font-medium transition-colors"
+        >
+          + Add Event
+        </a>
       </div>
 
       <EventsTable events={mappedEvents} />

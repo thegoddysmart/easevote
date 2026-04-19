@@ -191,14 +191,7 @@ export default function EventDetailClient({
                   <div className="flex items-center gap-2">
                     <Clock size={18} className="text-secondary-700" />
                     {event.timelineEnd ? (
-                      <>
-                        Ends in{" "}
-                        {Math.ceil(
-                          (new Date(event.timelineEnd).getTime() - Date.now()) /
-                            (1000 * 60 * 60 * 24),
-                        )}{" "}
-                        days
-                      </>
+                      <Countdown endTime={event.timelineEnd} />
                     ) : (
                       <span>Happening Now</span>
                     )}
@@ -434,7 +427,7 @@ export default function EventDetailClient({
                           ) : (
                             <Link
                               href={`/events/${event.eventCode}/vote/${candidate._id || candidate.id}`}
-                              className="mt-auto w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-lg shadow-slate-900/20 group-hover:shadow-primary-300/30 flex items-center justify-center"
+                              className="mt-auto w-full bg-primary-800 hover:bg-primary-900 text-white py-3 rounded-xl font-bold hover:-translate-y-1 transition-all shadow-lg shadow-primary-900/20 flex items-center justify-center"
                             >
                               Vote
                             </Link>
@@ -535,9 +528,9 @@ export default function EventDetailClient({
                 ) : (
                   <>
                     {getEventStatus(event).phase !== "ENDED" && (
-                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full">
+                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full mb-4">
                         <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-ping"></span>
-                        <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Refreshing Live</span>
+                        <span className="text-[10px] font-bold text-slate-900 uppercase tracking-widest">Refreshing Live</span>
                       </div>
                     )}
                     <h2 className="text-3xl font-bold font-display text-slate-900 mb-2">
@@ -619,7 +612,7 @@ export default function EventDetailClient({
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
                                     <img
-                                      src={candidate.image}
+                                    src={candidate.imageUrl || candidate.image}
                                       alt={candidate.name}
                                       className="w-full h-full object-cover"
                                     />
@@ -678,4 +671,29 @@ export default function EventDetailClient({
       )}
     </div>
   );
+}
+
+function Countdown({ endTime }: { endTime: string }) {
+  const calc = () => {
+    const diff = new Date(endTime).getTime() - Date.now();
+    if (diff <= 0) return null;
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
+    return { d, h, m, s };
+  };
+
+  const [time, setTime] = useState(calc);
+
+  useEffect(() => {
+    const id = setInterval(() => setTime(calc()), 1000);
+    return () => clearInterval(id);
+  }, [endTime]);
+
+  if (!time) return <span>Ended</span>;
+
+  if (time.d > 0) return <>Ends in {time.d}d {time.h}h {time.m}m</>;
+  if (time.h > 0) return <>Ends in {time.h}h {time.m}m {time.s}s</>;
+  return <>Ends in {time.m}m {time.s}s</>;
 }

@@ -73,10 +73,17 @@ async function handler(
       cache: "no-store",
     });
 
-    const data = await backendRes.json().catch(() => ({
-      success: false,
-      message: "Backend returned an unparseable response",
-    }));
+    const contentType = backendRes.headers.get("content-type") ?? "";
+    let data: any;
+    if (contentType.includes("application/json")) {
+      data = await backendRes.json().catch(() => ({
+        success: false,
+        message: "Backend returned an unparseable response",
+      }));
+    } else {
+      const text = await backendRes.text().catch(() => "");
+      data = { success: false, message: text || `HTTP ${backendRes.status}` };
+    }
 
     if (!backendRes.ok) {
       console.error(`[Proxy] Backend returned ${backendRes.status}:`, data);

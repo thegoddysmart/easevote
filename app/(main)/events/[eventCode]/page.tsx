@@ -78,50 +78,22 @@ export default async function EventDetailPage({ params }: PageProps) {
   const { phase, isVotingOpen, isNominationOpen } = statusInfo;
   
   const now = new Date().getTime();
-  const rawNomStart = event.nominationStartTime || event.nominationStartsAt;
-  const rawNomEnd = event.nominationEndTime || event.nominationEndsAt;
-  const rawVoteStart = event.votingStartTime || event.votingStartsAt;
-  const rawVoteEnd = event.votingEndTime || event.votingEndsAt;
-
-  const nomStart = rawNomStart ? new Date(rawNomStart).getTime() : null;
-  const nomEnd = rawNomEnd ? new Date(rawNomEnd).getTime() : null;
-  const voteStart = rawVoteStart ? new Date(rawVoteStart).getTime() : null;
-  const voteEnd = rawVoteEnd ? new Date(rawVoteEnd).getTime() : null;
+  const endDate = new Date(event.endDate).getTime();
 
   // Timeline Display Logic
   let timelineLabel = statusInfo.label;
   let timelineEnd: Date | null = null;
 
-  if (phase === "NOMINATION") {
-    if (nomEnd) {
-      const gmtDate = new Date(nomEnd);
-      timelineLabel = `Nominations close ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
-      timelineEnd = gmtDate;
-    } else {
-      timelineLabel = "Nominations Open";
-    }
-  } else if (phase === "VOTING") {
-    if (voteEnd) {
-      const gmtDate = new Date(voteEnd);
-      timelineLabel = `Voting ends ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
-      timelineEnd = gmtDate;
-    } else {
-      timelineLabel = "Voting Live";
-    }
-  } else if (phase === "UPCOMING") {
-    if (nomStart && now < nomStart) {
-      const gmtDate = new Date(nomStart);
-      timelineLabel = `Nominations start ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
-      timelineEnd = gmtDate;
-    } else if (voteStart && now < voteStart) {
-      const gmtDate = new Date(voteStart);
-      timelineLabel = `Voting starts ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
-      timelineEnd = gmtDate;
-    } else {
-      timelineLabel = "Starting Soon";
-    }
+  if (phase === "VOTING") {
+    const gmtDate = new Date(event.endDate);
+    timelineLabel = `Voting ends ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
+    timelineEnd = gmtDate;
   } else if (phase === "ENDED") {
     timelineLabel = "Event Ended";
+  } else {
+    const gmtDate = new Date(event.startDate);
+    timelineLabel = `Starts ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
+    timelineEnd = gmtDate;
   }
 
   let visibleCategories = event.categories;

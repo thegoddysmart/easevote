@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createServerApiClient } from "@/lib/api-client";
 import EventsTable from "../events/EventsTable";
+import Link from "next/link";
 import { Ticket, DollarSign, List, Activity } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -105,13 +106,21 @@ export default async function AdminTicketingPage(props: Props) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">
-          Ticketing Management
-        </h1>
-        <p className="text-slate-500">
-          Monitor ticket sales and manage ticketing events.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Ticketing Management
+          </h1>
+          <p className="text-slate-500">
+            Monitor ticket sales and manage ticketing events.
+          </p>
+        </div>
+        <Link
+          href="/dashboard/events/new?type=TICKETING"
+          className="flex items-center gap-2 bg-primary-700 hover:bg-primary-800 text-white! px-4 py-2 rounded-lg font-medium transition-colors"
+        >
+          + Add Ticketing Event
+        </Link>
       </div>
 
       {/* Stats Grid */}

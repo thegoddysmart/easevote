@@ -131,11 +131,12 @@ export function AdminEventManager({
   const [activeTab, setActiveTab] = useState<
     "overview" | "edit" | "categories" | "settings"
   >("overview");
+  const [currentStatus, setCurrentStatus] = useState(event.status);
 
-  const StatusIcon = statusConfig[event.status]?.icon || AlertCircle;
-  const statusColor = statusConfig[event.status]?.color || "text-slate-700";
-  const statusBg = statusConfig[event.status]?.bg || "bg-slate-100";
-  const statusLabel = statusConfig[event.status]?.label || event.status;
+  const StatusIcon = statusConfig[currentStatus]?.icon || AlertCircle;
+  const statusColor = statusConfig[currentStatus]?.color || "text-slate-700";
+  const statusBg = statusConfig[currentStatus]?.bg || "bg-slate-100";
+  const statusLabel = statusConfig[currentStatus]?.label || currentStatus;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GH", {
@@ -232,7 +233,7 @@ export function AdminEventManager({
           </div>
 
           <div className="flex flex-col items-end gap-4">
-            <AdminEventActions eventId={event.id} status={event.status} />
+            <AdminEventActions eventId={event.id} status={event.status} onStatusChange={setCurrentStatus} />
 
             <div className="flex items-center bg-slate-100 p-1 rounded-lg">
               <button
@@ -392,9 +393,9 @@ export function AdminEventManager({
                     Categories & Candidates
                   </h3>
                   <div className="space-y-6">
-                    {event.categories.map((category: any) => (
+                    {event.categories.map((category: any, i: number) => (
                       <div
-                        key={category.id}
+                        key={category.id ?? i}
                         className="border border-slate-100 rounded-lg overflow-hidden"
                       >
                         <div className="bg-slate-50 px-4 py-2 border-b border-slate-100 flex justify-between items-center">
@@ -446,9 +447,9 @@ export function AdminEventManager({
                     Ticket Types
                   </h3>
                   <div className="space-y-4">
-                    {event.ticketTypes.map((ticket: any) => (
+                    {event.ticketTypes.map((ticket: any, i: number) => (
                       <div
-                        key={ticket.id}
+                        key={ticket.id ?? i}
                         className="border border-slate-100 rounded-lg p-4"
                       >
                         <div className="flex justify-between items-start mb-2">
@@ -659,9 +660,7 @@ function VotingToggle({
     try {
       // The backend uses multiple specific endpoints instead of a generic status endpoint
       // Adjusting to use event update or generic patch if available
-      await api.put(`/events/${eventId}`, {
-        showVoteCount: newValue,
-      });
+      await api.patch(`/events/${eventId}/toggle-vote-count`, {});
       setEnabled(newValue);
     } catch (e) {
       console.error(e);

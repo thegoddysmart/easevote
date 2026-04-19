@@ -94,10 +94,6 @@ export function EventForm({ eventId, backUrl }: EventFormProps) {
     startTime: "09:00",
     endDate: "",
     endTime: "21:00",
-    votingStartDate: "",
-    votingStartTime: "09:00",
-    votingEndDate: "",
-    votingEndTime: "17:00",
     costPerVote: "",
     minVotesPerPurchase: "1",
     maxVotesPerPurchase: "",
@@ -195,11 +191,6 @@ export function EventForm({ eventId, backUrl }: EventFormProps) {
 
         const start = parseDateTime(d.startDate);
         const end = parseDateTime(d.endDate);
-        const voteS = parseDateTime(d.votingStartsAt || d.votingStartTime);
-        const voteE = parseDateTime(d.votingEndsAt || d.votingEndTime);
-        const nomS = parseDateTime(d.nominationStartsAt || d.nominationStartTime);
-        // Backend often uses nominationDeadline as the primary end marker
-        const nomE = parseDateTime(d.nominationEndsAt || d.nominationEndTime || d.nominationDeadline);
 
         setFormData({
           title: d.title || "",
@@ -209,10 +200,6 @@ export function EventForm({ eventId, backUrl }: EventFormProps) {
           startTime: start.time,
           endDate: end.date,
           endTime: end.time,
-          votingStartDate: voteS.date,
-          votingStartTime: voteS.time,
-          votingEndDate: voteE.date,
-          votingEndTime: voteE.time,
           costPerVote:
             d.costPerVote?.toString() || d.votePrice?.toString() || "",
           minVotesPerPurchase:
@@ -289,25 +276,20 @@ export function EventForm({ eventId, backUrl }: EventFormProps) {
     setSaving(true);
 
     try {
+      const originalStart = event ? new Date(event.startDate).toISOString() : null;
+      const originalEnd = event ? new Date(event.endDate).toISOString() : null;
+
       const startISO = formData.startDate ? new Date(`${formData.startDate}T${formData.startTime}:00`).toISOString() : undefined;
       const endISO = formData.endDate ? new Date(`${formData.endDate}T${formData.endTime}:00`).toISOString() : undefined;
-      const voteS_ISO = formData.votingStartDate ? new Date(`${formData.votingStartDate}T${formData.votingStartTime}:00`).toISOString() : null;
-      const voteE_ISO = formData.votingEndDate ? new Date(`${formData.votingEndDate}T${formData.votingEndTime}:00`).toISOString() : null;
       const { 
-        startDate, startTime, endDate, endTime, 
-        votingStartDate, votingStartTime, votingEndDate, votingEndTime,
+        startDate, startTime, endDate, endTime,
         ...cleanedData 
       } = formData;
 
       const payload: Record<string, unknown> = {
         ...cleanedData,
-        startDate: startISO,
-        endDate: endISO,
-        // Send all possible keys for phase start/end to ensure compatibility
-        votingStartsAt: voteS_ISO,
-        votingEndsAt: voteE_ISO,
-        votingStartTime: voteS_ISO,
-        votingEndTime: voteE_ISO,
+        ...(startISO && startISO !== originalStart ? { startDate: startISO } : {}),
+        ...(endISO && endISO !== originalEnd ? { endDate: endISO } : {}),
         costPerVote: formData.costPerVote ? parseFloat(formData.costPerVote) : null,
         minVotesPerPurchase: parseInt(formData.minVotesPerPurchase) || 1,
         maxVotesPerPurchase: formData.maxVotesPerPurchase ? parseInt(formData.maxVotesPerPurchase) : null,
@@ -346,6 +328,7 @@ export function EventForm({ eventId, backUrl }: EventFormProps) {
 
       setSuccess("Event updated successfully!");
       setDeletedTicketTypeIds([]);
+      router.refresh();
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || "Failed to update event");
     } finally {
@@ -750,36 +733,6 @@ export function EventForm({ eventId, backUrl }: EventFormProps) {
                   placeholder="Unlimited"
                   className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-slate-100 disabled:cursor-not-allowed"
                 />
-              </div>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-slate-200">
-              <h4 id="voting-timelines" className="text-sm font-semibold text-slate-900 mb-4">Voting Phase Timelines</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label className="block text-xs font-medium text-slate-700">Voting Start</label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1 group">
-                      <input type="date" name="votingStartDate" value={formData.votingStartDate} onChange={handleChange} disabled={isLive} onClick={(e) => e.currentTarget.showPicker()} onKeyDown={(e) => e.preventDefault()} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 peer disabled:cursor-not-allowed" />
-                      <div className="w-full h-full px-3 py-2 border border-slate-200 rounded-lg bg-white flex items-center transition-all peer-focus:ring-2 peer-focus:ring-primary-500">
-                        <span className={formData.votingStartDate ? "text-slate-900 text-sm" : "text-slate-400 text-sm"}>{formData.votingStartDate ? formatInputDate(formData.votingStartDate) : "mm/dd/yyyy"}</span>
-                      </div>
-                    </div>
-                    <input type="time" name="votingStartTime" value={formData.votingStartTime} onChange={handleChange} disabled={isLive} className="w-28 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white disabled:bg-slate-100" />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-xs font-medium text-slate-700">Voting End</label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1 group">
-                      <input type="date" name="votingEndDate" value={formData.votingEndDate} min={formData.votingStartDate} onChange={handleChange} disabled={isLive} onClick={(e) => e.currentTarget.showPicker()} onKeyDown={(e) => e.preventDefault()} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 peer disabled:cursor-not-allowed" />
-                      <div className="w-full h-full px-3 py-2 border border-slate-200 rounded-lg bg-white flex items-center transition-all peer-focus:ring-2 peer-focus:ring-primary-500">
-                        <span className={formData.votingEndDate ? "text-slate-900 text-sm" : "text-slate-400 text-sm"}>{formData.votingEndDate ? formatInputDate(formData.votingEndDate) : "mm/dd/yyyy"}</span>
-                      </div>
-                    </div>
-                    <input type="time" name="votingEndTime" value={formData.votingEndTime} onChange={handleChange} disabled={isLive} className="w-28 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white disabled:bg-slate-100" />
-                  </div>
-                </div>
               </div>
             </div>
 

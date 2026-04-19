@@ -22,6 +22,8 @@ import {
   Image as ImageIcon,
   Check,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import NominationFormDesigner, {
   NominationSettings,
 } from "./NominationFormDesigner";
@@ -66,9 +68,14 @@ const generateCandidateCode = () => {
 
 export default function CreateEventPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPER_ADMIN";
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(searchParams.get("type") ? 2 : 1);
+  const [organizers, setOrganizers] = useState<{ id: string; name: string; email: string }[]>([]);
+  const [selectedOrganizerId, setSelectedOrganizerId] = useState("");
 
   const getOrdinalNum = (n: number) => {
     return (
@@ -94,19 +101,11 @@ export default function CreateEventPage() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    type: "" as "VOTING" | "TICKETING" | "",
+    type: (searchParams.get("type") || "") as "VOTING" | "TICKETING" | "",
     startDate: "",
     startTime: "09:00",
     endDate: "",
     endTime: "21:00",
-    votingStartDate: "",
-    votingStartTime: "09:00",
-    votingEndDate: "",
-    votingEndTime: "17:00",
-    nominationStartDate: "",
-    nominationStartTime: "09:00",
-    nominationEndDate: "",
-    nominationEndTime: "17:00",
     location: "",
     venue: "",
     isPublic: true,
@@ -128,6 +127,23 @@ export default function CreateEventPage() {
   const [ticketTypes, setTicketTypes] = useState<TicketTypeForm[]>([]);
   const [categories, setCategories] = useState<CategoryForm[]>([]);
   const [minDate, setMinDate] = useState<string>("");
+
+  useEffect(() => {
+    if (isAdmin) {
+      api.get("/users").then((res) => {
+        const users = res.data || res.users || res;
+        setOrganizers(
+          (Array.isArray(users) ? users : [])
+            .filter((u: any) => u.role === "ORGANIZER")
+            .map((u: any) => ({
+              id: u.id || u._id,
+              name: u.name || u.fullName,
+              email: u.email,
+            }))
+        );
+      }).catch(console.error);
+    }
+  }, [isAdmin]);
 
   // Calculate minimum start date on the client-side to prevent hydration mismatch
   useEffect(() => {
@@ -298,6 +314,7 @@ export default function CreateEventPage() {
   const validateForm = () => {
     if (!formData.title.trim()) return "Event title is required";
     if (!formData.type) return "Please select an event type";
+    if (isAdmin && !selectedOrganizerId) return "Please select an organizer";
     if (formData.type === "VOTING") {
       // Dates are optional for Voted based events if they haven't been started yet?
       // Actually backend usually requires dates.
@@ -401,6 +418,7 @@ export default function CreateEventPage() {
         type: formData.type,
         imageUrl,
         imagePublicId,
+        ...(isAdmin && selectedOrganizerId ? { organizerId: selectedOrganizerId } : {}),
         startDate: formData.startDate ? new Date(`${formData.startDate}T${formData.startTime}:00`).toISOString() : undefined,
         endDate: formData.endDate ? new Date(`${formData.endDate}T${formData.endTime}:00`).toISOString() : undefined,
         location: formData.location || null,
@@ -408,15 +426,6 @@ export default function CreateEventPage() {
         isPublic: formData.isPublic,
         // Conditional VOTING fields
         ...(formData.type === "VOTING" && {
-          votingStartsAt: formData.votingStartDate ? new Date(`${formData.votingStartDate}T${formData.votingStartTime}:00`).toISOString() : null,
-          votingEndsAt: formData.votingEndDate ? new Date(`${formData.votingEndDate}T${formData.votingEndTime}:00`).toISOString() : null,
-          nominationStartsAt: formData.allowPublicNominations && formData.nominationStartDate ? new Date(`${formData.nominationStartDate}T${formData.nominationStartTime}:00`).toISOString() : null,
-          nominationEndsAt: formData.allowPublicNominations && formData.nominationEndDate ? new Date(`${formData.nominationEndDate}T${formData.nominationEndTime}:00`).toISOString() : null,
-          nominationDeadline: formData.allowPublicNominations && formData.nominationEndDate ? new Date(`${formData.nominationEndDate}T${formData.nominationEndTime}:00`).toISOString() : null,
-          votingStartTime: formData.votingStartDate ? new Date(`${formData.votingStartDate}T${formData.votingStartTime}:00`).toISOString() : null,
-          votingEndTime: formData.votingEndDate ? new Date(`${formData.votingEndDate}T${formData.votingEndTime}:00`).toISOString() : null,
-          nominationStartTime: formData.allowPublicNominations && formData.nominationStartDate ? new Date(`${formData.nominationStartDate}T${formData.nominationStartTime}:00`).toISOString() : null,
-          nominationEndTime: formData.allowPublicNominations && formData.nominationEndDate ? new Date(`${formData.nominationEndDate}T${formData.nominationEndTime}:00`).toISOString() : null,
           costPerVote: parseFloat(formData.votePrice),
           minVotesPerPurchase: parseInt(formData.minVotesPerPurchase) || 1,
           maxVotesPerPurchase: formData.maxVotesPerPurchase ? parseInt(formData.maxVotesPerPurchase) : null,
@@ -636,6 +645,24 @@ export default function CreateEventPage() {
                 Basic Information
               </h3>
               <div className="space-y-4">
+                {isAdmin && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      Organizer *
+                    </label>
+                    <select
+                      value={selectedOrganizerId}
+                      onChange={(e) => setSelectedOrganizerId(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      required
+                    >
+                      <option value="">Select an organizer</option>
+                      {organizers.map((o) => (
+                        <option key={o.id} value={o.id}>{o.name} — {o.email}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Event Title *
@@ -866,36 +893,6 @@ export default function CreateEventPage() {
                       placeholder="Unlimited"
                       className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-6 border-t border-slate-200">
-                  <h4 className="text-sm font-semibold text-slate-900 mb-4">Voting Phase Timelines</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-1">
-                      <label className="block text-xs font-medium text-slate-700">Voting Start</label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1 group">
-                          <input type="date" name="votingStartDate" value={formData.votingStartDate} onChange={handleChange} onClick={(e) => e.currentTarget.showPicker()} onKeyDown={(e) => e.preventDefault()} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 peer" />
-                          <div className="w-full h-full px-3 py-2 border border-slate-200 rounded-lg bg-white flex items-center transition-all peer-focus:ring-2 peer-focus:ring-primary-500">
-                            <span className={formData.votingStartDate ? "text-slate-900 text-sm" : "text-slate-400 text-sm"}>{formData.votingStartDate ? formatInputDate(formData.votingStartDate) : "mm/dd/yyyy"}</span>
-                          </div>
-                        </div>
-                        <input type="time" name="votingStartTime" value={formData.votingStartTime} onChange={handleChange} className="w-28 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" />
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="block text-xs font-medium text-slate-700">Voting End</label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1 group">
-                          <input type="date" name="votingEndDate" value={formData.votingEndDate} min={formData.votingStartDate} onChange={handleChange} onClick={(e) => e.currentTarget.showPicker()} onKeyDown={(e) => e.preventDefault()} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 peer" />
-                          <div className="w-full h-full px-3 py-2 border border-slate-200 rounded-lg bg-white flex items-center transition-all peer-focus:ring-2 peer-focus:ring-primary-500">
-                            <span className={formData.votingEndDate ? "text-slate-900 text-sm" : "text-slate-400 text-sm"}>{formData.votingEndDate ? formatInputDate(formData.votingEndDate) : "mm/dd/yyyy"}</span>
-                          </div>
-                        </div>
-                        <input type="time" name="votingEndTime" value={formData.votingEndTime} onChange={handleChange} className="w-28 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" />
-                      </div>
-                    </div>
                   </div>
                 </div>
 

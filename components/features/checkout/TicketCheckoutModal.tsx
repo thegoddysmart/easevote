@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AppsnCheckoutModal } from "@/app/components/payment/AppsnCheckoutModal";
+import { AppsnCheckoutModal } from "@/components/payment/AppsnCheckoutModal";
 import { api } from "@/lib/api-client";
 
 interface TicketCheckoutModalProps {

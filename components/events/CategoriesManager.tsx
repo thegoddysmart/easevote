@@ -18,7 +18,7 @@ import { api } from "@/lib/api-client";
 
 type CandidateForm = {
   id?: string;
-  code: string;
+  code?: string;
   name: string;
   bio: string;
   email?: string;
@@ -59,15 +59,6 @@ type EventData = {
   }>;
 };
 
-const generateCandidateCode = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < 3; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
-};
-
 interface CategoriesManagerProps {
   eventId: string;
   backUrl?: string;
@@ -94,45 +85,43 @@ export function CategoriesManager({
     cand: number;
   } | null>(null);
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const data = await api.get(`/events/${eventId}`);
-        const eventData = data.data || data.event || data;
-        setEventTitle(eventData.title);
+  const fetchEvent = async () => {
+    try {
+      const data = await api.get(`/events/${eventId}`);
+      const eventData = data.data || data.event || data;
+      setEventTitle(eventData.title);
 
-        if (eventData.categories) {
-          setCategories(
-            eventData.categories.map((c: any) => ({
-              id: c.id,
-              name: c.name,
-              description: c.description || "",
-              isExpanded: false,
-              totalVotes: c.totalVotes,
-              candidates: c.candidates.map((cand: any) => ({
-                id: cand.id,
-                code: cand.code,
-                name: cand.name,
-                bio: cand.bio || "",
-                email: cand.email || "",
-                phone: cand.phone || "",
-                image: cand.image,
-                imagePublicId: cand.imagePublicId,
-                voteCount: cand.voteCount,
-              })),
+      if (eventData.categories) {
+        setCategories(
+          eventData.categories.map((c: any) => ({
+            id: c.id || c._id,
+            name: c.name,
+            description: c.description || "",
+            isExpanded: false,
+            totalVotes: c.totalVotes,
+            candidates: c.candidates.map((cand: any) => ({
+              id: cand.id || cand._id,
+              code: cand.code,
+              name: cand.name,
+              bio: cand.bio || "",
+              email: cand.email || "",
+              phone: cand.phone || "",
+              image: cand.image || cand.imageUrl,
+              imagePublicId: cand.imagePublicId,
+              voteCount: cand.voteCount,
             })),
-          );
-        }
-      } catch (err) {
-        setError("Failed to load event data");
-      } finally {
-        setLoading(false);
+          })),
+        );
       }
-    };
-
-    if (eventId) {
-      fetchEvent();
+    } catch (err) {
+      setError("Failed to load event data");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    if (eventId) fetchEvent();
   }, [eventId]);
 
   const addCategory = () => {
@@ -198,7 +187,6 @@ export function CategoriesManager({
               candidates: [
                 ...c.candidates,
                 {
-                  code: generateCandidateCode(),
                   name: "",
                   bio: "",
                   email: "",
@@ -391,8 +379,7 @@ export function CategoriesManager({
             `/events/${eventId}/categories`,
             catPayload,
           );
-          categoryId =
-            newCat.category?.id || newCat.id || newCat.data?.id || newCat._id;
+          categoryId = newCat.category?._id || newCat.category?.id || newCat._id || newCat.id;
         }
 
         if (!categoryId) continue;
@@ -401,13 +388,10 @@ export function CategoriesManager({
           const candPayload = {
             name: cand.name,
             description: cand.bio || null,
-            email: cand.email || `${cand.code.toLowerCase()}@easevote.com`,
-            phone: cand.phone || "0000000000",
+            email: cand.email || null,
+            phone: cand.phone || null,
             imageUrl: cand.image || null,
             imagePublicId: cand.imagePublicId || null,
-            code: cand.code
-              ? cand.code.toUpperCase()
-              : `CAND-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
           };
 
           if (cand.id) {
@@ -427,7 +411,7 @@ export function CategoriesManager({
       setSuccess("Categories updated successfully!");
       setDeletedCategoryIds([]);
       setDeletedCandidateIds([]);
-      router.refresh(); // Refresh to sync server state
+      await fetchEvent();
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to update categories",
@@ -593,6 +577,7 @@ export function CategoriesManager({
                             {candIndex + 1}
                           </div>
                           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {candidate.code && (
                             <input
                               type="text"
                               value={candidate.code}
@@ -600,6 +585,7 @@ export function CategoriesManager({
                               className="px-3 py-2 border border-slate-200 bg-slate-100 text-slate-500 rounded-lg focus:outline-none cursor-not-allowed uppercase font-mono"
                               placeholder="Code"
                             />
+                            )}
                             <input
                               type="text"
                               value={candidate.name}

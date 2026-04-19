@@ -8,12 +8,14 @@ import { useState, useTransition } from "react";
 type Props = {
   eventId: string;
   status: string;
+  onStatusChange?: (status: string) => void;
 };
 
-export default function AdminEventActions({ eventId, status }: Props) {
+export default function AdminEventActions({ eventId, status, onStatusChange }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [currentStatus, setCurrentStatus] = useState(status);
 
   const handleAction = async (action: string) => {
     if (!confirm(`Are you sure you want to ${action} this event?`)) return;
@@ -37,30 +39,29 @@ export default function AdminEventActions({ eventId, status }: Props) {
       }
 
       if (newStatus) {
-        let endpoint = `/events/${eventId}/status`; // Fallback
-        
-        if (action === "approve") {
-          endpoint = `/events/${eventId}/approve`;
-        } else if (action === "resume") {
-            endpoint = `/events/${eventId}/publish`;
-        }
-
         try {
-          const result = await api.patch(endpoint, { status: newStatus });
-          if (!result.success && !result.id && !result._id) {
-            alert(`Failed to ${action} event. The server may not support this action yet.`);
+          if (action === "approve") {
+            await api.patch(`/events/${eventId}/approve`, {});
+          } else if (action === "suspend") {
+            await api.patch(`/events/${eventId}/suspend`, {});
+          } else if (action === "resume") {
+            const res = await api.patch(`/events/${eventId}/resume`, {});
+            newStatus = res.status || newStatus;
           } else {
-            router.refresh();
+            await api.put(`/events/${eventId}`, { status: newStatus });
           }
+          setCurrentStatus(newStatus);
+          onStatusChange?.(newStatus);
+          router.refresh();
         } catch (error: any) {
-            alert(`Error: ${error.message || "Failed to update status"}`);
+          alert(`Error: ${error.message || "Failed to update status"}`);
         }
       }
       setLoadingAction(null);
     });
   };
 
-  if (status === "PENDING_REVIEW") {
+  if (currentStatus === "PENDING_REVIEW") {
     return (
       <div className="flex items-center gap-2">
         <button
@@ -88,7 +89,7 @@ export default function AdminEventActions({ eventId, status }: Props) {
     );
   }
 
-  if (status === "LIVE" || status === "APPROVED") {
+  if (currentStatus === "LIVE" || currentStatus === "APPROVED") {
     return (
       <button
         disabled={isPending}
@@ -106,7 +107,7 @@ export default function AdminEventActions({ eventId, status }: Props) {
     );
   }
 
-  if (status === "PAUSED") {
+  if (currentStatus === "PAUSED") {
     return (
       <button
         disabled={isPending}

@@ -428,7 +428,11 @@ export function AdminEventManager({
                                   </span>
                                 </div>
                                 <span className="text-sm font-medium text-slate-900">
-                                  {(candidate?.voteCount || 0).toLocaleString()}{" "}
+                                  {(
+                                    candidate?.voteCount ??
+                                    candidate?.votes ??
+                                    0
+                                  ).toLocaleString()}{" "}
                                   votes
                                 </span>
                               </div>

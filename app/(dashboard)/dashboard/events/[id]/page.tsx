@@ -30,6 +30,38 @@ export default async function AdminEventDetailsPage(props: Props) {
     eventData.id = eventData._id;
   }
 
+  // Manual summation fallback for votes
+  let totalVotes = Number(eventData.stats?.votes ?? eventData.totalVotes ?? eventData.votes) || 0;
+  if (totalVotes === 0 && eventData.categories) {
+    eventData.categories.forEach((cat: any) => {
+      cat.candidates?.forEach((c: any) => {
+        totalVotes += Number(c.votes ?? c.voteCount) || 0;
+      });
+    });
+  }
+
+  // Manual summation fallback for tickets
+  let ticketsSold = Number(eventData.stats?.ticketsSold ?? eventData.totalTicketsSold) || 0;
+  if (ticketsSold === 0 && eventData.ticketTypes) {
+    eventData.ticketTypes.forEach((tt: any) => {
+      ticketsSold += Number(tt.sold ?? tt.soldCount) || 0;
+    });
+  }
+
+  // Manual revenue calculation fallback
+  let totalRevenue = Number(eventData.stats?.revenue ?? eventData.totalRevenue ?? eventData.revenue) || 0;
+  if (totalRevenue === 0) {
+    if (eventData.type === "VOTING") {
+      totalRevenue = totalVotes * (Number(eventData.costPerVote ?? eventData.votePrice ?? eventData.price) || 0);
+    } else if (eventData.type === "TICKETING" || eventData.type === "HYBRID") {
+      if (eventData.ticketTypes) {
+        eventData.ticketTypes.forEach((tt: any) => {
+          totalRevenue += (Number(tt.sold ?? tt.soldCount) || 0) * (Number(tt.price) || 0);
+        });
+      }
+    }
+  }
+
   // Provide robust fallbacks for nested objects to prevent runtime errors
   const event = {
     ...eventData,
@@ -39,12 +71,12 @@ export default async function AdminEventDetailsPage(props: Props) {
         email: "",
         phone: "",
       },
-    stats: eventData.stats || {
-      revenue: 0,
-      votes: 0,
-      ticketsSold: 0,
-      candidatesCount: 0,
-      ticketTypesCount: 0,
+    stats: {
+      revenue: totalRevenue,
+      votes: totalVotes,
+      ticketsSold: ticketsSold,
+      candidatesCount: eventData.stats?.candidatesCount ?? 0,
+      ticketTypesCount: eventData.stats?.ticketTypesCount ?? 0,
     },
     categories: eventData.categories || [],
     ticketTypes: eventData.ticketTypes || [],

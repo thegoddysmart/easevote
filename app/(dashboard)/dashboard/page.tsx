@@ -35,36 +35,60 @@ export default async function DashboardPage() {
     // ── Events ──
     const eventsRaw = eventsRes.status === "fulfilled" ? eventsRes.value : { data: [] };
     const events: any[] = Array.isArray(eventsRaw) ? eventsRaw : eventsRaw?.data ?? [];
-    const activeEvents = events.filter((e) => e.status === "LIVE" || e.status === "PUBLISHED" || e.status === "APPROVED").length;
+    const activeEvents = events.filter((e) => 
+      ["LIVE", "Live", "PUBLISHED", "APPROVED", "Upcoming"].includes(e.status)
+    ).length;
+
+    // ── Derive other stats from event data ──
+    let totalVotes = 0;
+    let ticketsSold = 0;
+    let derivedPlatformRevenue = 0;
+
+    events.forEach((e) => {
+      // 1. Accumulate Votes
+      let evVotes = Number(e.totalVotes ?? e.votes ?? e.stats?.votes) || 0;
+      if (evVotes === 0 && e.categories) {
+        e.categories.forEach((cat: any) => {
+          cat.candidates?.forEach((c: any) => { evVotes += Number(c.votes ?? c.voteCount) || 0; });
+        });
+      }
+      totalVotes += evVotes;
+
+      // 2. Accumulate Tickets
+      let evTickets = Number(e.totalTicketsSold ?? e.stats?.ticketsSold) || 0;
+      if (evTickets === 0 && e.ticketTypes) {
+        e.ticketTypes.forEach((tt: any) => {
+          evTickets += Number(tt.sold ?? tt.soldCount) || 0;
+        });
+      }
+      ticketsSold += evTickets;
+
+      // 3. Accumulate Derived Revenue
+      let evRevenue = Number(e.totalRevenue ?? e.revenue ?? e.stats?.revenue) || 0;
+      if (evRevenue === 0) {
+        if (e.type === "VOTING") {
+          evRevenue = evVotes * (Number(e.costPerVote ?? e.votePrice ?? e.price) || 0);
+        } else {
+          if (e.ticketTypes) {
+            e.ticketTypes.forEach((tt: any) => {
+              evRevenue += (Number(tt.sold ?? tt.soldCount) || 0) * (Number(tt.price) || 0);
+            });
+          }
+        }
+      }
+      derivedPlatformRevenue += evRevenue;
+    });
 
     // ── Transaction Stats (New Source of Truth) ──
     const statsRaw = statsRes.status === "fulfilled" ? statsRes.value : { data: {} };
     const statsData = statsRaw.data || statsRaw || {};
     
-    const totalRevenue = statsData.totalVolume || statsData.totalRevenue || 0;
-    const platformFee = statsData.netRevenue || statsData.netCommission || 0;
+    let totalRevenue = statsData.totalVolume || statsData.totalRevenue || 0;
+    if (totalRevenue === 0) {
+      totalRevenue = derivedPlatformRevenue;
+    }
+    const platformFee = statsData.netRevenue || statsData.netCommission || (totalRevenue * 0.1); // Fallback to 10% if missing
     const pendingPayouts = totalRevenue - platformFee;
-
-    // ── Derive other stats from event data ──
-    // totalVotes: sum votes across all candidates in all categories
-    let totalVotes = 0;
-    let ticketsSold = 0;
-    events.forEach((e) => {
-      if (e.categories) {
-        e.categories.forEach((cat: any) => {
-          if (cat.candidates) {
-            cat.candidates.forEach((c: any) => {
-              totalVotes += Number(c.votes) || 0;
-            });
-          }
-        });
-      }
-      if (e.ticketTypes) {
-        e.ticketTypes.forEach((tt: any) => {
-          ticketsSold += Number(tt.sold) || 0;
-        });
-      }
-    });
 
     // ── Event type distribution ──
     const votingCount = events.filter((e) => e.type === "VOTING").length;
@@ -92,7 +116,7 @@ export default async function DashboardPage() {
         if (e.type === "VOTING" && e.categories) {
           let ev = 0;
           e.categories.forEach((cat: any) => {
-            cat.candidates?.forEach((c: any) => { ev += Number(c.votes) || 0; });
+            cat.candidates?.forEach((c: any) => { ev += Number(c.votes ?? c.voteCount) || 0; });
           });
           eventRevenue = ev * (Number(e.costPerVote) || 0);
         }
@@ -115,7 +139,7 @@ export default async function DashboardPage() {
         let evVotes = 0;
         if (e.categories) {
           e.categories.forEach((cat: any) => {
-            cat.candidates?.forEach((c: any) => { evVotes += Number(c.votes) || 0; });
+            cat.candidates?.forEach((c: any) => { evVotes += Number(c.votes ?? c.voteCount) || 0; });
           });
         }
         return { ...e, _computedVotes: evVotes };
@@ -175,7 +199,7 @@ export default async function DashboardPage() {
       if (e.type === "VOTING" && e.categories) {
         let ev = 0;
         e.categories.forEach((cat: any) => {
-          cat.candidates?.forEach((c: any) => { ev += Number(c.votes) || 0; });
+          cat.candidates?.forEach((c: any) => { ev += Number(c.votes ?? c.voteCount) || 0; });
         });
         totalVotes += ev;
         totalRevenue += ev * (Number(e.costPerVote) || 0);

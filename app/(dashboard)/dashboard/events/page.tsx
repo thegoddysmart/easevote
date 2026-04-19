@@ -36,26 +36,61 @@ export default async function AdminEventsPage(props: Props) {
   const rawEvents = result.data || result.events || (Array.isArray(result) ? result : []);
 
   // Clean up and map the raw MongoDB events to the expected frontend schema
-  const mappedEvents = rawEvents.map((e: any) => ({
-    id: e._id,
-    eventCode: e.eventCode || e._id?.substring(0, 8) || "N/A",
-    title: e.title || "Untitled Event",
-    organizer: {
-      name:
-        e.organizerId?.businessName ||
-        e.organizerId?.fullName ||
-        "Unknown Organizer",
-      avatar: e.organizerId?.logo || "",
-    },
-    type: e.type || "UNKNOWN",
-    status: e.status || "DRAFT",
-    startDate: e.startDate || new Date().toISOString(),
-    endDate: e.endDate || new Date().toISOString(),
-    stats: {
-      votes: e.totalVotes || 0,
-      revenue: e.totalRevenue || 0,
-    },
-  }));
+  const mappedEvents = rawEvents.map((e: any) => {
+    // Manual summation fallback for votes
+    let totalVotes = Number(e.totalVotes ?? e.votes) || 0;
+    if (totalVotes === 0 && e.categories) {
+      e.categories.forEach((cat: any) => {
+        cat.candidates?.forEach((c: any) => {
+          totalVotes += Number(c.votes ?? c.voteCount) || 0;
+        });
+      });
+    }
+
+    // Manual summation fallback for tickets
+    let ticketsSold = Number(e.totalTicketsSold ?? e.stats?.ticketsSold) || 0;
+    if (ticketsSold === 0 && e.ticketTypes) {
+      e.ticketTypes.forEach((tt: any) => {
+        ticketsSold += Number(tt.sold ?? tt.soldCount) || 0;
+      });
+    }
+
+    // Manual revenue calculation fallback
+    let totalRevenue = Number(e.totalRevenue ?? e.revenue ?? e.stats?.revenue) || 0;
+    if (totalRevenue === 0) {
+      if (e.type === "VOTING") {
+        totalRevenue = totalVotes * (Number(e.costPerVote ?? e.votePrice ?? e.price) || 0);
+      } else if (e.type === "TICKETING" || e.type === "HYBRID") {
+        if (e.ticketTypes) {
+          e.ticketTypes.forEach((tt: any) => {
+            totalRevenue += (Number(tt.sold ?? tt.soldCount) || 0) * (Number(tt.price) || 0);
+          });
+        }
+      }
+    }
+
+    return {
+      id: e._id,
+      eventCode: e.eventCode || e._id?.substring(0, 8) || "N/A",
+      title: e.title || "Untitled Event",
+      organizer: {
+        name:
+          e.organizerId?.businessName ||
+          e.organizerId?.fullName ||
+          "Unknown Organizer",
+        avatar: e.organizerId?.logo || "",
+      },
+      type: e.type || "UNKNOWN",
+      status: e.status || "DRAFT",
+      startDate: e.startDate || new Date().toISOString(),
+      endDate: e.endDate || new Date().toISOString(),
+      stats: {
+        votes: totalVotes,
+        revenue: totalRevenue,
+        ticketsSold: ticketsSold,
+      },
+    };
+  });
 
   return (
     <div className="space-y-6">

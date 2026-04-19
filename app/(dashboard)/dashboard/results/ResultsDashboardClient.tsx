@@ -17,6 +17,7 @@ type Candidate = {
   name: string;
   code: string;
   voteCount: number;
+  votes?: number;
   image: string | null;
 };
 
@@ -60,10 +61,9 @@ export default function ResultsDashboardClient({ events }: DashboardProps) {
     );
   }
 
-  // Find Top Candidate
   const allCandidates = selectedEvent.categories.flatMap((c) => c.candidates);
   const topCandidate = allCandidates.reduce(
-    (max, c) => (c.voteCount > max.voteCount ? c : max),
+    (max, c) => ((c.voteCount ?? c.votes ?? 0) > (max?.voteCount ?? max?.votes ?? 0) ? c : max),
     allCandidates[0],
   );
 
@@ -153,7 +153,7 @@ export default function ResultsDashboardClient({ events }: DashboardProps) {
               {topCandidate?.name || "N/A"}
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              With {(topCandidate?.voteCount || 0).toLocaleString()} votes
+              With {(topCandidate?.voteCount ?? topCandidate?.votes ?? 0).toLocaleString()} votes
             </p>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function ResultsDashboardClient({ events }: DashboardProps) {
               {category.candidates.map((candidate) => {
                 const percentage =
                   category.totalVotes > 0
-                    ? (candidate.voteCount / category.totalVotes) * 100
+                    ? ((candidate.voteCount ?? candidate.votes ?? 0) / category.totalVotes) * 100
                     : 0;
 
                 return (
@@ -217,7 +217,7 @@ export default function ResultsDashboardClient({ events }: DashboardProps) {
                       </div>
                       <div className="text-right">
                         <span className="font-bold text-slate-900 text-sm">
-                          {(candidate.voteCount || 0).toLocaleString()}
+                          {(candidate.voteCount ?? candidate.votes ?? 0).toLocaleString()}
                         </span>
                         <span className="text-xs text-slate-400 ml-1">
                           ({percentage.toFixed(1)}%)

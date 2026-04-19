@@ -503,9 +503,9 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
       </div>
 
       {isLive && status === "LIVE" && (
-        <div className="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <AlertCircle className="h-5 w-5 text-yellow-600" />
-          <p className="text-sm text-yellow-800">
+        <div className="flex items-center gap-3 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+          <AlertCircle className="h-5 w-5 text-primary-600" />
+          <p className="text-sm text-primary-800">
             This event is currently live. Only certain fields can be edited. To
             make major changes, please pause the event first.
           </p>
@@ -787,9 +787,9 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
         {(formData.type === "VOTING" || formData.type === "HYBRID") && (
           <div className="bg-white rounded-xl border border-slate-200 p-6 mt-6">
             <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <div className="p-1.5 bg-yellow-50 rounded-lg">
-                <Clock className="h-5 w-5 text-yellow-600" />
-              </div>
+          <div className="p-1.5 bg-primary-50 rounded-lg">
+            <Clock className="h-5 w-5 text-primary-600" />
+          </div>
               Voting Window (Required)
             </h3>
             <p className="text-xs text-slate-500 mb-4 -mt-2">

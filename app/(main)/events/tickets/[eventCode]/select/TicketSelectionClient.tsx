@@ -176,7 +176,7 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
                         <h4 className="font-bold text-slate-900 text-lg">
                           {tier.name}
                         </h4>
-                        <p className="font-bold text-magenta-600 sm:mt-1">
+                        <p className="font-bold text-primary-600 sm:mt-1">
                           GHS {tier.price.toFixed(2)}
                         </p>
                       </div>
@@ -198,7 +198,7 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
                       </span>
                       <button
                         onClick={() => updateCart(tier.id, 1)}
-                        className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-magenta-600"
+                        className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-primary-600"
                       >
                         <Plus size={16} />
                       </button>
@@ -227,7 +227,7 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
                         }
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-magenta-500 focus:outline-none"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:outline-none"
                         placeholder="Kwame Mensah"
                       />
                     </div>
@@ -247,7 +247,7 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
                         }
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-magenta-500 focus:outline-none"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:outline-none"
                         placeholder="kwame@example.com"
                       />
                     </div>
@@ -267,7 +267,7 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
                         onChange={(e) =>
                           setFormData({ ...formData, phone: e.target.value })
                         }
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-magenta-500 focus:outline-none"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:outline-none"
                         placeholder="024 123 4567"
                       />
                     </div>
@@ -328,7 +328,7 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
                     disabled={
                       !formData.email || !formData.phone || isProcessing
                     }
-                    className="w-full bg-secondary-600 disabled:bg-gray-300 text-white py-3 rounded-xl font-bold hover:bg-secondary-700 transition-colors shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-primary-600 disabled:bg-gray-300 text-white py-3 rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-lg flex items-center justify-center gap-2"
                   >
                     {isProcessing ? (
                       "Processing..."

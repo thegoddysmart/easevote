@@ -208,19 +208,19 @@ export default function EventDetailClient({
 
               <div className="flex flex-wrap gap-6 text-sm md:text-base text-white/80 font-medium mb-6">
                 <div className="flex items-center gap-2">
-                  <Calendar size={18} className="text-secondary-700" />
+                  <Calendar size={18} className="text-primary-700" />
                   {event.date}
                 </div>
                 {event.location && (
                   <div className="flex items-center gap-2">
-                    <MapPin size={18} className="text-secondary-700" />
+                    <MapPin size={18} className="text-primary-700" />
                     {event.location}
                   </div>
                 )}
                 {(event.timelineEnd ||
                   getEventStatus(event).isActive) && (
                     <div className="flex items-center gap-2">
-                      <Clock size={18} className="text-secondary-700" />
+                      <Clock size={18} className="text-primary-700" />
                       {event.timelineEnd ? (
                         <Countdown endTime={event.timelineEnd} />
                       ) : (
@@ -235,7 +235,7 @@ export default function EventDetailClient({
               <div className="flex flex-wrap gap-4">
                 <button 
                   onClick={handleShare}
-                  className="flex items-center gap-2 text-sm font-bold bg-white text-slate-900 px-6 py-3 rounded-full hover:bg-secondary-700 hover:text-white transition-colors"
+                  className="flex items-center gap-2 text-sm font-bold bg-white text-slate-900 px-6 py-3 rounded-full hover:bg-primary-700 hover:text-white transition-colors"
                 >
                   <Share2 size={16} /> Share Event
                 </button>
@@ -248,7 +248,7 @@ export default function EventDetailClient({
                         `/events/nominate?eventCode=${event.eventCode}`,
                       )
                     }
-                    className="flex items-center gap-2 text-sm font-bold bg-transparent border-2 border-white/30 text-white px-6 py-3 rounded-full hover:bg-white hover:text-secondary-700 transition-colors"
+                    className="flex items-center gap-2 text-sm font-bold bg-transparent border-2 border-white/30 text-white px-6 py-3 rounded-full hover:bg-white hover:text-primary-700 transition-colors"
                   >
                     <PenTool size={16} /> File Nomination
                   </button>
@@ -272,7 +272,7 @@ export default function EventDetailClient({
       </div>
 
       {/* ================= TABS ================= */}
-      <div className="bg-white border-b border-gray-200 sticky top-[72px] z-30 shadow-secondary-400">
+      <div className="bg-white border-b border-gray-200 sticky top-[72px] z-30 shadow-primary-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             {[
@@ -299,7 +299,7 @@ export default function EventDetailClient({
                   )
                 }
                 className={`py-4 flex items-center gap-2 font-bold border-b-2 ${activeTab === tab.id
-                    ? "border-secondary-200 text-secondary-700"
+                    ? "border-primary-200 text-primary-700"
                     : "border-transparent text-slate-500"
                   }`}
               >
@@ -359,14 +359,14 @@ export default function EventDetailClient({
                         setSelectedCategory(cat.name);
                         setVotingStep("nominees");
                       }}
-                      className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-magenta-500 hover:-translate-y-1 transition-all cursor-pointer group flex items-center justify-between"
+                      className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary-500 hover:-translate-y-1 transition-all cursor-pointer group flex items-center justify-between"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-secondary-50 text-secondary-600 flex items-center justify-center group-hover:bg-secondary-600 group-hover:text-white transition-colors">
+                        <div className="w-12 h-12 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-colors">
                           <GridIcon size={20} />
                         </div>
                         <div>
-                          <h3 className="font-bold text-slate-900 text-lg group-hover:text-magenta-800 transition-colors">
+                          <h3 className="font-bold text-slate-900 text-lg group-hover:text-primary-800 transition-colors">
                             {cat.name}
                           </h3>
                           <div className="flex items-center gap-1 text-sm text-slate-500">
@@ -374,7 +374,7 @@ export default function EventDetailClient({
                           </div>
                         </div>
                       </div>
-                      <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-slate-400 group-hover:bg-magenta-50 group-hover:text-magenta-600 transition-all">
+                      <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-slate-400 group-hover:bg-primary-50 group-hover:text-primary-600 transition-all">
                         <ChevronRight size={18} />
                       </div>
                     </div>
@@ -410,7 +410,7 @@ export default function EventDetailClient({
                       placeholder="Search nominee name or code..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-white"
+                      className="w-full pl-10 pr-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                     />
                   </div>
                 </div>
@@ -433,7 +433,7 @@ export default function EventDetailClient({
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                             />
                           ) : (
-                            <div className="w-full h-full bg-magenta-50 flex items-center justify-center text-magenta-600 font-bold text-6xl uppercase font-display transition-transform duration-500 group-hover:scale-110">
+                            <div className="w-full h-full bg-primary-50 flex items-center justify-center text-primary-600 font-bold text-6xl uppercase font-display transition-transform duration-500 group-hover:scale-110">
                               {candidate.name.charAt(0)}
                             </div>
                           )}
@@ -442,7 +442,7 @@ export default function EventDetailClient({
                           </div>
                         </div>
                         <div className="px-2 flex-1 flex flex-col text-center">
-                          <p className="text-xs font-bold text-magenta-600 uppercase tracking-wide mb-1">
+                          <p className="text-xs font-bold text-primary-600 uppercase tracking-wide mb-1">
                             {candidate.category}
                           </p>
                           <h3 className="text-xl font-display font-bold text-slate-900 mb-4">
@@ -483,7 +483,7 @@ export default function EventDetailClient({
                     </p>
                     <button
                       onClick={() => setSearchQuery("")}
-                      className="mt-2 text-magenta-600 font-bold hover:underline"
+                      className="mt-2 text-primary-600 font-bold hover:underline"
                     >
                       Clear Search
                     </button>
@@ -512,7 +512,7 @@ export default function EventDetailClient({
                   event.ticketTypes.map((ticket: any) => (
                     <div
                       key={ticket.id}
-                      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col hover:border-magenta-500 transition-colors"
+                      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col hover:border-primary-500 transition-colors"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
@@ -535,7 +535,7 @@ export default function EventDetailClient({
                           setSelectedTicket(ticket);
                           setCheckoutModalOpen(true);
                         }}
-                        className="mt-auto w-full py-3 bg-secondary-700 hover:bg-primary-700 text-white font-bold rounded-xl transition-colors shadow-md"
+                        className="mt-auto w-full py-3 bg-primary-700 hover:bg-primary-700 text-white font-bold rounded-xl transition-colors shadow-md"
                       >
                         Purchase Ticket
                       </button>
@@ -662,7 +662,7 @@ export default function EventDetailClient({
                                             sizes="40px"
                                           />
                                         ) : (
-                                          <div className="w-full h-full bg-magenta-100 text-magenta-600 flex items-center justify-center font-bold uppercase text-xs">
+                                          <div className="w-full h-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold uppercase text-xs">
                                             {candidate.name.charAt(0)}
                                           </div>
                                         );

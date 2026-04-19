@@ -13,7 +13,7 @@ export const VARIANT_STYLES: Record<
 > = {
   primary: {
     container: "bg-primary-700 text-white",
-    text: "!text-secondary-100",
+    text: "!text-primary-100",
     subtext: "text-white/80",
     iconBg: "bg-white/10",
     iconColor: "text-white",
@@ -24,7 +24,7 @@ export const VARIANT_STYLES: Record<
     text: "text-slate-900",
     subtext: "text-slate-500",
     iconBg: "bg-slate-100",
-    iconColor: "text-magenta-600",
+    iconColor: "text-primary-600",
     pulseColor: "bg-green-500",
   },
   emerald: {
@@ -36,11 +36,11 @@ export const VARIANT_STYLES: Record<
     pulseColor: "bg-green-500",
   },
   dark: {
-    container: "bg-secondary-700 text-white",
+    container: "bg-primary-700 text-white",
     text: "!text-white",
     subtext: "text-white/80",
     iconBg: "bg-white/10",
-    iconColor: "text-secondary-400",
+    iconColor: "text-primary-400",
     pulseColor: "bg-white",
   },
 };

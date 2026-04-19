@@ -27,9 +27,9 @@ export default function CheckEmailPage() {
             <Mail size={32} className="text-white" />
           </div>
           <h2 className="text-5xl font-display font-bold leading-tight text-white!">
-            One last <span className="text-secondary-500">step</span>.
+            One last <span className="text-primary-500">step</span>.
           </h2>
-          <p className="text-lg text-magenta-100/80 leading-relaxed">
+          <p className="text-lg text-primary-100/80 leading-relaxed">
             Verifying your email keeps your EaseVote account secure and ensures
             you get important notifications.
           </p>
@@ -40,8 +40,8 @@ export default function CheckEmailPage() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 lg:px-24 py-12 bg-white">
         <div className="max-w-md w-full mx-auto text-center">
           <div className="lg:hidden mb-8 mt-8">
-            <span className="text-2xl font-display font-bold text-magenta-800">
-              EaseVote<span className="text-magenta-500">.gh</span>
+            <span className="text-2xl font-display font-bold text-primary-800">
+              EaseVote<span className="text-primary-500">.gh</span>
             </span>
           </div>
 
@@ -80,7 +80,7 @@ export default function CheckEmailPage() {
             Wrong email?{" "}
             <Link
               href="/sign-up"
-              className="font-bold text-magenta-700 hover:underline"
+              className="font-bold text-primary-700 hover:underline"
             >
               Register again
             </Link>

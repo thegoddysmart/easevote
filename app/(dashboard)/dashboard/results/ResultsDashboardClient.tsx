@@ -200,7 +200,7 @@ export default function ResultsDashboardClient({ events }: DashboardProps) {
                                 sizes="40px"
                               />
                             ) : (
-                              <div className="w-full h-full bg-magenta-100 text-magenta-600 flex items-center justify-center font-bold uppercase text-xs">
+                              <div className="w-full h-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold uppercase text-xs">
                                 {candidate.name.charAt(0)}
                               </div>
                             );

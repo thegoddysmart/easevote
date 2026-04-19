@@ -97,7 +97,7 @@ export default function OrganizerPayoutsClient({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-magenta-500/20 rounded-full blur-[80px]"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/20 rounded-full blur-[80px]"></div>
           <div className="relative z-10">
             <p className="text-slate-400 font-bold mb-1 uppercase text-xs tracking-widest">Available Balance</p>
             <h2 className="text-5xl font-black tracking-tighter mb-8">GHS {stats.balance.toFixed(2)}</h2>
@@ -106,7 +106,7 @@ export default function OrganizerPayoutsClient({
               <button
                 onClick={() => setIsModalOpen(true)}
                 disabled={stats.balance <= 0}
-                className="flex items-center gap-2 px-8 py-4 bg-white text-slate-900 rounded-2xl font-black hover:bg-magenta-50 transition-all hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-8 py-4 bg-white text-slate-900 rounded-2xl font-black hover:bg-primary-50 transition-all hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
               >
                 Request Payout <ArrowUpRight size={20} />
               </button>

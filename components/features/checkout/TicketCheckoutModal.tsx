@@ -102,16 +102,16 @@ export function TicketCheckoutModal({
           {/* Body */}
           <div className="p-6 overflow-y-auto">
             {/* Ticket Info */}
-            <div className="bg-secondary-50 p-4 rounded-xl border border-secondary-100 mb-6">
+            <div className="bg-primary-50 p-4 rounded-xl border border-primary-100 mb-6">
               <div className="flex justify-between items-center mb-2">
-                <span className="font-bold text-secondary-900">
+                <span className="font-bold text-primary-900">
                   {ticket.name}
                 </span>
-                <span className="font-bold text-secondary-700">
+                <span className="font-bold text-primary-700">
                   GHS {ticket.price}.00
                 </span>
               </div>
-              <p className="text-sm text-secondary-600">Event: {event.title}</p>
+              <p className="text-sm text-primary-600">Event: {event.title}</p>
             </div>
 
             {/* Form */}
@@ -130,7 +130,7 @@ export function TicketCheckoutModal({
                   value={buyerName}
                   onChange={(e) => setBuyerName(e.target.value)}
                   placeholder="Enter your full name"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                 />
               </div>
 
@@ -144,7 +144,7 @@ export function TicketCheckoutModal({
                   value={buyerEmail}
                   onChange={(e) => setBuyerEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                 />
               </div>
 
@@ -158,7 +158,7 @@ export function TicketCheckoutModal({
                   value={buyerPhone}
                   onChange={(e) => setBuyerPhone(e.target.value)}
                   placeholder="e.g. 024 XXX XXXX"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                 />
               </div>
 
@@ -211,7 +211,7 @@ export function TicketCheckoutModal({
               type="submit"
               form="ticket-checkout-form"
               disabled={isSubmitting}
-              className="w-full py-3 bg-secondary-700 hover:bg-primary-700 text-white font-bold rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-primary-700 hover:bg-primary-700 text-white font-bold rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>

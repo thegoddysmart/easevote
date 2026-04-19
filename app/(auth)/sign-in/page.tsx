@@ -82,9 +82,9 @@ export default function SignInPage() {
             </div>
             <h2 className="text-5xl font-display font-bold leading-tight text-white!">
               Welcome back to your <br />{" "}
-              <span className="text-secondary-500">Command Center</span>.
+              <span className="text-primary-500">Command Center</span>.
             </h2>
-            <p className="text-lg text-magenta-100/80 leading-relaxed">
+            <p className="text-lg text-primary-100/80 leading-relaxed">
               Log in to manage your events, monitor real-time voting revenue,
               and download ticketing reports.
             </p>
@@ -96,7 +96,7 @@ export default function SignInPage() {
                     <img
                       key={i}
                       src={`https://picsum.photos/seed/organizer${i}/100/100`}
-                      className="w-10 h-10 rounded-full border-2 border-magenta-900"
+                      className="w-10 h-10 rounded-full border-2 border-primary-900"
                       alt="Organizer"
                     />
                   ))}
@@ -115,8 +115,8 @@ export default function SignInPage() {
         <div className="max-w-md w-full mx-auto">
           {/* Mobile Header (Brand) */}
           <div className="lg:hidden mb-8 mt-8">
-            <span className="text-2xl font-display font-bold text-magenta-800">
-              EaseVote<span className="text-magenta-500">.gh</span>
+            <span className="text-2xl font-display font-bold text-primary-800">
+              EaseVote<span className="text-primary-500">.gh</span>
             </span>
           </div>
 
@@ -151,7 +151,7 @@ export default function SignInPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@organization.com"
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                   required
                 />
               </div>
@@ -164,7 +164,7 @@ export default function SignInPage() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-bold text-magenta-600 hover:underline"
+                  className="text-xs font-bold text-primary-600 hover:underline"
                 >
                   Forgot Password?
                 </Link>
@@ -179,7 +179,7 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                   required
                 />
                 <button
@@ -217,7 +217,7 @@ export default function SignInPage() {
               New to EaseVote?
               <Link
                 href="/sign-up"
-                className="ml-2 font-bold text-magenta-800 hover:text-magenta-600 hover:underline transition-colors"
+                className="ml-2 font-bold text-primary-800 hover:text-primary-600 hover:underline transition-colors"
               >
                 Create Organizer Account
               </Link>

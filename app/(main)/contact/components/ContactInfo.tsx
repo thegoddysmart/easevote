@@ -27,7 +27,7 @@ export default function ContactInfo() {
       <div className="space-y-6">
         {/* Email */}
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-magenta-50 rounded-full flex items-center justify-center text-magenta-600 shrink-0">
+          <div className="w-12 h-12 bg-primary-50 rounded-full flex items-center justify-center text-primary-600 shrink-0">
             <Mail size={24} />
           </div>
           <div>
@@ -37,7 +37,7 @@ export default function ContactInfo() {
             </p>
             <a
               href="mailto:info@easevotegh.com"
-              className="text-magenta-600 font-bold hover:underline"
+              className="text-primary-600 font-bold hover:underline"
             >
               info@easevotegh.com
             </a>
@@ -56,13 +56,13 @@ export default function ContactInfo() {
             </p>
             <a
               href="tel:+233554440813"
-              className="text-slate-900 font-bold hover:text-magenta-600 transition-colors block"
+              className="text-slate-900 font-bold hover:text-primary-600 transition-colors block"
             >
               +233 554 440 813
             </a>
             <a
               href="tel:+233559540992"
-              className="text-slate-900 font-bold hover:text-magenta-600 transition-colors block"
+              className="text-slate-900 font-bold hover:text-primary-600 transition-colors block"
             >
               +233 559 540 992
             </a>

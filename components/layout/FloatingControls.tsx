@@ -49,7 +49,7 @@ const FloatingControls: React.FC = () => {
       {showTopBtn && (
         <button
           onClick={goToTop}
-          className="w-12 h-12 bg-primary-700 rounded-full flex items-center justify-center shadow-lg hover:bg-secondary-700 transition-colors text-white animate-fade-in"
+          className="w-12 h-12 bg-primary-700 rounded-full flex items-center justify-center shadow-lg hover:bg-primary-700 transition-colors text-white animate-fade-in"
           aria-label="Back to Top"
         >
           <ArrowUp size={24} />

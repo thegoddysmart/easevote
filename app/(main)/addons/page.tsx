@@ -10,7 +10,7 @@ export default function Loading() {
         <div className="absolute inset-0 flex items-center justify-center">
           <div
             className="w-full h-full rounded-full border-60 border-transparent 
-          border-t-primary-500 border-l-secondary-600 
+          border-t-primary-500 border-l-primary-600 
           animate-easevote-loader"
           ></div>
         </div>
@@ -18,8 +18,8 @@ export default function Loading() {
         {/* 2. Logo Container */}
         <div
           className="absolute inset-4 flex items-center justify-center rounded-full 
-          bg-linear-to-br from-primary-700 to-secondary-700 
-          shadow-2xl shadow-secondary-500/60 animate-easevote-breathe"
+          bg-linear-to-br from-primary-700 to-primary-700 
+          shadow-2xl shadow-primary-500/60 animate-easevote-breathe"
         >
           <Image
             src="/easevote.svg"

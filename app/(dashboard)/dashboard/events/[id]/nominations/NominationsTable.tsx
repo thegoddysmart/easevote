@@ -86,7 +86,7 @@ export default function NominationsTable({
           <input
             type="text"
             placeholder="Search nominees..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-magenta-500 outline-none"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -95,7 +95,7 @@ export default function NominationsTable({
         <div className="flex items-center gap-2">
           <Filter size={18} className="text-gray-400" />
           <select
-            className="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-magenta-500 outline-none text-sm"
+            className="border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-primary-500 outline-none text-sm"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -170,7 +170,7 @@ export default function NominationsTable({
                     {format(new Date(nom.createdAt), "MMM d, yyyy")}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-gray-400 hover:text-magenta-600 p-2 rounded-full hover:bg-magenta-50 transition-all">
+                    <button className="text-gray-400 hover:text-primary-600 p-2 rounded-full hover:bg-primary-50 transition-all">
                       <Eye size={18} />
                     </button>
                   </td>

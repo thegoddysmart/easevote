@@ -417,7 +417,7 @@ export default function FormBuilder({
             <input
               type="url"
               placeholder="https://chat.whatsapp.com/..."
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-magenta-500 outline-none"
+              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-primary-500 outline-none"
               value={whatsappLink}
               onChange={(e) => setWhatsappLink(e.target.value)}
             />
@@ -502,7 +502,7 @@ export default function FormBuilder({
             </h3>
             <button
               onClick={openNew}
-              className="text-sm text-magenta-600 font-bold flex items-center gap-1 hover:underline"
+              className="text-sm text-primary-600 font-bold flex items-center gap-1 hover:underline"
             >
               <Plus size={16} /> Add Question
             </button>
@@ -567,7 +567,7 @@ export default function FormBuilder({
                   </label>
                   <input
                     type="text"
-                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-magenta-500 outline-none"
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-primary-500 outline-none"
                     value={newField.label}
                     onChange={(e) =>
                       setNewField({ ...newField, label: e.target.value })
@@ -582,7 +582,7 @@ export default function FormBuilder({
                       Type
                     </label>
                     <select
-                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-magenta-500 outline-none"
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-primary-500 outline-none"
                       value={newField.type}
                       onChange={(e) =>
                         setNewField({
@@ -602,7 +602,7 @@ export default function FormBuilder({
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
-                        className="w-5 h-5 text-magenta-600 rounded focus:ring-magenta-500"
+                        className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
                         checked={newField.required}
                         onChange={(e) =>
                           setNewField({
@@ -626,7 +626,7 @@ export default function FormBuilder({
                     </label>
                     <input
                       type="text"
-                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-magenta-500 outline-none"
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-primary-500 outline-none"
                       value={newField.options}
                       onChange={(e) =>
                         setNewField({ ...newField, options: e.target.value })

@@ -60,7 +60,7 @@ export default function TopPerformers({ events, organizers }: TopPerformersProps
                                      {type === 'events' ? (
                                         <span className={clsx(
                                             "text-[9px] font-bold px-1.5 py-0.5 rounded border",
-                                            item.type === "VOTING" ? "bg-magenta-50 text-magenta-600 border-magenta-100" : "bg-slate-50 text-slate-600 border-slate-100"
+                                            item.type === "VOTING" ? "bg-primary-50 text-primary-600 border-primary-100" : "bg-slate-50 text-slate-600 border-slate-100"
                                         )}>
                                             {item.type}
                                         </span>
@@ -83,7 +83,7 @@ export default function TopPerformers({ events, organizers }: TopPerformersProps
                         <div 
                             className={clsx(
                                 "h-full rounded-full transition-all duration-1000", 
-                                type === 'events' && item.type === "VOTING" ? "bg-magenta-500" : "bg-slate-900"
+                                type === 'events' && item.type === "VOTING" ? "bg-primary-500" : "bg-slate-900"
                             )}
                             style={{ width: `${(item.revenue / (type === 'events' ? maxEventRevenue : maxOrgRevenue)) * 100}%` }}
                         ></div>

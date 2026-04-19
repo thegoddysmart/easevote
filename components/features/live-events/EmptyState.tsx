@@ -19,7 +19,7 @@ export default function EmptyState({
 
       <button
         onClick={onClear}
-        className="mt-6 text-magenta-600 font-bold hover:underline"
+        className="mt-6 text-primary-600 font-bold hover:underline"
       >
         Clear Search
       </button>

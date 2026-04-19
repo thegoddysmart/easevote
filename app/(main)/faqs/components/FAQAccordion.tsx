@@ -58,7 +58,7 @@ export default function FAQAccordion({ items = [] }: FAQAccordionProps) {
             onClick={() => setActiveCategory(cat)}
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
               activeCategory === cat
-                ? "bg-secondary-700 text-white shadow-md"
+                ? "bg-primary-700 text-white shadow-md"
                 : "text-slate-600 hover:bg-white hover:text-primary-600"
             }`}
           >
@@ -95,7 +95,7 @@ export default function FAQAccordion({ items = [] }: FAQAccordionProps) {
                   {faq.question}
                 </span>
                 {openAccordion === faq.id || openAccordion === "all" ? (
-                  <ChevronUp className="text-magenta-500" />
+                  <ChevronUp className="text-primary-500" />
                 ) : (
                   <ChevronDown className="text-gray-400" />
                 )}

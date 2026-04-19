@@ -68,7 +68,7 @@ export default function TrustCenter({
         <div className="fixed bottom-0 left-0 w-full z-40 bg-white/90 backdrop-blur-md border-t border-gray-200 p-4 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] transition-transform duration-500 animate-in slide-in-from-bottom">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-magenta-50 rounded-full text-magenta-600 hidden sm:block">
+              <div className="p-3 bg-primary-50 rounded-full text-primary-600 hidden sm:block">
                 <Cookie size={24} />
               </div>
               <div>
@@ -142,7 +142,7 @@ export default function TrustCenter({
                   }}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-bold transition-all rounded-xl ${
                     activeTab === tab.id
-                      ? "bg-white text-magenta-800 shadow-sm"
+                      ? "bg-white text-primary-800 shadow-sm"
                       : "text-slate-500 hover:text-slate-700 hover:bg-gray-100"
                   }`}
                 >

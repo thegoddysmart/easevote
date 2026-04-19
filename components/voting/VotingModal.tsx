@@ -71,7 +71,7 @@ export const VotingModal: React.FC<VotingModalProps> = ({
                   className="w-16 h-16 rounded-full object-cover border"
                 />
                 <div>
-                  <p className="text-xs font-bold text-magenta-600 uppercase tracking-wide">
+                  <p className="text-xs font-bold text-primary-600 uppercase tracking-wide">
                     {candidate.category}
                   </p>
                   <h3 className="text-lg font-bold text-slate-900">
@@ -114,7 +114,7 @@ export const VotingModal: React.FC<VotingModalProps> = ({
                 </div>
                 <div className="flex justify-between text-lg">
                   <span className="font-bold">Total</span>
-                  <span className="font-bold text-magenta-600">
+                  <span className="font-bold text-primary-600">
                     GHS {totalAmount.toFixed(2)}
                   </span>
                 </div>
@@ -124,7 +124,7 @@ export const VotingModal: React.FC<VotingModalProps> = ({
               <button
                 onClick={handleVote}
                 disabled={isProcessing}
-                className="w-full py-4 rounded-xl bg-slate-900 text-white! font-bold hover:bg-magenta-600 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full py-4 rounded-xl bg-slate-900 text-white! font-bold hover:bg-primary-600 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {isProcessing ? (
                   "Processing..."
@@ -150,7 +150,7 @@ export const VotingModal: React.FC<VotingModalProps> = ({
 
               <button
                 onClick={resetAndClose}
-                className="w-full py-3 rounded-xl bg-magenta-600 text-white! font-bold hover:bg-magenta-700 transition"
+                className="w-full py-3 rounded-xl bg-primary-600 text-white! font-bold hover:bg-primary-700 transition"
               >
                 Done
               </button>

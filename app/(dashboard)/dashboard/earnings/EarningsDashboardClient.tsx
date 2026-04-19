@@ -147,7 +147,7 @@ export default function EarningsDashboardClient({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Main Wallet Card */}
         <div className="md:col-span-2 bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-magenta-500/20 rounded-full blur-[80px]"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/20 rounded-full blur-[80px]"></div>
           <div className="relative z-10 flex flex-col justify-between h-full min-h-[160px]">
             <div className="flex justify-between items-start">
               <div>
@@ -159,7 +159,7 @@ export default function EarningsDashboardClient({
                 </h2>
               </div>
               <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10">
-                <Wallet size={32} className="text-magenta-400" />
+                <Wallet size={32} className="text-primary-400" />
               </div>
             </div>
 
@@ -167,7 +167,7 @@ export default function EarningsDashboardClient({
               <button
                 onClick={() => setIsModalOpen(true)}
                 disabled={stats.balance <= 0}
-                className="flex items-center gap-2 px-8 py-4 bg-white text-slate-900 rounded-2xl font-black hover:bg-magenta-50 transition-all hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-8 py-4 bg-white text-slate-900 rounded-2xl font-black hover:bg-primary-50 transition-all hover:scale-105 active:scale-95 shadow-lg disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
               >
                 Request Payout <ArrowUpRight size={20} />
               </button>

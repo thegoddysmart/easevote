@@ -43,7 +43,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         message: options.message || "",
         confirmText: options.confirmText,
         cancelText: options.cancelText,
-        variant: options.variant || (type === "alert" ? "info" : "danger"),
+        variant: options.variant || "info",
         defaultValue: options.defaultValue,
         placeholder: options.placeholder,
         resolve,

@@ -21,7 +21,7 @@ export const FeaturedPost = ({ post, onRead }: FeaturedPostProps) => (
 
     <div className="p-8 md:p-12 flex flex-col justify-center">
       <div className="flex items-center gap-3 mb-4">
-        <span className="px-3 py-1 bg-magenta-50 text-magenta-700 text-xs font-bold uppercase rounded-full">
+        <span className="px-3 py-1 bg-primary-50 text-primary-700 text-xs font-bold uppercase rounded-full">
           {post.category}
         </span>
         <span className="text-slate-400 text-xs flex items-center gap-1">
@@ -29,7 +29,7 @@ export const FeaturedPost = ({ post, onRead }: FeaturedPostProps) => (
         </span>
       </div>
 
-      <h2 className="text-3xl font-display font-bold mb-4 group-hover:text-magenta-700">
+      <h2 className="text-3xl font-display font-bold mb-4 group-hover:text-primary-700">
         {post.title}
       </h2>
 
@@ -44,7 +44,7 @@ export const FeaturedPost = ({ post, onRead }: FeaturedPostProps) => (
           </div>
         </div>
 
-        <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-secondary-700 group-hover:text-white">
+        <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-primary-700 group-hover:text-white">
           <ArrowRight size={18} />
         </div>
       </div>

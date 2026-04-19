@@ -174,11 +174,11 @@ export default function TicketingBrowseClient({
 
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center text-slate-600 text-sm font-medium">
-                        <Calendar size={16} className="mr-2 text-magenta-600" />
+                        <Calendar size={16} className="mr-2 text-primary-600" />
                         <span>{new Date(ticket.date).toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                       </div>
                       <div className="flex items-center text-slate-600 text-sm font-medium">
-                        <MapPin size={16} className="mr-2 text-magenta-600" />
+                        <MapPin size={16} className="mr-2 text-primary-600" />
                         <span>{ticket.venue}</span>
                       </div>
                     </div>
@@ -186,7 +186,7 @@ export default function TicketingBrowseClient({
 
                   <Link
                     href={`/events/tickets/${ticket.id}`}
-                    className="w-full py-3 bg-secondary-700 text-white! font-bold rounded-lg hover:bg-primary-800 transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-primary-700 text-white! font-bold rounded-lg hover:bg-primary-800 transition-colors flex items-center justify-center gap-2"
                   >
                     Get Tickets <ArrowRight size={16} />
                   </Link>

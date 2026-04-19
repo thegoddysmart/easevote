@@ -259,7 +259,7 @@ export default function EventStatusNotification({
           <Button
             variant="default"
             size="lg"
-            className="w-full sm:w-auto min-w-[150px] bg-secondary-700 hover:bg-secondary-600 cursor-pointer"
+            className="w-full sm:w-auto min-w-[150px] bg-primary-700 hover:bg-primary-600 cursor-pointer"
             onClick={handleAction}
           >
             {modalContent.actionLabel || "Close"}

@@ -155,7 +155,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
 
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center text-slate-600 text-sm">
-                      <Calendar size={16} className="mr-2 text-magenta-600" />
+                      <Calendar size={16} className="mr-2 text-primary-600" />
                       <span>
                         {new Date(
                           ticket.startDate || ticket.date,
@@ -163,14 +163,14 @@ export default function LiveTickets({ events }: { events: any[] }) {
                       </span>
                     </div>
                     <div className="flex items-center text-slate-600 text-sm">
-                      <MapPin size={16} className="mr-2 text-magenta-600" />
+                      <MapPin size={16} className="mr-2 text-primary-600" />
                       <span>{ticket.venue}</span>
                     </div>
                   </div>
 
                   <Link
                     href={`/events/tickets/${ticket._id || ticket.id}`}
-                    className="w-full py-3 bg-secondary-700 text-white! font-bold rounded-lg hover:bg-primary-800 transition-colors flex items-center justify-center group/btn"
+                    className="w-full py-3 bg-primary-700 text-white! font-bold rounded-lg hover:bg-primary-800 transition-colors flex items-center justify-center group/btn"
                   >
                     Get Tickets
                     <ArrowRight

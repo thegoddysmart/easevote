@@ -22,7 +22,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
             >
               <Logo textColor="text-white" />
             </Link>
-            <p className="text-magenta-200/80 text-sm leading-relaxed max-w-xs">
+            <p className="text-primary-200/80 text-sm leading-relaxed max-w-xs">
               Empowering organizers to create and manage events effortlessly.
               EaseVote Ghana is your seamless platform for reliable e-voting,
               ticketing and digital event experiences.
@@ -37,7 +37,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
             <h4 className="font-display font-bold text-white! text-lg mb-6 tracking-wide">
               Quick Links
             </h4>
-            <ul className="space-y-4 text-magenta-200/70 text-sm font-medium">
+            <ul className="space-y-4 text-primary-200/70 text-sm font-medium">
               <li>
                 <Link
                   href="/"
@@ -136,7 +136,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
                 MasterCard
               </div>
             </div>
-            <div className="mt-6 flex items-center gap-2 text-xs text-magenta-200/50">
+            <div className="mt-6 flex items-center gap-2 text-xs text-primary-200/50">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
               System Operational
             </div>
@@ -144,7 +144,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
         </div>
 
         {/* Footer Bottom */}
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-magenta-200/40">
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-primary-200/40">
           <p>&copy; 2026 Goddy Smart Labs. All rights reserved.</p>
           {/* Legal Links */}
           <div className="flex space-x-6 mt-4 md:mt-0">

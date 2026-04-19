@@ -50,7 +50,7 @@ export const TicketConfirmation: React.FC<TicketConfirmationProps> = ({
 
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-gray-100 rounded-lg text-magenta-600">
+              <div className="p-2 bg-gray-100 rounded-lg text-primary-600">
                 <Calendar size={20} />
               </div>
               <div>
@@ -63,7 +63,7 @@ export const TicketConfirmation: React.FC<TicketConfirmationProps> = ({
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-gray-100 rounded-lg text-magenta-600">
+              <div className="p-2 bg-gray-100 rounded-lg text-primary-600">
                 <MapPin size={20} />
               </div>
               <div>
@@ -100,7 +100,7 @@ export const TicketConfirmation: React.FC<TicketConfirmationProps> = ({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full max-w-sm">
-        <button className="flex-1 bg-magenta-600 text-white py-3 rounded-xl font-bold hover:bg-magenta-700 transition-colors flex items-center justify-center gap-2">
+        <button className="flex-1 bg-primary-600 text-white py-3 rounded-xl font-bold hover:bg-primary-700 transition-colors flex items-center justify-center gap-2">
           <Download size={18} /> Save Ticket
         </button>
         <button className="flex-1 bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors flex items-center justify-center gap-2">

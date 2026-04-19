@@ -63,17 +63,17 @@ export function ConfirmModal({
     },
     warning: {
       icon: AlertTriangle,
-      iconBg: "bg-amber-50",
-      iconColor: "text-amber-500",
-      buttonBg: "bg-amber-500 hover:bg-amber-600 shadow-amber-200",
-      accent: "border-amber-100",
+      iconBg: "bg-primary-50",
+      iconColor: "text-primary-600",
+      buttonBg: "bg-primary-600 hover:bg-primary-700 shadow-primary-200",
+      accent: "border-primary-100",
     },
     info: {
       icon: Info,
-      iconBg: "bg-magenta-50",
-      iconColor: "text-magenta-600",
-      buttonBg: "bg-magenta-600 hover:bg-magenta-700 shadow-magenta-200",
-      accent: "border-magenta-100",
+      iconBg: "bg-primary-50",
+      iconColor: "text-primary-600",
+      buttonBg: "bg-primary-600 hover:bg-primary-700 shadow-primary-200",
+      accent: "border-primary-100",
     },
   };
 
@@ -127,7 +127,7 @@ export function ConfirmModal({
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       placeholder={placeholder}
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-magenta-100 focus:border-magenta-500 outline-none transition-all font-medium text-slate-900 placeholder:text-slate-400"
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all font-medium text-slate-900 placeholder:text-slate-400"
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !loading) {
                           onConfirm(inputValue);
@@ -153,7 +153,7 @@ export function ConfirmModal({
                 <button
                   onClick={onClose}
                   disabled={loading}
-                  className="flex-1 px-6 py-3.5 text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-white rounded-2xl transition-all disabled:opacity-50 border border-transparent hover:border-slate-200"
+                  className="flex-1 px-6 py-3.5 text-sm font-bold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 rounded-2xl transition-all disabled:opacity-50 border border-slate-200 shadow-sm"
                 >
                   {cancelText}
                 </button>

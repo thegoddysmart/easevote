@@ -194,12 +194,12 @@ export default function NominationWrapper({
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
           <div
             className={`h-2 flex-1 rounded-full ${
-              step >= 1 ? "bg-magenta-600" : "bg-gray-200"
+              step >= 1 ? "bg-primary-600" : "bg-gray-200"
             }`}
           />
           <div
             className={`h-2 flex-1 rounded-full ${
-              step >= 2 ? "bg-magenta-600" : "bg-gray-200"
+              step >= 2 ? "bg-primary-600" : "bg-gray-200"
             }`}
           />
         </div>
@@ -216,8 +216,8 @@ export default function NominationWrapper({
                 <label
                   className={`cursor-pointer border-2 rounded-xl p-6 transition-all ${
                     nominationType === "SELF"
-                      ? "border-magenta-600 bg-magenta-50"
-                      : "border-gray-200 hover:border-magenta-200"
+                      ? "border-primary-600 bg-primary-50"
+                      : "border-gray-200 hover:border-primary-200"
                   }`}
                 >
                   <input
@@ -231,7 +231,7 @@ export default function NominationWrapper({
                     size={32}
                     className={`mb-3 ${
                       nominationType === "SELF"
-                        ? "text-magenta-600"
+                        ? "text-primary-600"
                         : "text-gray-400"
                     }`}
                   />
@@ -244,8 +244,8 @@ export default function NominationWrapper({
                 <label
                   className={`cursor-pointer border-2 rounded-xl p-6 transition-all ${
                     nominationType === "THIRD_PARTY"
-                      ? "border-magenta-600 bg-magenta-50"
-                      : "border-gray-200 hover:border-magenta-200"
+                      ? "border-primary-600 bg-primary-50"
+                      : "border-gray-200 hover:border-primary-200"
                   }`}
                 >
                   <input
@@ -259,7 +259,7 @@ export default function NominationWrapper({
                     size={32}
                     className={`mb-3 ${
                       nominationType === "THIRD_PARTY"
-                        ? "text-magenta-600"
+                        ? "text-primary-600"
                         : "text-gray-400"
                     }`}
                   />
@@ -292,7 +292,7 @@ export default function NominationWrapper({
                 </label>
                 <select
                   {...register("categoryId", { required: true })}
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none bg-white"
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none bg-white"
                 >
                   <option value="">Select a category...</option>
                   {event.categories.map((cat: any) => (
@@ -326,7 +326,7 @@ export default function NominationWrapper({
                         nominationType === "SELF" ? "fullName" : "nomineeName",
                         { required: true }
                       )}
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none"
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
                       placeholder="Enter full name"
                     />
                   </div>
@@ -340,7 +340,7 @@ export default function NominationWrapper({
                         nominationType === "SELF" ? "email" : "nomineeEmail",
                         { required: true }
                       )}
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none"
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
                       placeholder="name@example.com"
                     />
                   </div>
@@ -354,7 +354,7 @@ export default function NominationWrapper({
                         nominationType === "SELF" ? "phone" : "nomineePhone",
                         { required: true }
                       )}
-                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none"
+                      className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
                       placeholder="024XXXXXXX"
                     />
                   </div>
@@ -366,7 +366,7 @@ export default function NominationWrapper({
                   </label>
                   <textarea
                     {...register("bio")}
-                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none h-32 resize-none"
+                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none h-32 resize-none"
                     placeholder="Tell us about the nominee..."
                   />
                 </div>
@@ -405,7 +405,7 @@ export default function NominationWrapper({
                       <div className="space-y-2">
                         {isUploading ? (
                           <div className="py-4">
-                            <Loader2 className="mx-auto text-magenta-600 animate-spin" size={32} />
+                            <Loader2 className="mx-auto text-primary-600 animate-spin" size={32} />
                             <p className="text-sm text-gray-500 mt-2">Uploading...</p>
                           </div>
                         ) : (
@@ -415,7 +415,7 @@ export default function NominationWrapper({
                               size={40}
                             />
                             <p className="text-sm text-gray-500">
-                              <span className="text-magenta-600 font-bold">
+                              <span className="text-primary-600 font-bold">
                                 Click to upload
                               </span>{" "}
                               or drag and drop
@@ -444,7 +444,7 @@ export default function NominationWrapper({
                       </label>
                       <input
                         {...register("nominatorName", { required: true })}
-                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none"
+                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
                       />
                     </div>
                     <div>
@@ -454,7 +454,7 @@ export default function NominationWrapper({
                       <input
                         type="email"
                         {...register("nominatorEmail")}
-                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none"
+                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
                       />
                     </div>
                     <div>
@@ -464,7 +464,7 @@ export default function NominationWrapper({
                       <input
                         type="tel"
                         {...register("nominatorPhone")}
-                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none"
+                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
                       />
                     </div>
                   </div>
@@ -485,12 +485,12 @@ export default function NominationWrapper({
                       {field.type === "TEXTAREA" ? (
                         <textarea
                           {...register(field.key, { required: field.required })}
-                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none h-24 resize-none"
+                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none h-24 resize-none"
                         />
                       ) : field.type === "SELECT" ? (
                         <select
                           {...register(field.key, { required: field.required })}
-                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none bg-white"
+                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none bg-white"
                         >
                           <option value="">Select option...</option>
                           {field.options &&
@@ -504,7 +504,7 @@ export default function NominationWrapper({
                         <input
                           type={field.type === "NUMBER" ? "number" : "text"}
                           {...register(field.key, { required: field.required })}
-                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-magenta-500 outline-none"
+                          className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
                         />
                       )}
                     </div>

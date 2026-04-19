@@ -115,7 +115,7 @@ export default async function TicketEventDetailPage({
           </div>
           <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 z-20">
             <div className="max-w-7xl mx-auto">
-              <span className="inline-block px-3 py-1 bg-secondary-700 text-white text-xs font-bold uppercase tracking-wide rounded-md mb-4">
+              <span className="inline-block px-3 py-1 bg-primary-700 text-white text-xs font-bold uppercase tracking-wide rounded-md mb-4">
                 {pageEvent.category}
               </span>
               <h1 className="text-4xl md:text-6xl font-display font-bold text-white! mb-4 leading-tight">
@@ -123,15 +123,15 @@ export default async function TicketEventDetailPage({
               </h1>
               <div className="flex flex-wrap gap-6 text-white/90 font-medium">
                 <span className="flex items-center gap-2">
-                  <Calendar size={18} className="text-secondary-500" />
+                  <Calendar size={18} className="text-primary-500" />
                   {pageEvent.date}
                 </span>
                 <span className="flex items-center gap-2">
-                  <Clock size={18} className="text-secondary-500" />{" "}
+                  <Clock size={18} className="text-primary-500" />{" "}
                   {pageEvent.time}
                 </span>
                 <span className="flex items-center gap-2">
-                  <MapPin size={18} className="text-secondary-500" />
+                  <MapPin size={18} className="text-primary-500" />
                   {pageEvent.venue}
                 </span>
               </div>
@@ -156,11 +156,11 @@ export default async function TicketEventDetailPage({
               </h3>
               <ul className="space-y-2 list-none pl-0">
                 <li className="flex gap-3 text-slate-600">
-                  <Info size={20} className="text-magenta-600 shrink-0" />
+                  <Info size={20} className="text-primary-600 shrink-0" />
                   Doors open 2 hours before the event starts.
                 </li>
                 <li className="flex gap-3 text-slate-600">
-                  <Ticket size={20} className="text-magenta-600 shrink-0" />
+                  <Ticket size={20} className="text-primary-600 shrink-0" />
                   Tickets are scanned at the gate via QR code.
                 </li>
               </ul>
@@ -179,7 +179,7 @@ export default async function TicketEventDetailPage({
 
               <Link
                 href={`/events/tickets/${eventCode}/select`}
-                className="w-full bg-secondary-700 text-white! py-4 rounded-xl font-bold text-lg hover:bg-primary-700 transition-transform hover:scale-[1.02] shadow-lg mb-4 flex items-center justify-center gap-2"
+                className="w-full bg-primary-700 text-white! py-4 rounded-xl font-bold text-lg hover:bg-primary-700 transition-transform hover:scale-[1.02] shadow-lg mb-4 flex items-center justify-center gap-2"
               >
                 Get Tickets <Ticket size={20} />
               </Link>

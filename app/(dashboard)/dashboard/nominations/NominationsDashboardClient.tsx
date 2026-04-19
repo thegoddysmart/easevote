@@ -172,7 +172,7 @@ export default function NominationsDashboardClient({
 
   const StatusBadge = ({ status }: { status: string }) => {
     const styles = {
-      PENDING: "bg-yellow-100 text-yellow-700 border-yellow-200",
+      PENDING: "bg-primary-50 text-primary-700 border-primary-100",
       APPROVED: "bg-green-100 text-green-700 border-green-200",
       REJECTED: "bg-red-100 text-red-700 border-red-200",
     };

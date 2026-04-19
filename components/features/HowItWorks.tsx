@@ -23,7 +23,7 @@ export default function HowItWorks() {
             <div className="h-10 bg-white border border-gray-200 rounded-lg"></div>
             <div className="h-10 bg-white border border-gray-200 rounded-lg"></div>
           </div>
-          <div className="h-10 bg-magenta-600 rounded-lg w-full mt-4"></div>
+          <div className="h-10 bg-primary-600 rounded-lg w-full mt-4"></div>
         </div>
       ),
     },
@@ -118,7 +118,7 @@ export default function HowItWorks() {
             </div>
 
             {/* Decorative blobs behind phone */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-magenta-200 to-blue-200 rounded-full blur-[80px] -z-10 opacity-60"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-primary-200 to-blue-200 rounded-full blur-[80px] -z-10 opacity-60"></div>
           </div>
 
           {/* Right: Tabs */}

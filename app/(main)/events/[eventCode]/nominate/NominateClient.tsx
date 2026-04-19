@@ -130,7 +130,7 @@ export default function NominateClient({ event }: { event: any }) {
           </p>
           <button
             onClick={() => router.push(`/events/${event.eventCode}`)}
-            className="w-full py-4 bg-secondary-700 hover:bg-primary-700 text-white font-bold rounded-xl transition-all"
+            className="w-full py-4 bg-primary-700 hover:bg-primary-700 text-white font-bold rounded-xl transition-all"
           >
             Return to Event
           </button>
@@ -177,7 +177,7 @@ export default function NominateClient({ event }: { event: any }) {
       <div className="bg-slate-900 text-white py-12 px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary-500 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary-500 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
         </div>
 
         <div className="max-w-3xl mx-auto relative z-10">
@@ -245,7 +245,7 @@ export default function NominateClient({ event }: { event: any }) {
                     </p>
                     <button
                       type="button"
-                      className="mt-2 text-sm font-bold text-secondary-600 hover:text-secondary-800"
+                      className="mt-2 text-sm font-bold text-primary-600 hover:text-primary-800"
                       onClick={() => {
                         const fileInput = document.querySelector(
                           'input[type="file"]',
@@ -272,7 +272,7 @@ export default function NominateClient({ event }: { event: any }) {
                       setFormData({ ...formData, nomineeName: e.target.value })
                     }
                     placeholder="Enter full name"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
                   />
                 </div>
                 <div>
@@ -286,7 +286,7 @@ export default function NominateClient({ event }: { event: any }) {
                       setFormData({ ...formData, nomineePhone: e.target.value })
                     }
                     placeholder="e.g. 0244000000"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
                   />
                 </div>
               </div>
@@ -302,7 +302,7 @@ export default function NominateClient({ event }: { event: any }) {
                     onChange={(e) =>
                       setFormData({ ...formData, categoryId: e.target.value })
                     }
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50 appearance-none"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50 appearance-none"
                   >
                     <option value="" disabled>
                       Select a category
@@ -337,7 +337,7 @@ export default function NominateClient({ event }: { event: any }) {
                     setFormData({ ...formData, bio: e.target.value })
                   }
                   placeholder="Tell us about the nominee..."
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50 resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50 resize-none"
                 ></textarea>
               </div>
             </div>
@@ -356,13 +356,13 @@ export default function NominateClient({ event }: { event: any }) {
                         required={field.required}
                         rows={3}
                         onChange={(e) => handleCustomFieldChange(field.question, e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50 resize-none"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50 resize-none"
                       />
                     ) : field.type === "select" ? (
                       <select
                         required={field.required}
                         onChange={(e) => handleCustomFieldChange(field.question, e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
                       >
                         <option value="">Select an option</option>
                         {field.options?.map((opt: string) => (
@@ -374,7 +374,7 @@ export default function NominateClient({ event }: { event: any }) {
                         type={field.type}
                         required={field.required}
                         onChange={(e) => handleCustomFieldChange(field.question, e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
                       />
                     )}
                   </div>
@@ -398,7 +398,7 @@ export default function NominateClient({ event }: { event: any }) {
                       setFormData({ ...formData, nominatorName: e.target.value })
                     }
                     placeholder="Enter your name"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
                   />
                 </div>
                 <div>
@@ -413,7 +413,7 @@ export default function NominateClient({ event }: { event: any }) {
                       setFormData({ ...formData, nominatorPhone: e.target.value })
                     }
                     placeholder="e.g. 0244000000"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary-500 focus:ring-2 focus:ring-secondary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all font-medium text-slate-900 bg-gray-50/50"
                   />
                 </div>
               </div>

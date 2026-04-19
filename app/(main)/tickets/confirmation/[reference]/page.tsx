@@ -112,7 +112,7 @@ export default async function TicketConfirmationPage({
                 {/* Left Side: Ticket Info */}
                 <div className="flex-1 p-8 text-left border-b md:border-b-0 md:border-r border-dashed border-gray-200">
                   <div className="flex justify-between items-start mb-4">
-                    <span className="bg-magenta-100 text-magenta-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    <span className="bg-primary-100 text-primary-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                       {ticket.ticketType?.name || ticket.ticketTypeName}
                     </span>
                     <span className="text-slate-400 text-xs font-mono">
@@ -126,7 +126,7 @@ export default async function TicketConfirmationPage({
 
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-slate-600">
-                      <Calendar size={18} className="text-magenta-600" />
+                      <Calendar size={18} className="text-primary-600" />
                       <span className="text-sm">
                         {new Date(event.startDate).toLocaleDateString("en-GB", {
                           weekday: "long",
@@ -136,13 +136,13 @@ export default async function TicketConfirmationPage({
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-slate-600">
-                      <MapPin size={18} className="text-magenta-600" />
+                      <MapPin size={18} className="text-primary-600" />
                       <span className="text-sm">
                         {event.venue || event.location}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-slate-600">
-                      <TicketIcon size={18} className="text-magenta-600" />
+                      <TicketIcon size={18} className="text-primary-600" />
                       <span className="text-sm font-medium">
                         {ticket.holderName || "Guest"}
                       </span>

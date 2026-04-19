@@ -48,7 +48,7 @@ export default function TicketConfirmClient({
       <div className="bg-white rounded-3xl shadow-xl overflow-hidden max-w-md w-full p-8 text-center">
         {status === "PENDING" && (
           <div className="animate-in fade-in zoom-in duration-500">
-            <div className="w-20 h-20 bg-secondary-50 text-secondary-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-6">
               <Loader2 size={40} className="animate-spin" />
             </div>
             <h2 className="text-2xl font-bold font-display text-slate-900 mb-2">
@@ -97,7 +97,7 @@ export default function TicketConfirmClient({
 
             <button
               onClick={() => router.push("/events/ticketing")}
-              className="w-full bg-secondary-700 text-white font-bold py-4 rounded-full shadow-lg hover:bg-primary-700 hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full bg-primary-700 text-white font-bold py-4 rounded-full shadow-lg hover:bg-primary-700 hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               Browse More Events <ArrowRight size={18} />
             </button>

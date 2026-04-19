@@ -91,8 +91,8 @@ export function NominationFormClient({ event }: NominationFormProps) {
             <span className="font-bold">{event.title}</span> has been received.
           </p>
 
-          <div className="bg-magenta-50 border border-magenta-100 rounded-2xl p-6 mb-8">
-            <p className="text-xs font-bold text-magenta-600 uppercase tracking-widest mb-2">
+          <div className="bg-primary-50 border border-primary-100 rounded-2xl p-6 mb-8">
+            <p className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-2">
               Your Tracking Reference
             </p>
             <p className="text-3xl font-mono font-bold text-slate-900 tracking-wider">
@@ -110,7 +110,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
             >
               Return to Event
             </button>
-            <button className="w-full py-3 text-slate-500 font-bold hover:text-magenta-600 transition-colors">
+            <button className="w-full py-3 text-slate-500 font-bold hover:text-primary-600 transition-colors">
               Download Receipt
             </button>
           </div>
@@ -133,12 +133,12 @@ export function NominationFormClient({ event }: NominationFormProps) {
         <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden border border-gray-100">
           {/* Header */}
           <div className="bg-slate-900 text-white p-8 md:p-10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-magenta-500/20 rounded-full blur-[80px]"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/20 rounded-full blur-[80px]"></div>
             <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-magenta-600/30 border border-magenta-500/30 text-magenta-200 text-xs font-bold uppercase mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-600/30 border border-primary-500/30 text-primary-200 text-xs font-bold uppercase mb-4">
                 Nominations Open
               </div>
-              <h1 className="text-3xl md:text-4xl text-secondary-700! font-display font-bold mb-2">
+              <h1 className="text-3xl md:text-4xl text-primary-700! font-display font-bold mb-2">
                 File a Nomination
               </h1>
               <p className="text-white/70">{event.title}</p>
@@ -159,7 +159,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
                   </label>
                   <select
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-gray-50 focus:bg-white"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white"
                     value={formData.category}
                     onChange={(e) =>
                       setFormData({ ...formData, category: e.target.value })
@@ -181,7 +181,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
                     type="text"
                     required
                     placeholder="e.g. King Promise"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-gray-50 focus:bg-white"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white"
                     value={formData.stageName}
                     onChange={(e) =>
                       setFormData({ ...formData, stageName: e.target.value })
@@ -203,7 +203,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
                     type="text"
                     required
                     placeholder="Enter full name"
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-gray-50 focus:bg-white"
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white"
                     value={formData.fullName}
                     onChange={(e) =>
                       setFormData({ ...formData, fullName: e.target.value })
@@ -218,7 +218,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
                 </label>
                 <textarea
                   rows={4}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-gray-50 focus:bg-white resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white resize-none"
                   placeholder="Tell us why this nominee deserves to win..."
                   value={formData.bio}
                   onChange={(e) =>
@@ -227,8 +227,8 @@ export function NominationFormClient({ event }: NominationFormProps) {
                 ></textarea>
               </div>
 
-              <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-magenta-500 hover:bg-magenta-50/50 transition-colors cursor-pointer group">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-magenta-100 text-slate-400 group-hover:text-magenta-600">
+              <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-primary-500 hover:bg-primary-50/50 transition-colors cursor-pointer group">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-100 text-slate-400 group-hover:text-primary-600">
                   <Upload size={20} />
                 </div>
                 <p className="font-bold text-slate-700">Upload Nominee Photo</p>
@@ -257,7 +257,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
                     <input
                       type="email"
                       required
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-gray-50 focus:bg-white"
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData({ ...formData, email: e.target.value })
@@ -277,7 +277,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
                     <input
                       type="tel"
                       required
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-gray-50 focus:bg-white"
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white"
                       value={formData.phone}
                       onChange={(e) =>
                         setFormData({ ...formData, phone: e.target.value })
@@ -298,7 +298,7 @@ export function NominationFormClient({ event }: NominationFormProps) {
                   />
                   <input
                     type="text"
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-gray-50 focus:bg-white"
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white"
                     placeholder="@handle"
                     value={formData.socialHandle}
                     onChange={(e) =>

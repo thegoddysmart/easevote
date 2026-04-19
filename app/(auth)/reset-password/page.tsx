@@ -92,9 +92,9 @@ function ResetPasswordForm() {
             <Lock size={32} className="text-white" />
           </div>
           <h2 className="text-5xl font-display font-bold leading-tight text-white!">
-            Create a new <span className="text-secondary-500">password</span>.
+            Create a new <span className="text-primary-500">password</span>.
           </h2>
-          <p className="text-lg text-magenta-100/80 leading-relaxed">
+          <p className="text-lg text-primary-100/80 leading-relaxed">
             Choose a strong password you haven't used before to keep your
             account secure.
           </p>
@@ -105,8 +105,8 @@ function ResetPasswordForm() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 lg:px-24 py-12 bg-white overflow-y-auto">
         <div className="max-w-md w-full mx-auto">
           <div className="lg:hidden mb-8 mt-8">
-            <span className="text-2xl font-display font-bold text-magenta-800">
-              EaseVote<span className="text-magenta-500">.gh</span>
+            <span className="text-2xl font-display font-bold text-primary-800">
+              EaseVote<span className="text-primary-500">.gh</span>
             </span>
           </div>
 
@@ -163,7 +163,7 @@ function ResetPasswordForm() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter strong password"
                       required
-                      className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                      className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                     />
                     <button
                       type="button"
@@ -241,7 +241,7 @@ function ResetPasswordForm() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Re-enter password"
                       required
-                      className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                      className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                     />
                     <button
                       type="button"

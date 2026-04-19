@@ -92,7 +92,7 @@ export default async function NominationDetailPage({
           {/* Bio Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <User size={20} className="text-magenta-600" /> Nominee Profile
+              <User size={20} className="text-primary-600" /> Nominee Profile
             </h3>
 
             <div className="flex flex-col sm:flex-row gap-6">
@@ -145,7 +145,7 @@ export default async function NominationDetailPage({
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <FileText size={20} className="text-magenta-600" /> Application
+              <FileText size={20} className="text-primary-600" /> Application
               Responses
             </h3>
 

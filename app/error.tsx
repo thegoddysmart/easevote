@@ -15,7 +15,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 text-center dark:bg-secondary-100">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 text-center dark:bg-primary-100">
       <h1 className="font-russo text-4xl font-bold text-gray-900 dark:text-white md:text-5xl">
         Something went wrong!
       </h1>
@@ -28,7 +28,7 @@ export default function Error({
             // Attempt to recover by trying to re-render the segment
             () => reset()
           }
-          className="rounded-full bg-secondary-600 px-8 py-3 text-base font-semibold text-white transition-colors hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2"
+          className="rounded-full bg-primary-600 px-8 py-3 text-base font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
           Try Again
         </button>

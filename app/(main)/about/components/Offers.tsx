@@ -71,22 +71,22 @@ export default function Offers() {
           </div>
 
           {/* For Organizers Card */}
-          <div className="bg-linear-to-b from-secondary-50 to-white p-8 rounded-3xl border border-secondary-100 shadow-sm flex flex-col">
+          <div className="bg-linear-to-b from-primary-50 to-white p-8 rounded-3xl border border-primary-100 shadow-sm flex flex-col">
             <div className="flex items-center space-x-4 mb-6">
-              <div className="w-12 h-12 bg-secondary-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-secondary-500/30">
+              <div className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-primary-500/30">
                 <Briefcase size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-secondary-700!">
+              <h3 className="text-2xl font-bold text-primary-700!">
                 For Organizers
               </h3>
             </div>
-            <p className="text-sm font-semibold text-secondary-600 mb-6 uppercase tracking-wider">
+            <p className="text-sm font-semibold text-primary-600 mb-6 uppercase tracking-wider">
               Event Managers
             </p>
 
             <ul className="space-y-4 mb-8 grow">
               <li className="flex items-start">
-                <Check className="w-5 h-5 text-secondary-500 mr-3 mt-0.5 shrink-0" />
+                <Check className="w-5 h-5 text-primary-500 mr-3 mt-0.5 shrink-0" />
                 <span className="text-slate-700 text-sm">
                   <strong className="text-slate-900 block mb-1">
                     Admin Access
@@ -96,7 +96,7 @@ export default function Offers() {
                 </span>
               </li>
               <li className="flex items-start">
-                <Check className="w-5 h-5 text-secondary-500 mr-3 mt-0.5 shrink-0" />
+                <Check className="w-5 h-5 text-primary-500 mr-3 mt-0.5 shrink-0" />
                 <span className="text-slate-700 text-sm">
                   <strong className="text-slate-900 block mb-1">
                     Instant Withdrawal
@@ -105,7 +105,7 @@ export default function Offers() {
                 </span>
               </li>
               <li className="flex items-start">
-                <Check className="w-5 h-5 text-secondary-500 mr-3 mt-0.5 shrink-0" />
+                <Check className="w-5 h-5 text-primary-500 mr-3 mt-0.5 shrink-0" />
                 <span className="text-slate-700 text-sm">
                   <strong className="text-slate-900 block mb-1">
                     Nomination Screening
@@ -114,7 +114,7 @@ export default function Offers() {
                 </span>
               </li>
               <li className="flex items-start">
-                <Check className="w-5 h-5 text-secondary-500 mr-3 mt-0.5 shrink-0" />
+                <Check className="w-5 h-5 text-primary-500 mr-3 mt-0.5 shrink-0" />
                 <span className="text-slate-700 text-sm">
                   <strong className="text-slate-900 block mb-1">
                     Free Graphic Design
@@ -123,7 +123,7 @@ export default function Offers() {
                 </span>
               </li>
               <li className="flex items-start">
-                <Check className="w-5 h-5 text-secondary-500 mr-3 mt-0.5 shrink-0" />
+                <Check className="w-5 h-5 text-primary-500 mr-3 mt-0.5 shrink-0" />
                 <span className="text-slate-700 text-sm">
                   <strong className="text-slate-900 block mb-1">
                     Event Planning Support
@@ -135,7 +135,7 @@ export default function Offers() {
 
             <Link
               href="/sign-up"
-              className="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-secondary-700 to-pink-500 text-white! font-bold hover:opacity-90 transition-opacity shadow-lg shadow-secondary-500/20"
+              className="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-primary-700 to-pink-500 text-white! font-bold hover:opacity-90 transition-opacity shadow-lg shadow-primary-500/20"
             >
               Create Events
             </Link>

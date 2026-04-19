@@ -97,7 +97,7 @@ export function Sidebar({
                         className={clsx(
                           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors flex-1",
                           isActive || childActive
-                            ? "bg-secondary-700 text-white!"
+                            ? "bg-primary-700 text-white!"
                             : "text-slate-300! hover:bg-primary-800 hover:text-white"
                         )}
                         title={isCollapsed ? item.name : undefined}

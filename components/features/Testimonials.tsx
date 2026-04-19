@@ -8,7 +8,7 @@ export default function Testimonials() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Featured Video Testimonial */}
           <div className="relative group cursor-pointer">
-            <div className="absolute -inset-2 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+            <div className="absolute -inset-2 bg-gradient-to-r from-primary-600 to-primary-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative bg-black rounded-xl overflow-hidden aspect-video shadow-2xl">
               <img
                 src="https://picsum.photos/seed/studio/800/450?grayscale"
@@ -56,7 +56,7 @@ export default function Testimonials() {
             ].map((review, i) => (
               <div
                 key={i}
-                className="bg-slate-800 p-6 rounded-2xl border border-slate-700 hover:border-secondary-500 transition-colors"
+                className="bg-slate-800 p-6 rounded-2xl border border-slate-700 hover:border-primary-500 transition-colors"
               >
                 <p className="text-gray-300 italic mb-4">
                   &ldquo;{review.text}&rdquo;
@@ -65,10 +65,10 @@ export default function Testimonials() {
                   <img
                     src={review.img}
                     alt={review.name}
-                    className="w-10 h-10 rounded-full border-2 border-secondary-500"
+                    className="w-10 h-10 rounded-full border-2 border-primary-500"
                   />
                   <div>
-                    <h4 className="font-bold text-sm text-secondary-100!">
+                    <h4 className="font-bold text-sm text-primary-100!">
                       {review.name}
                     </h4>
                     <p className="text-xs text-gray-500">{review.role}</p>

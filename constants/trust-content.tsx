@@ -21,7 +21,7 @@ export const trustContent: Record<
 > = {
   terms: {
     title: "The Rules of Engagement",
-    icon: <FileText size={32} className="text-magenta-500" />,
+    icon: <FileText size={32} className="text-primary-500" />,
     humanSummary: [
       {
         title: "Voting is Final",

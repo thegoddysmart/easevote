@@ -75,9 +75,9 @@ function VerifyEmailContent() {
             <Mail size={32} className="text-white" />
           </div>
           <h2 className="text-5xl font-display font-bold leading-tight text-white!">
-            Verifying your <span className="text-secondary-500">email</span>.
+            Verifying your <span className="text-primary-500">email</span>.
           </h2>
-          <p className="text-lg text-magenta-100/80 leading-relaxed">
+          <p className="text-lg text-primary-100/80 leading-relaxed">
             Just a moment while we confirm your email address and activate your
             EaseVote organizer account.
           </p>
@@ -88,8 +88,8 @@ function VerifyEmailContent() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 lg:px-24 py-12 bg-white">
         <div className="max-w-md w-full mx-auto text-center">
           <div className="lg:hidden mb-8 mt-8">
-            <span className="text-2xl font-display font-bold text-magenta-800">
-              EaseVote<span className="text-magenta-500">.gh</span>
+            <span className="text-2xl font-display font-bold text-primary-800">
+              EaseVote<span className="text-primary-500">.gh</span>
             </span>
           </div>
 
@@ -117,7 +117,7 @@ function VerifyEmailContent() {
               </p>
               <Link
                 href="/sign-in"
-                className="inline-flex items-center gap-2 font-bold text-magenta-700 hover:underline"
+                className="inline-flex items-center gap-2 font-bold text-primary-700 hover:underline"
               >
                 Go to Sign In now
               </Link>
@@ -140,7 +140,7 @@ function VerifyEmailContent() {
                 </Link>
                 <Link
                   href="/sign-up"
-                  className="text-sm font-bold text-magenta-700 hover:underline"
+                  className="text-sm font-bold text-primary-700 hover:underline"
                 >
                   Create a new account
                 </Link>

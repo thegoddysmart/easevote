@@ -50,8 +50,8 @@ const Header = () => {
                 <div
                   className={`flex items-center px-3 py-2 rounded-md font-medium cursor-pointer transition-colors ${
                     !link.subLinks && isActive(link.href)
-                      ? "text-secondary-700 font-semibold"
-                      : "text-neutral-600 hover:text-secondary-700"
+                      ? "text-primary-700 font-semibold"
+                      : "text-neutral-600 hover:text-primary-700"
                   }`}
                 >
                   {link.subLinks ? (
@@ -71,9 +71,9 @@ const Header = () => {
                         <Link
                           key={sub.label}
                           href={sub.href}
-                          className={`block px-4 py-2 text-sm hover:bg-gray-100 hover:text-secondary-700 ${
+                          className={`block px-4 py-2 text-sm hover:bg-gray-100 hover:text-primary-700 ${
                             isActive(sub.href)
-                              ? "text-secondary-700 font-semibold"
+                              ? "text-primary-700 font-semibold"
                               : "text-gray-700!"
                           }`}
                         >
@@ -93,7 +93,7 @@ const Header = () => {
               href="/sign-in"
               className={`font-medium hover:underline ${
                 pathname === "/sign-in"
-                  ? "text-secondary-700! font-semibold"
+                  ? "text-primary-700! font-semibold"
                   : "text-primary-700"
               }`}
             >

@@ -103,7 +103,7 @@ export function Header({
                 ))}
               </div>
               <div className="px-4 py-2 border-t border-slate-100">
-                <button className="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">
                   View all notifications
                 </button>
               </div>
@@ -119,7 +119,7 @@ export function Header({
             }}
             className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center overflow-hidden">
+            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
               {user.image ? (
                 <Image
                   src={user.image}
@@ -129,7 +129,7 @@ export function Header({
                   className="rounded-full object-cover"
                 />
               ) : (
-                <User className="h-4 w-4 text-amber-600" />
+                <User className="h-4 w-4 text-primary-600" />
               )}
             </div>
             <div className="hidden md:block text-left">

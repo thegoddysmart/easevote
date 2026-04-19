@@ -3,7 +3,7 @@
 import { siFacebook, siX, siInstagram, siTiktok } from "simple-icons/icons";
 
 const iconBase =
-  "w-10 h-10 rounded-full bg-neutral-500 hover:bg-secondary-700 flex items-center justify-center transition-colors cursor-pointer";
+  "w-10 h-10 rounded-full bg-neutral-500 hover:bg-primary-700 flex items-center justify-center transition-colors cursor-pointer";
 
 function Icon({ path }: { path: string }) {
   return (

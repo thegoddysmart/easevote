@@ -18,7 +18,7 @@ export function KPICard({
   change,
   changeLabel = "vs last period",
   icon: Icon,
-  iconColor = "bg-amber-100 text-amber-600",
+  iconColor = "bg-primary-100 text-primary-600",
   trend,
   loading = false,
 }: KPICardProps) {

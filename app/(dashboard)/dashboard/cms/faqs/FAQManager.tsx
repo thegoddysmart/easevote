@@ -155,7 +155,7 @@ export default function FAQManager({ initialFaqs }: FAQManagerProps) {
             placeholder="Search FAQs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-magenta-500"
+            className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
@@ -225,7 +225,7 @@ export default function FAQManager({ initialFaqs }: FAQManagerProps) {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="text-magenta-600 text-sm font-medium mt-2 hover:underline"
+                className="text-primary-600 text-sm font-medium mt-2 hover:underline"
               >
                 Clear search
               </button>
@@ -259,7 +259,7 @@ export default function FAQManager({ initialFaqs }: FAQManagerProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-magenta-500 focus:outline-none"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none"
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
@@ -278,7 +278,7 @@ export default function FAQManager({ initialFaqs }: FAQManagerProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, question: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-magenta-500 focus:outline-none"
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none"
                   placeholder="e.g., How do I vote?"
                 />
               </div>
@@ -291,7 +291,7 @@ export default function FAQManager({ initialFaqs }: FAQManagerProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, answer: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-magenta-500 focus:outline-none resize-none"
+                  className="w-full p-2 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-primary-500 focus:outline-none resize-none"
                   placeholder="Enter the detailed answer..."
                 ></textarea>
               </div>

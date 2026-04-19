@@ -19,7 +19,7 @@ export const CategoryFilter = ({
         className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${
           active === cat
             ? "bg-slate-900 text-white shadow-lg"
-            : "bg-white text-slate-600 border border-gray-200 hover:border-magenta-500 hover:text-magenta-600"
+            : "bg-white text-slate-600 border border-gray-200 hover:border-primary-500 hover:text-primary-600"
         }`}
       >
         {cat}

@@ -77,7 +77,7 @@ const Hero = ({ banners }: HeroProps) => {
   return (
     <section className="relative w-full bg-white overflow-hidden py-12 lg:py-20 bg-linear-to-br from-purple-50 via-white to-pink-50">
       {/* Animated Mesh Background (Simplified via CSS/Tailwind) */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-[600px] h-[600px] bg-magenta-500/10 rounded-full blur-[100px] animate-pulse-slow"></div>
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-[600px] h-[600px] bg-primary-500/10 rounded-full blur-[100px] animate-pulse-slow"></div>
       <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px]"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Split: Text Content */}

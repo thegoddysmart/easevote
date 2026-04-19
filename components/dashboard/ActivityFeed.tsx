@@ -80,7 +80,7 @@ export function ActivityFeed({
                     <Icon className="h-4 w-4" />
                   </div>
                 ) : activity.user ? (
-                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-medium text-sm">
+                  <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-medium text-sm">
                     {activity.user.avatar ? (
                       <img
                         src={activity.user.avatar}
@@ -111,7 +111,7 @@ export function ActivityFeed({
         )}
       </div>
       {activities.length > maxItems && (
-        <button className="w-full mt-4 text-sm text-amber-600 hover:text-amber-700 font-medium">
+        <button className="w-full mt-4 text-sm text-primary-600 hover:text-primary-700 font-medium">
           View all activity
         </button>
       )}

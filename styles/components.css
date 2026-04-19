@@ -29,17 +29,17 @@
   /* ========================================
     SECONDARY COLOR SCALE (Bright Fuchsia)
     ======================================== */
-  --color-secondary-50: #fef5fa;
-  --color-secondary-100: #fdeaf5;
-  --color-secondary-200: #fbd5eb;
-  --color-secondary-300: #f9b0d7;
-  --color-secondary-400: #f57ab9;
-  --color-secondary-500: #ed4a9b;
-  --color-secondary-600: #d3067d; /* Base secondary */
-  --color-secondary-700: #b10568;
-  --color-secondary-800: #920556;
-  --color-secondary-900: #7a0648;
-  --color-secondary-950: #4b0029;
+  --color-primary-50: #fef5fa;
+  --color-primary-100: #fdeaf5;
+  --color-primary-200: #fbd5eb;
+  --color-primary-300: #f9b0d7;
+  --color-primary-400: #f57ab9;
+  --color-primary-500: #ed4a9b;
+  --color-primary-600: #d3067d; /* Base secondary */
+  --color-primary-700: #b10568;
+  --color-primary-800: #920556;
+  --color-primary-900: #7a0648;
+  --color-primary-950: #4b0029;
 
   /* ========================================
     SEMANTIC COLORS (Functional)
@@ -485,7 +485,7 @@ a:hover {
   background: linear-gradient(
     135deg,
     var(--color-primary-700) 0%,
-    var(--color-secondary-600) 100%
+    var(--color-primary-600) 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -495,8 +495,8 @@ a:hover {
 .text-gradient-secondary {
   background: linear-gradient(
     135deg,
-    var(--color-secondary-600) 0%,
-    var(--color-secondary-400) 100%
+    var(--color-primary-600) 0%,
+    var(--color-primary-400) 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -508,15 +508,15 @@ a:hover {
   background: linear-gradient(
     135deg,
     var(--color-primary-700) 0%,
-    var(--color-secondary-600) 100%
+    var(--color-primary-600) 100%
   );
 }
 
 .bg-gradient-secondary {
   background: linear-gradient(
     135deg,
-    var(--color-secondary-600) 0%,
-    var(--color-secondary-400) 100%
+    var(--color-primary-600) 0%,
+    var(--color-primary-400) 100%
   );
 }
 
@@ -524,7 +524,7 @@ a:hover {
   background: radial-gradient(
     circle at center,
     var(--color-primary-700) 0%,
-    var(--color-secondary-600) 100%
+    var(--color-primary-600) 100%
   );
 }
 
@@ -616,7 +616,7 @@ a:hover {
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
+  --color-primary-foreground: var(--primary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -651,7 +651,7 @@ a:hover {
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
@@ -685,7 +685,7 @@ a:hover {
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);

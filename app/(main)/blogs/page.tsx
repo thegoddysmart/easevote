@@ -21,12 +21,12 @@ export default async function BlogsIndexPage() {
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* HERO SECTION */}
       <section className="bg-primary-700 pt-32 pb-20 px-4 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary-500/10 rounded-full blur-[120px]"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-[120px]"></div>
           <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-primary-900/40 rounded-full blur-[100px]"></div>
           
           <div className="container-custom relative z-10 text-center space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-black uppercase tracking-widest text-primary-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-secondary-400 animate-pulse"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse"></span>
                   Official Newsroom
               </div>
               <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9]">

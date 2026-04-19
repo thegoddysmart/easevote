@@ -58,7 +58,7 @@ export default function Features() {
                 href="tel:0550073142"
                 className="px-6 py-3 bg-white border border-slate-200 text-slate-800 font-semibold rounded-lg shadow-sm hover:shadow-md transition-shadow flex items-center gap-2 max-w-max"
               >
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-500 to-secondary-500">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-500 to-primary-500">
                   Contact Sales Team
                 </span>
               </a>

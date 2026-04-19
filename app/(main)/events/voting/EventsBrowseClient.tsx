@@ -108,7 +108,7 @@ export default function EventsBrowseClient({
               placeholder="Search by name or event code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 bg-gray-50 focus:bg-white transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-50 focus:bg-white transition-all"
             />
           </div>
 
@@ -119,7 +119,7 @@ export default function EventsBrowseClient({
               title="Event status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-slate-700 font-medium focus:outline-none focus:border-magenta-500 cursor-pointer hover:bg-gray-50"
+              className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-slate-700 font-medium focus:outline-none focus:border-primary-500 cursor-pointer hover:bg-gray-50"
             >
               <option value="All">All Status</option>
               <option value="LIVE">Live Now</option>
@@ -132,7 +132,7 @@ export default function EventsBrowseClient({
               title="Event category"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-slate-700 font-medium focus:outline-none focus:border-magenta-500 cursor-pointer hover:bg-gray-50"
+              className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-slate-700 font-medium focus:outline-none focus:border-primary-500 cursor-pointer hover:bg-gray-50"
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
@@ -219,7 +219,7 @@ export default function EventsBrowseClient({
                   }`}
                 >
                   <div className="mb-2 flex justify-between items-start">
-                    <span className="text-xs font-bold text-magenta-600 uppercase tracking-wide">
+                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wide">
                       {event.category}
                     </span>
 
@@ -230,7 +230,7 @@ export default function EventsBrowseClient({
                     )}
                   </div>
 
-                  <h3 className="text-xl font-display font-bold text-slate-900 mb-3 group-hover:text-magenta-700 transition-colors">
+                  <h3 className="text-xl font-display font-bold text-slate-900 mb-3 group-hover:text-primary-700 transition-colors">
                     {event.title}
                   </h3>
 
@@ -251,7 +251,7 @@ export default function EventsBrowseClient({
                   {/* Action */}
                   <div className="mt-auto">
                     <div
-                      className={`py-3 rounded-xl border-2 border-slate-100 text-slate-700 font-bold group-hover:bg-secondary-700 group-hover:border-secondary-700 group-hover:text-white! transition-all flex items-center justify-center gap-2 ${
+                      className={`py-3 rounded-xl border-2 border-slate-100 text-slate-700 font-bold group-hover:bg-primary-700 group-hover:border-primary-700 group-hover:text-white! transition-all flex items-center justify-center gap-2 ${
                         viewMode === "list"
                           ? "w-auto px-8 mt-2 text-slate-700"
                           : "w-full"

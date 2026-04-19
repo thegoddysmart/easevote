@@ -129,9 +129,9 @@ export default function SignUpPage() {
             </div>
             <h2 className="text-5xl font-display font-bold leading-tight text-white!">
               Host World-Class{" "}
-              <span className="text-secondary-500">Events</span>.
+              <span className="text-primary-500">Events</span>.
             </h2>
-            <p className="text-lg text-magenta-100/80 leading-relaxed">
+            <p className="text-lg text-primary-100/80 leading-relaxed">
               Launch your awards scheme or school election in minutes. Get
               real-time analytics, instant payouts, and zero stress.
             </p>
@@ -140,7 +140,7 @@ export default function SignUpPage() {
             <div className="relative mt-12 perspective-1000">
               <div className="w-full bg-linear-to-br from-white/20 to-white/5 backdrop-blur-lg border border-white/20 rounded-3xl p-6 shadow-2xl transform rotate-y-12 rotate-x-6 hover:rotate-0 transition-all duration-500">
                 <div className="flex justify-between items-start mb-8">
-                  <div className="w-12 h-12 rounded-full bg-secondary-600"></div>
+                  <div className="w-12 h-12 rounded-full bg-primary-600"></div>
                   <div className="h-4 w-20 bg-white/20 rounded-full"></div>
                 </div>
                 <div className="space-y-3">
@@ -158,8 +158,8 @@ export default function SignUpPage() {
         <div className="max-w-md w-full mx-auto">
           {/* Mobile Header (Brand) */}
           <div className="lg:hidden mb-8 mt-8">
-            <span className="text-2xl font-display font-bold text-magenta-800">
-              EaseVote<span className="text-magenta-500">.gh</span>
+            <span className="text-2xl font-display font-bold text-primary-800">
+              EaseVote<span className="text-primary-500">.gh</span>
             </span>
           </div>
 
@@ -200,7 +200,7 @@ export default function SignUpPage() {
                   type="text"
                   placeholder="Kwame Mensah"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
               {state?.errors?.fullName && (
@@ -224,7 +224,7 @@ export default function SignUpPage() {
                   type="text"
                   placeholder="e.g. SRC 2025, Ghana Music Awards"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
               {state?.errors?.businessName && (
@@ -248,7 +248,7 @@ export default function SignUpPage() {
                   type="email"
                   placeholder="name@organization.com"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
               {state?.errors?.email && (
@@ -272,7 +272,7 @@ export default function SignUpPage() {
                   type="tel"
                   placeholder="024 456 7890"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
               {state?.errors?.phone && (
@@ -299,7 +299,7 @@ export default function SignUpPage() {
                   placeholder="••••••••"
                   required
                   minLength={6}
-                  className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                 />
                 <button
                   type="button"
@@ -331,7 +331,7 @@ export default function SignUpPage() {
                   placeholder="Re-enter your password"
                   required
                   minLength={6}
-                  className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                 />
                 <button
                   type="button"
@@ -401,7 +401,7 @@ export default function SignUpPage() {
               Already have an account?
               <Link
                 href="/sign-in"
-                className="ml-2 font-bold text-magenta-800 hover:text-magenta-600 hover:underline transition-colors"
+                className="ml-2 font-bold text-primary-800 hover:text-primary-600 hover:underline transition-colors"
                 scroll={false}
               >
                 Log In

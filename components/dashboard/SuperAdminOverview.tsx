@@ -88,7 +88,7 @@ export function SuperAdminOverview({ data }: SuperAdminOverviewProps) {
           title="Registered Organizers"
           value={fmtCount(totalOrganizers)}
           icon={Building2}
-          iconColor="bg-amber-100 text-amber-600"
+          iconColor="bg-primary-100 text-primary-600"
         />
       </div>
 
@@ -115,7 +115,7 @@ export function SuperAdminOverview({ data }: SuperAdminOverviewProps) {
           title="Pending Payouts"
           value={fmtGHS(pendingPayouts)}
           icon={ArrowUpRight}
-          iconColor="bg-orange-100 text-orange-600"
+          iconColor="bg-primary-100 text-primary-600"
         />
       </div>
 
@@ -152,7 +152,7 @@ export function SuperAdminOverview({ data }: SuperAdminOverviewProps) {
               </h3>
               <Link
                 href="/dashboard/events"
-                className="text-sm text-amber-600 hover:text-amber-700 font-medium"
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
               >
                 View all
               </Link>

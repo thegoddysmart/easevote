@@ -82,8 +82,8 @@ const statusConfig: Record<
 > = {
   PENDING_REVIEW: {
     label: "Pending Review",
-    color: "text-amber-700",
-    bg: "bg-amber-100",
+    color: "text-primary-700",
+    bg: "bg-primary-100",
     icon: AlertCircle,
   },
   APPROVED: {
@@ -112,8 +112,8 @@ const statusConfig: Record<
   },
   PAUSED: {
     label: "Paused",
-    color: "text-orange-700",
-    bg: "bg-orange-100",
+    color: "text-primary-700",
+    bg: "bg-primary-100",
     icon: PauseCircle,
   },
   CANCELLED: {

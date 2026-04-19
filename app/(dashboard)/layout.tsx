@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard";
 import { getNavigationForRole } from "@/lib/navigation";
 import { OrganizerStatusBanner } from "@/components/organizer/OrganizerStatusBanner";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export default function UnifiedDashboardLayout({
   children,
@@ -17,6 +18,8 @@ export default function UnifiedDashboardLayout({
       redirect("/sign-in");
     },
   });
+
+  const { unreadCount } = useNotifications();
 
   if (status === "loading") {
     return (
@@ -33,7 +36,16 @@ export default function UnifiedDashboardLayout({
     redirect("/");
   }
 
-  const navigation = getNavigationForRole(role);
+  const navigation = getNavigationForRole(role).map(section => ({
+    ...section,
+    items: section.items.map(item => {
+      if (item.name === "Notifications" || item.href === "/dashboard/notifications") {
+        return { ...item, badge: unreadCount > 0 ? unreadCount : undefined };
+      }
+      return item;
+    })
+  }));
+
   const portalName = role === "SUPER_ADMIN" || role === "ADMIN" ? "Admin Portal" : "Organizer Portal";
   const profileUrl = "/dashboard/account";
 

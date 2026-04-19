@@ -13,7 +13,9 @@ import {
   ChevronDown,
   Menu,
 } from "lucide-react";
-import { clsx } from "clsx";
+import { useNotifications } from "@/hooks/useNotifications";
+import { formatDistanceToNow } from "date-fns";
+import clsx from "clsx";
 
 type HeaderProps = {
   user: {
@@ -35,14 +37,14 @@ export function Header({
 }: HeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-
-  const notifications = [
-    { id: 1, title: "New event created", time: "5 min ago", read: false },
-    { id: 2, title: "Payout processed", time: "1 hour ago", read: false },
-    { id: 3, title: "Vote milestone reached", time: "2 hours ago", read: true },
-  ];
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead, 
+    loading 
+  } = useNotifications();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:px-6">
@@ -83,29 +85,61 @@ export function Header({
 
           {isNotificationsOpen && (
             <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-slate-200 py-2">
-              <div className="px-4 py-2 border-b border-slate-100">
+              <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-semibold text-sm">Notifications</h3>
+                {unreadCount > 0 && (
+                  <button 
+                    onClick={() => markAllAsRead()}
+                    className="text-[10px] font-bold text-primary-600 hover:text-primary-700"
+                  >
+                    Mark all as read
+                  </button>
+                )}
               </div>
               <div className="max-h-64 overflow-y-auto">
-                {notifications.map((notification) => (
-                  <button
-                    key={notification.id}
-                    className={clsx(
-                      "w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors",
-                      !notification.read && "bg-blue-50"
-                    )}
-                  >
-                    <p className="text-sm font-medium text-slate-800">
-                      {notification.title}
-                    </p>
-                    <p className="text-xs text-slate-500">{notification.time}</p>
-                  </button>
-                ))}
+                {loading && notifications.length === 0 ? (
+                  <div className="px-4 py-6 text-center text-slate-400 text-sm italic">
+                    Loading notifications...
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-slate-400">
+                    <Bell className="h-8 w-8 mx-auto mb-2 opacity-20" />
+                    <p className="text-sm">No notifications yet</p>
+                  </div>
+                ) : (
+                  notifications.map((notification) => (
+                    <button
+                      key={notification.id}
+                      onClick={() => markAsRead(notification.id)}
+                      className={clsx(
+                        "w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0",
+                        !notification.read && "bg-primary-50/30"
+                      )}
+                    >
+                      <p className={clsx(
+                        "text-sm",
+                        !notification.read ? "font-bold text-slate-900" : "font-medium text-slate-600"
+                      )}>
+                        {notification.title}
+                      </p>
+                      <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
+                        {notification.message}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        {formatDistanceToNow(new Date(notification.time), { addSuffix: true })}
+                      </p>
+                    </button>
+                  ))
+                )}
               </div>
               <div className="px-4 py-2 border-t border-slate-100">
-                <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                <Link 
+                  href="/dashboard/notifications"
+                  onClick={() => setIsNotificationsOpen(false)}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-medium inline-block"
+                >
                   View all notifications
-                </button>
+                </Link>
               </div>
             </div>
           )}

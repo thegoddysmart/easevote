@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import { neuwelt, russoOne, bebas, nexa } from "@/components/ui/fonts";
 import { Metadata } from "next";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -90,6 +91,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        <Toaster position="top-center" />
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>

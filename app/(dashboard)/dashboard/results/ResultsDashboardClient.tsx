@@ -10,6 +10,7 @@ import {
   Download,
 } from "lucide-react";
 import { clsx } from "clsx";
+import Image from "next/image";
 
 type Candidate = {
   id: string;
@@ -184,13 +185,35 @@ export default function ResultsDashboardClient({ events }: DashboardProps) {
                 return (
                   <div key={candidate.id} className="relative">
                     <div className="flex justify-between items-end mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-700 text-sm">
-                          {candidate.name}
-                        </span>
-                        <span className="text-xs text-slate-400 bg-gray-100 px-1.5 py-0.5 rounded">
-                          {candidate.code}
-                        </span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 relative shrink-0">
+                          {(() => {
+                            const url = candidate.image;
+                            const isValid = url && typeof url === 'string' && !url.includes('example/image/upload') && !url.includes('null');
+                            
+                            return isValid ? (
+                              <Image
+                                src={url}
+                                alt={candidate.name}
+                                fill
+                                className="object-cover"
+                                sizes="40px"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-magenta-100 text-magenta-600 flex items-center justify-center font-bold uppercase text-xs">
+                                {candidate.name.charAt(0)}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-700 text-sm">
+                            {candidate.name}
+                          </span>
+                          <span className="text-xs text-slate-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                            {candidate.code}
+                          </span>
+                        </div>
                       </div>
                       <div className="text-right">
                         <span className="font-bold text-slate-900 text-sm">

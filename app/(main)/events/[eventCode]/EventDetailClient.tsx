@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { VotingEvent } from "@/types";
 import { api } from "@/lib/api-client";
+import toast from "react-hot-toast";
 
 import {
   ArrowLeft,
@@ -49,6 +50,28 @@ export default function EventDetailClient({
     return event.type === "TICKETING" ? "tickets" : "vote";
   });
   const router = useRouter();
+
+  const handleShare = async () => {
+    const shareData = {
+      title: event.title,
+      text: `Join me at ${event.title} on EaseVote!`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (err) {
+      if ((err as Error).name !== "AbortError") {
+        toast.error("Sharing failed. Link copied as fallback!");
+        await navigator.clipboard.writeText(window.location.href);
+      }
+    }
+  };
 
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
@@ -210,7 +233,10 @@ export default function EventDetailClient({
               {/* Actions Bar */}
               {/* Share Button */}
               <div className="flex flex-wrap gap-4">
-                <button className="flex items-center gap-2 text-sm font-bold bg-white text-slate-900 px-6 py-3 rounded-full hover:bg-secondary-700 hover:text-white transition-colors">
+                <button 
+                  onClick={handleShare}
+                  className="flex items-center gap-2 text-sm font-bold bg-white text-slate-900 px-6 py-3 rounded-full hover:bg-secondary-700 hover:text-white transition-colors"
+                >
                   <Share2 size={16} /> Share Event
                 </button>
                 {/* Nominate Button */}
@@ -623,19 +649,24 @@ export default function EventDetailClient({
                                 <td className="px-6 py-4">
                                   <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 relative shrink-0">
-                                      {candidate.imageUrl || candidate.image ? (
-                                        <Image
-                                          src={candidate.imageUrl || candidate.image}
-                                          alt={candidate.name}
-                                          fill
-                                          className="object-cover"
-                                          sizes="40px"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full bg-magenta-100 text-magenta-600 flex items-center justify-center font-bold uppercase text-xs">
-                                          {candidate.name.charAt(0)}
-                                        </div>
-                                      )}
+                                      {(() => {
+                                        const url = candidate.imageUrl || candidate.image;
+                                        const isValid = url && typeof url === 'string' && !url.includes('example/image/upload') && !url.includes('null');
+                                        
+                                        return isValid ? (
+                                          <Image
+                                            src={url}
+                                            alt={candidate.name}
+                                            fill
+                                            className="object-cover"
+                                            sizes="40px"
+                                          />
+                                        ) : (
+                                          <div className="w-full h-full bg-magenta-100 text-magenta-600 flex items-center justify-center font-bold uppercase text-xs">
+                                            {candidate.name.charAt(0)}
+                                          </div>
+                                        );
+                                      })()}
                                     </div>
                                     <div>
                                       <div className="font-bold text-slate-900">

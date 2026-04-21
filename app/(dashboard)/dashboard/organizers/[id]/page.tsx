@@ -19,6 +19,7 @@ import {
 import OrganizerActions from "../OrganizerActions";
 import EventsTable from "../../events/EventsTable";
 import UserAvatarUpload from "@/components/dashboard/UserAvatarUpload";
+import { computeEventStats } from "@/lib/event-stats";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -51,8 +52,8 @@ export default async function OrganizerDetailsPage(props: Props) {
     logo: "",
     businessEmail: _rawUser.email,
     businessPhone: _rawUser.phone,
-    totalRevenue: 0,
-    balance: 0,
+    totalRevenue: _rawUser.balanceData?.grossRevenue || 0,
+    balance: _rawUser.balanceData?.availableBalance || 0,
     address: "",
     city: "",
     region: "",
@@ -60,8 +61,8 @@ export default async function OrganizerDetailsPage(props: Props) {
     bankAccountName: "",
     bankName: "",
     bankAccountNumber: "",
-    events: [],
-    payouts: [],
+    events: _rawUser.events || [],
+    payouts: _rawUser.payouts || [],
     user: {
       id: _rawUser._id || _rawUser.id,
       name: _rawUser.fullName,
@@ -124,6 +125,7 @@ export default async function OrganizerDetailsPage(props: Props) {
               id: organizer.user.id,
               status: organizer.user.status,
             },
+            isDeleted: _rawUser.isDeleted,
           }}
         />
       </div>
@@ -276,22 +278,27 @@ export default async function OrganizerDetailsPage(props: Props) {
                 */}
             <Suspense fallback={<div className="p-8 text-center text-slate-400">Loading events...</div>}>
               <EventsTable
-                events={(organizer.events || []).map((e: any) => ({
-                  ...e,
-                  startDate: new Date(e.startDate).toISOString(),
-                  endDate: new Date(e.endDate).toISOString(),
-                  votePrice: e.votePrice ? Number(e.votePrice) : null,
-                  totalRevenue: Number(e.totalRevenue),
-                  totalVotes: Number(e.totalVotes),
-                  stats: {
-                    votes: e.totalVotes,
-                    revenue: Number(e.totalRevenue),
-                  },
-                  organizer: {
-                    name: organizer.businessName,
-                    avatar: organizer.logo || "",
-                  },
-                }))}
+                hideOrganizerColumn={true}
+                events={(organizer.events || []).map((e: any) => {
+                  const { votes, revenue, ticketsSold } = computeEventStats(e);
+
+                  return {
+                    ...e,
+                    id: e._id || e.id,
+                    eventCode: e.eventCode || e._id?.substring(0, 8) || "N/A",
+                    startDate: new Date(e.startDate).toISOString(),
+                    endDate: new Date(e.endDate).toISOString(),
+                    stats: {
+                      votes,
+                      revenue,
+                      ticketsSold,
+                    },
+                    organizer: {
+                      name: organizer.businessName,
+                      avatar: organizer.logo || "",
+                    },
+                  };
+                })}
               />
             </Suspense>
           </div>

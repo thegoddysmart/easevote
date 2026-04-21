@@ -81,8 +81,21 @@ class ApiClient {
     });
   }
 
-  get<T = any>(path: string) {
-    return this.request<T>(path);
+  get<T = any>(path: string, options?: RequestInit & { params?: Record<string, any> }) {
+    let finalPath = path;
+    if (options?.params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          searchParams.append(key, value.toString());
+        }
+      });
+      const queryString = searchParams.toString();
+      if (queryString) {
+        finalPath += (finalPath.includes("?") ? "&" : "?") + queryString;
+      }
+    }
+    return this.request<T>(finalPath, options);
   }
 
   post<T = any>(path: string, body?: any) {

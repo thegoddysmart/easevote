@@ -12,7 +12,10 @@ import {
   User,
   Calendar,
   Undo2,
-  Check
+  Check,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { clsx } from "clsx";
 import { api } from "@/lib/api-client";
@@ -56,25 +59,50 @@ export default function TicketManagementClient({ events }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "USED" | "UNUSED">("ALL");
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    hasNext: false,
+    hasPrev: false,
+  });
+  const [limit] = useState(10);
 
-  const fetchTickets = useCallback(async () => {
+  const fetchTickets = useCallback(async (page: number = 1) => {
     if (!selectedEventId) return;
     setLoading(true);
+    console.log(`[TicketManagement] Fetching tickets for event: ${selectedEventId}, page: ${page}`);
     try {
-      const res = await api.get(`/tickets/events/${selectedEventId}`);
-      // The api-client helper already returns the data directly
-      setTickets(Array.isArray(res) ? res : []);
-    } catch (error) {
-      console.error("Failed to fetch tickets:", error);
-      toast.error("Failed to load tickets");
+      const res = await api.get(`/tickets/events/${selectedEventId}`, {
+        params: {
+          page,
+          limit,
+          query: searchQuery,
+          status: statusFilter
+        }
+      });
+      
+      console.log("[TicketManagement] API Response:", res);
+
+      if (res && res.pagination) {
+        setTickets(res.data || []);
+        setPagination(res.pagination);
+      } else {
+        console.warn("[TicketManagement] Response missing pagination metadata, using raw array:", res);
+        setTickets(Array.isArray(res) ? res : []);
+      }
+    } catch (error: any) {
+      console.error("[TicketManagement] Fetch Error:", error);
+      toast.error(error.message || "Failed to load tickets");
     } finally {
       setLoading(false);
     }
-  }, [selectedEventId]);
+  }, [selectedEventId, searchQuery, statusFilter, limit]);
 
   useEffect(() => {
-    fetchTickets();
-  }, [fetchTickets]);
+    fetchTickets(1);
+  }, [selectedEventId, searchQuery, statusFilter]);
 
   const handleToggleUsage = async (ticketNumber: string, currentStatus: boolean) => {
     setTogglingId(ticketNumber);
@@ -96,20 +124,24 @@ export default function TicketManagementClient({ events }: Props) {
     }
   };
 
-  const filteredTickets = tickets.filter((t) => {
-    const query = searchQuery.toLowerCase();
-    const name = (t.customerName || t.purchaseId?.customerName || "").toLowerCase();
-    const email = (t.customerEmail || t.purchaseId?.customerEmail || "").toLowerCase();
-    const code = t.ticketNumber.toLowerCase();
+  const handleSyncStats = async () => {
+    if (!selectedEventId) return;
+    setSyncing(true);
+    try {
+      const res = await api.post(`/reconciliation/sync-tickets/${selectedEventId}`);
+      toast.success(res.message || "Statistics synchronized successfully");
+      // Optional: Refresh the page to show new aggregate stats in the parent component
+      window.location.reload();
+    } catch (error: any) {
+      console.error("Sync failed:", error);
+      toast.error(error.message || "Failed to sync statistics");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
-    const matchesSearch = name.includes(query) || email.includes(query) || code.includes(query);
-    const matchesStatus =
-      statusFilter === "ALL" ||
-      (statusFilter === "USED" && t.isUsed) ||
-      (statusFilter === "UNUSED" && !t.isUsed);
-
-    return matchesSearch && matchesStatus;
-  });
+  // Filtering is now handled on the server side
+  const displayTickets = tickets;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -122,22 +154,34 @@ export default function TicketManagementClient({ events }: Props) {
           <p className="text-sm text-slate-500 font-medium">Select an event to validate and manage guest check-ins.</p>
         </div>
         
-        <div className="relative min-w-[250px]">
-          <select
-            value={selectedEventId}
-            onChange={(e) => setSelectedEventId(e.target.value)}
-            className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-900 font-bold py-3 pl-4 pr-10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer transition-all"
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSyncStats}
+            disabled={syncing || !selectedEventId}
+            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-3 rounded-2xl font-bold transition-all disabled:opacity-50"
+            title="Recalculate and sync ticket statistics from the ledger"
           >
-            {events.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.title}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={18}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-          />
+            {syncing ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+            <span className="hidden sm:inline">Sync Stats</span>
+          </button>
+
+          <div className="relative min-w-[250px]">
+            <select
+              value={selectedEventId}
+              onChange={(e) => setSelectedEventId(e.target.value)}
+              className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-900 font-bold py-3 pl-4 pr-10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer transition-all"
+            >
+              {events.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.title}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={18}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
+          </div>
         </div>
       </div>
 
@@ -197,12 +241,12 @@ export default function TicketManagementClient({ events }: Props) {
                     <p className="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Loading ticket ledger...</p>
                   </td>
                 </tr>
-              ) : filteredTickets.length > 0 ? (
-                filteredTickets.map((ticket, i) => (
+              ) : displayTickets.length > 0 ? (
+                displayTickets.map((ticket, i) => (
                   <tr key={ticket._id} className="group hover:bg-slate-50/50 transition-colors">
                     <td className="px-8 py-6">
                       <span className="text-xs font-black text-slate-300 group-hover:text-primary-500 transition-colors">
-                        {String(i + 1).padStart(2, '0')}
+                        {String((pagination.currentPage - 1) * limit + i + 1).padStart(2, '0')}
                       </span>
                     </td>
                     <td className="px-8 py-6">
@@ -287,6 +331,62 @@ export default function TicketManagementClient({ events }: Props) {
             </tbody>
           </table>
         </div>
+      {/* Pagination Controls */}
+      {pagination.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+          <div className="text-sm text-slate-500 font-medium">
+            Showing <span className="text-slate-900 font-black">{(pagination.currentPage - 1) * limit + 1}</span> to{" "}
+            <span className="text-slate-900 font-black">
+              {Math.min(pagination.currentPage * limit, pagination.totalItems)}
+            </span>{" "}
+            of <span className="text-slate-900 font-black">{pagination.totalItems}</span> tickets
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => fetchTickets(pagination.currentPage - 1)}
+              disabled={!pagination.hasPrev || loading}
+              className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                .filter(p => {
+                  // Show current, first, last, and neighbors
+                  return p === 1 || p === pagination.totalPages || Math.abs(p - pagination.currentPage) <= 1;
+                })
+                .map((p, idx, arr) => (
+                  <div key={p} className="flex items-center">
+                    {idx > 0 && p - arr[idx - 1] > 1 && (
+                      <span className="px-2 text-slate-300">...</span>
+                    )}
+                    <button
+                      onClick={() => fetchTickets(p)}
+                      className={clsx(
+                        "w-10 h-10 rounded-xl text-xs font-black transition-all",
+                        pagination.currentPage === p
+                          ? "bg-primary-600 text-white shadow-md shadow-primary-600/20"
+                          : "text-slate-500 hover:bg-slate-50"
+                      )}
+                    >
+                      {p}
+                    </button>
+                  </div>
+                ))}
+            </div>
+
+            <button
+              onClick={() => fetchTickets(pagination.currentPage + 1)}
+              disabled={!pagination.hasNext || loading}
+              className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );

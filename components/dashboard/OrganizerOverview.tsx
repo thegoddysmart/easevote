@@ -1,5 +1,6 @@
-import { Calendar, DollarSign, Vote, TrendingUp, ArrowRight, BarChart3, Users, Zap, Ticket } from "lucide-react";
 import Link from "next/link";
+import { computeEventStats } from "@/lib/event-stats";
+import { ArrowRight, BarChart3, Calendar, DollarSign, TrendingUp, Users, Vote, Zap } from "lucide-react";
 
 interface OrganizerOverviewProps {
   data: {
@@ -13,7 +14,15 @@ interface OrganizerOverviewProps {
 }
 
 function fmtGHS(amount: number): string {
-  return `GHS ${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+  if (amount >= 1_000_000) return `GHS ${parseFloat((amount / 1_000_000).toFixed(3))}M`;
+  if (amount >= 1_000) return `GHS ${parseFloat((amount / 1_000).toFixed(3))}K`;
+  return `GHS ${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function fmtCount(n: number): string {
+  if (n >= 1_000_000) return `${parseFloat((n / 1_000_000).toFixed(3))}M`;
+  if (n >= 1_000) return `${parseFloat((n / 1_000).toFixed(3))}K`;
+  return n.toLocaleString();
 }
 
 export function OrganizerOverview({ data }: OrganizerOverviewProps) {
@@ -58,7 +67,7 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
             </div>
             <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Engagement (Total Votes)</p>
             <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">
-                {(analytics.totalVotes || 0).toLocaleString()}
+                {fmtCount(analytics.totalVotes || 0)}
             </h2>
             <div className="flex items-center gap-2 text-slate-400 font-bold text-sm bg-slate-50 w-fit px-3 py-1 rounded-full border border-slate-100">
                 <BarChart3 size={14} /> Real-time engagement
@@ -97,10 +106,6 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
                     </div>
                 ) : (
                     events.map((event) => {
-                        const eventRevenue = Number(event.totalRevenue ?? 0);
-                        const eventVotes = Number(event.totalPaidVotes ?? 0);
-                        const eventTickets = Number(event.totalTicketsSold ?? 0);
-
                         return (
                           <div key={event._id} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-6 hover:shadow-md transition-shadow group">
                               <div className="w-16 h-16 rounded-xl overflow-hidden shadow-inner bg-slate-100 flex-shrink-0">
@@ -117,10 +122,13 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
                                   </div>
                                   <h4 className="text-lg font-bold text-slate-900 truncate">{event.title}</h4>
                                   <p className="text-sm text-slate-500 font-medium">
-                                    {event.type === "VOTING"
-                                      ? `GHS ${eventRevenue.toLocaleString()} earned · ${eventVotes.toLocaleString()} votes`
-                                      : `GHS ${eventRevenue.toLocaleString()} earned · ${eventTickets.toLocaleString()} tickets sold`
-                                    }
+                                    {(() => {
+                                      // Priority: Ledger Statistics from backend (audit), else compute from cached fields
+                                      const stats = event.ledgerStats || computeEventStats(event);
+                                      const rev = Number(stats.revenue || 0);
+                                      const qty = event.type === "VOTING" ? stats.votes : stats.ticketsSold;
+                                      return `GHS ${rev.toLocaleString(undefined, { minimumFractionDigits: 2 })} earned · ${qty.toLocaleString()} ${event.type === "VOTING" ? "votes" : "tickets"}`;
+                                    })()}
                                   </p>
                               </div>
                               <Link 

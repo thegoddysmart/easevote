@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
+import EventFilterDropdown from "./EventFilterDropdown";
 
 type Transaction = {
   id: string;
@@ -21,6 +22,14 @@ type Transaction = {
   payer: string;
   event: string;
   date: Date;
+  voteCount?: number;
+  ticketQuantity?: number;
+};
+
+type Pagination = {
+  totalPages: number;
+  currentPage: number;
+  totalResults: number;
 };
 
 const statusConfig: Record<
@@ -71,25 +80,53 @@ const typeLabelMap: Record<string, string> = {
   NOMINATION_FEE: "Nomination Fee",
 };
 
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+
 export default function TransactionsTable({
   transactions,
+  pagination,
+  eventsList,
+  currentFilters,
 }: {
   transactions: Transaction[];
+  pagination: Pagination;
+  eventsList: { id: string; title: string }[];
+  currentFilters: { eventId: string; status: string };
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const filteredTransactions = transactions.filter((tx) => {
-    const query = searchQuery.toLowerCase();
-    const matchSearch =
-      tx.reference.toLowerCase().includes(query) ||
-      tx.payer.toLowerCase().includes(query) ||
-      tx.event.toLowerCase().includes(query);
+  const handleParamChange = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== "ALL") {
+      params.set(name, value);
+    } else {
+      params.delete(name);
+    }
+    // Reset page on filter change
+    if (name !== "page") params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-    const matchStatus = statusFilter === "ALL" || tx.status === statusFilter;
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(page));
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-    return matchSearch && matchStatus;
-  });
+  const filteredTransactions = searchQuery 
+    ? transactions.filter((tx) => {
+        const query = searchQuery.toLowerCase();
+        return (
+          tx.reference.toLowerCase().includes(query) ||
+          tx.payer.toLowerCase().includes(query) ||
+          tx.event.toLowerCase().includes(query)
+        );
+      })
+    : transactions;
 
   const columns = [
     {
@@ -132,11 +169,24 @@ export default function TransactionsTable({
       sortable: true,
     },
     {
+      key: "units",
+      header: "Units",
+      render: (tx: Transaction) => (
+        <span className="text-xs font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+          {tx.type === "VOTE" 
+            ? `${tx.voteCount || 0} Votes` 
+            : tx.type === "TICKET" 
+              ? `${tx.ticketQuantity || 0} Tickets` 
+              : "-"}
+        </span>
+      ),
+    },
+    {
       key: "event",
       header: "Event Context",
       render: (tx: Transaction) => (
         <div
-          className="text-xs text-slate-500 max-w-[150px] truncate"
+          className="text-xs text-slate-500 max-w-[150px] truncate font-medium"
           title={tx.event}
         >
           {tx.event}
@@ -190,23 +240,32 @@ export default function TransactionsTable({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by reference, payer, or event..."
+            placeholder="Search on current page..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           />
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
-        >
-          <option value="ALL">All Statuses</option>
-          <option value="SUCCESS">Success</option>
-          <option value="PENDING">Pending</option>
-          <option value="FAILED">Failed</option>
-          <option value="REFUNDED">Refunded</option>
-        </select>
+        
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <EventFilterDropdown
+            value={currentFilters.eventId}
+            onChange={(val) => handleParamChange("eventId", val)}
+            eventsList={eventsList}
+            placeholder="All Events"
+          />
+
+          <select
+            value={currentFilters.status}
+            onChange={(e) => handleParamChange("status", e.target.value)}
+            className="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="SUCCESS">Success</option>
+            <option value="PENDING">Pending</option>
+            <option value="FAILED">Failed</option>
+          </select>
+        </div>
       </div>
 
       <DataTable
@@ -214,6 +273,34 @@ export default function TransactionsTable({
         columns={columns}
         searchable={false}
       />
+
+      {/* Pagination Controls */}
+      {pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-200">
+          <div className="text-sm text-slate-500 font-medium">
+            Showing <span className="text-slate-900">{(pagination.currentPage - 1) * 20 + 1}</span> to <span className="text-slate-900">{Math.min(pagination.currentPage * 20, pagination.totalResults)}</span> of <span className="text-slate-900">{pagination.totalResults}</span> transactions
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handlePageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+              className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            >
+              Previous
+            </button>
+            <div className="flex items-center px-4 bg-slate-50 rounded-lg border border-slate-100 text-sm font-bold text-slate-700">
+              Page {pagination.currentPage} of {pagination.totalPages}
+            </div>
+            <button
+              onClick={() => handlePageChange(pagination.currentPage + 1)}
+              disabled={pagination.currentPage === pagination.totalPages}
+              className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

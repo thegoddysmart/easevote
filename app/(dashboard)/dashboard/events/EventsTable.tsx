@@ -144,9 +144,10 @@ type EventsTableProps = {
   events: AdminEvent[];
   showFilters?: ("type" | "status")[];
   role?: "ADMIN" | "SUPER_ADMIN" | "ORGANIZER";
+  hideOrganizerColumn?: boolean;
 };
 
-export default function EventsTable({ events, showFilters = ["type", "status"], role }: EventsTableProps) {
+export default function EventsTable({ events, showFilters = ["type", "status"], role, hideOrganizerColumn }: EventsTableProps) {
   const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
   const isOrganizer = role === "ORGANIZER";
   const router = useRouter();
@@ -437,7 +438,7 @@ export default function EventsTable({ events, showFilters = ["type", "status"], 
       ),
       sortable: true,
     },
-  ];
+  ].filter(col => !(col.key === "organizer" && hideOrganizerColumn));
 
   return (
     <div className="space-y-4">

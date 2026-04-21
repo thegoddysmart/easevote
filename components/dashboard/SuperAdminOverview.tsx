@@ -20,15 +20,15 @@ interface SuperAdminOverviewProps {
 }
 
 function fmtGHS(amount: number): string {
-  if (amount >= 1_000_000) return `GHS ${(amount / 1_000_000).toFixed(1)}M`;
-  if (amount >= 1_000) return `GHS ${(amount / 1_000).toFixed(1)}K`;
-  return `GHS ${amount.toFixed(2)}`;
+  if (amount >= 1_000_000) return `GHS ${parseFloat((amount / 1_000_000).toFixed(3))}M`;
+  if (amount >= 1_000) return `GHS ${parseFloat((amount / 1_000).toFixed(3))}K`;
+  return `GHS ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function fmtCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return String(n);
+  if (n >= 1_000_000) return `${parseFloat((n / 1_000_000).toFixed(3))}M`;
+  if (n >= 1_000) return `${parseFloat((n / 1_000).toFixed(3))}K`;
+  return n.toLocaleString();
 }
 
 export function SuperAdminOverview({ data }: SuperAdminOverviewProps) {
@@ -173,17 +173,17 @@ export function SuperAdminOverview({ data }: SuperAdminOverviewProps) {
                         {event.title || event.name}
                       </p>
                       <p className="text-sm text-slate-500">
-                        {typeof event.organizerId === "object" && event.organizerId?.fullName
-                          ? event.organizerId.fullName
-                          : "Organizer"}
+                        {event.organizer || "Organizer"}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-slate-900">
-                        {fmtCount(event._computedVotes || 0)} votes
+                        {event.type === "VOTING" || event.votes > 0
+                          ? `${fmtCount(event.votes || 0)} votes`
+                          : `${fmtCount(event.tickets || 0)} tickets`}
                       </p>
                       <p className="text-sm text-slate-500">
-                        {event.type === "VOTING" ? "Voting" : "Ticketing"}
+                        {event.type === "TICKETING" ? "Ticketing" : "Voting"}
                       </p>
                     </div>
                   </div>

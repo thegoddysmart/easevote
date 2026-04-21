@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminOrganizersPage() {
   const session = await getServerSession(authOptions);
   const apiClient = createServerApiClient(session?.accessToken);
-  const response = await apiClient.get("/users").catch(() => ({ data: [] }));
+  const response = await apiClient.get("/users?withStats=true").catch(() => ({ data: [] }));
   const rawUsers = response.data || (Array.isArray(response) ? response : []);
 
   const organizers = rawUsers
@@ -19,13 +19,14 @@ export default async function AdminOrganizersPage() {
       name: user.businessName || user.fullName,
       email: user.email,
       phone: user.phone || "N/A",
-      avatar: "",
+      avatar: user.avatar || "",
       verificationStatus: user.status === "ACTIVE" ? "VERIFIED" : user.status,
       userStatus: user.status,
-      eventsCount: 0,
-      totalRevenue: 0,
-      balance: 0,
+      eventsCount: user.eventsCount || 0,
+      totalRevenue: user.totalRevenue || 0,
+      balance: user.balance || 0,
       joinedAt: new Date(user.createdAt || Date.now()),
+      isDeleted: user.isDeleted,
     }));
 
   return (

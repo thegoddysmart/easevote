@@ -12,52 +12,54 @@ import {
 import TransactionsTable from "./TransactionsTable";
 import AdminStatCard from "@/components/admin/AdminStatCard";
 
-export default async function AdminTransactionsPage() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function AdminTransactionsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string; eventId?: string; status?: string };
+}) {
   const session = await getServerSession(authOptions);
   const role = session?.user?.role;
   const isOrganizer = role === "ORGANIZER";
   const apiClient = createServerApiClient(session?.accessToken);
 
-  let stats, transactions;
+  const page = parseInt(searchParams.page || "1");
+  const eventId = searchParams.eventId || "";
+  const status = searchParams.status || "ALL";
+
+  // Build query string for API
+  const queryStr = `page=${page}&limit=20${eventId ? `&eventId=${eventId}` : ""}${status !== "ALL" ? `&status=${status}` : ""}`;
+
+  let stats, transactionsData, eventsList = [];
 
   if (isOrganizer) {
     // Organizer-specific data
-    const [balanceRes, purchasesRes] = await Promise.all([
+    const [balanceRes, purchasesRes, eventsRes] = await Promise.all([
       apiClient.get("/payouts/balance").catch(() => null),
-      apiClient.get("/purchases/organizer").catch(() => ({ data: [] })),
+      apiClient.get(`/purchases/organizer?${queryStr}`).catch(() => ({ data: [], pagination: {} })),
+      apiClient.get("/events/my/events?limit=100").catch(() => ({ data: [] })),
     ]);
 
     const balanceData = balanceRes?.data || {};
     stats = {
       totalVolume: balanceData.grossRevenue || 0,
-      netRevenue: balanceData.netRevenue || 0, // This is organizer's share after commission
-      successRate: 100, // We don't have this for organizer yet, default to 100%
-      pendingCount: balanceData.totalWithdrawn ? 1 : 0, // Placeholder
+      netRevenue: balanceData.netRevenue || 0,
+      successRate: 100,
+      pendingCount: balanceData.totalWithdrawn ? 1 : 0,
     };
 
-    const rawTransactions = purchasesRes.data || purchasesRes.purchases || [];
-    transactions = rawTransactions.map((tx: any) => ({
-      id: tx._id,
-      reference: tx.paymentReference,
-      type: tx.type,
-      amount: tx.amount,
-      status: tx.status === "PAID" ? "SUCCESS" : tx.status,
-      payer: tx.customerName || tx.customerEmail || "Anonymous",
-      event: tx.eventId?.title || "Unknown Event",
-      date: tx.paidAt || tx.createdAt,
-    }));
+    transactionsData = purchasesRes;
+    eventsList = (eventsRes.data || eventsRes || []).map((e: any) => ({ id: e._id, title: e.title }));
   } else {
     // Admin-specific data
-    const [statsRes, transactionsRes] = await Promise.all([
+    const [statsRes, transactionsRes, eventsRes] = await Promise.all([
       apiClient.get("/admin/stats/revenue").catch(() => ({
-        data: {
-          totalVolume: 0,
-          netRevenue: 0,
-          successRate: 0,
-          pendingCount: 0,
-        },
+        data: { totalVolume: 0, netRevenue: 0, successRate: 0, pendingCount: 0 },
       })),
-      apiClient.get("/admin/transactions").catch(() => ({ data: [] })),
+      apiClient.get(`/admin/transactions?${queryStr}`).catch(() => ({ data: [], pagination: {} })),
+      apiClient.get("/events/admin/all?limit=500").catch(() => ({ data: [] })),
     ]);
 
     const rawStats = statsRes.data || statsRes || {};
@@ -68,18 +70,26 @@ export default async function AdminTransactionsPage() {
       pendingCount: rawStats.pendingCount || 0,
     };
 
-    const rawTransactions = transactionsRes.data || transactionsRes.purchases || (Array.isArray(transactionsRes) ? transactionsRes : []);
-    transactions = rawTransactions.map((tx: any) => ({
-      id: tx._id,
-      reference: tx.paymentReference,
-      type: tx.type,
-      amount: tx.amount,
-      status: tx.status === "PAID" ? "SUCCESS" : tx.status,
-      payer: tx.customerName || tx.customerEmail || "Anonymous",
-      event: tx.eventId?.title || "Unknown Event",
-      date: tx.paidAt || tx.createdAt,
-    }));
+    transactionsData = transactionsRes;
+    eventsList = (eventsRes.data || eventsRes || []).filter((e: any) => e.status !== 'DELETED').map((e: any) => ({ id: e._id, title: e.title }));
   }
+
+  const rawTransactions = transactionsData.data || transactionsData.purchases || (Array.isArray(transactionsData) ? transactionsData : []);
+  const pagination = transactionsData.pagination || { totalPages: 1, currentPage: 1, totalResults: rawTransactions.length };
+
+  const transactions = rawTransactions.map((tx: any) => ({
+    id: tx._id,
+    reference: tx.paymentReference,
+    type: tx.type,
+    amount: tx.amount,
+    status: tx.status === "PAID" ? "SUCCESS" : tx.status,
+    payer: tx.customerName || tx.customerEmail || "Anonymous",
+    event: tx.eventId?.title || "Unknown Event",
+    date: tx.paidAt || tx.createdAt,
+    // New fields for the "Units" column
+    voteCount: tx.voteCount || 0,
+    ticketQuantity: tx.ticketQuantity || 0
+  }));
 
   return (
     <div className="space-y-8 p-8 bg-slate-50 min-h-screen">
@@ -142,10 +152,16 @@ export default async function AdminTransactionsPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-slate-900">
-            {isOrganizer ? "Recent Sales" : "Recent Transactions"}
+            {isOrganizer ? "Event Sales" : "Platform Transactions"}
           </h2>
         </div>
-        <TransactionsTable transactions={transactions} />
+        <TransactionsTable 
+          key={`tx-table-${eventId}-${status}-${page}`}
+          transactions={transactions} 
+          pagination={pagination} 
+          eventsList={eventsList}
+          currentFilters={{ eventId, status }}
+        />
       </div>
     </div>
   );

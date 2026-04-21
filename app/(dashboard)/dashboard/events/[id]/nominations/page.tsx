@@ -10,11 +10,13 @@ export default async function NominationsPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const page = searchParams.page
-    ? parseInt(searchParams.page as string, 10)
+  const { id } = await params;
+  const sParams = await searchParams;
+  const page = sParams.page
+    ? parseInt(sParams.page as string, 10)
     : 1;
   const limit = 20;
 
@@ -28,7 +30,7 @@ export default async function NominationsPage({
 
   try {
     const result = await apiClient.get(
-      `/nominations/events/${params.id}?page=${page}&limit=${limit}`,
+      `/nominations/events/${id}?page=${page}&limit=${limit}`,
     );
     nominations = result.data || result.nominations || result || [];
     totalPages =
@@ -51,20 +53,20 @@ export default async function NominationsPage({
           </p>
         </div>
         <Link
-          href={`/dashboard/events/${params.id}/nominations/settings`}
+          href={`/dashboard/events/${id}/nominations/settings`}
           className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-bold border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
         >
           <Settings size={18} /> Settings & Form
         </Link>
       </div>
 
-      <NominationsTable nominations={nominations} eventId={params.id} />
+      <NominationsTable nominations={nominations} eventId={id} />
 
       <div className="mt-4">
         <PaginationControls
           currentPage={page}
           totalPages={totalPages}
-          basePath={`/dashboard/events/${params.id}/nominations`}
+          basePath={`/dashboard/events/${id}/nominations`}
         />
       </div>
     </div>

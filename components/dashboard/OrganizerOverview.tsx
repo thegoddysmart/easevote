@@ -124,7 +124,7 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
                                   </p>
                               </div>
                               <Link 
-                                  href={`/dashboard/events/${event._id}`}
+                                  href={`/dashboard/events/${event.eventCode || event._id}`}
                                   className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-50 p-2 rounded-lg text-slate-400 hover:text-slate-900"
                               >
                                   <ArrowRight size={20} />

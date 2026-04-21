@@ -24,6 +24,8 @@ import {
   Archive,
   RotateCcw,
   Trash2,
+  Send,
+  Zap,
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -88,6 +90,12 @@ const statusConfig: Record<
     bg: "bg-slate-100",
     icon: MoreHorizontal,
   },
+  PUBLISHED: {
+    label: "Published",
+    color: "text-teal-700",
+    bg: "bg-teal-100",
+    icon: Zap,
+  },
   PAUSED: {
     label: "Paused",
     color: "text-orange-700",
@@ -135,9 +143,12 @@ const TYPE_FILTER = {
 type EventsTableProps = {
   events: AdminEvent[];
   showFilters?: ("type" | "status")[];
+  role?: "ADMIN" | "SUPER_ADMIN" | "ORGANIZER";
 };
 
-export default function EventsTable({ events, showFilters = ["type", "status"] }: EventsTableProps) {
+export default function EventsTable({ events, showFilters = ["type", "status"], role }: EventsTableProps) {
+  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
+  const isOrganizer = role === "ORGANIZER";
   const router = useRouter();
   const modal = useModal();
   const searchParams = useSearchParams();
@@ -198,13 +209,15 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
     }).format(amount);
   };
 
-  const handleAction = async (action: string, eventId: string) => {
+  const handleAction = async (action: string, id: string, code?: string) => {
     setActiveMenu(null); // Close menu immediately
 
     if (action === "view") {
-      router.push(`/dashboard/events/${eventId}`);
+      router.push(`/dashboard/events/${code || id}`);
       return;
     }
+
+    const eventId = id;
 
     if (action === "archive_prompt") {
       const event = events.find((e) => e.id === eventId);
@@ -230,14 +243,13 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
     }
 
     let endpoint = "";
-    let payload = undefined;
+    let payload: any = undefined;
 
     switch (action) {
       case "approve":
         endpoint = `/events/${eventId}/approve`;
         break;
       case "reject":
-        // Doc doesn't specify a standard rejected endpoint, sticking to current if generic exists or using status update
         endpoint = `/events/${eventId}/status`;
         payload = { status: "CANCELLED" };
         break;
@@ -249,13 +261,43 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
         endpoint = `/events/${eventId}/status`;
         payload = { status: "LIVE" };
         break;
+      case "submit":
+        endpoint = `/events/${eventId}/submit`;
+        break;
+      case "publish":
+        endpoint = `/events/${eventId}/publish`;
+        break;
+      case "delete":
+        const eventToDelete = events.find((e) => e.id === eventId);
+        const confirmedDelete = await modal.confirm({
+          title: "Delete Event",
+          message: `Are you sure you want to PERMANENTLY delete "${eventToDelete?.title || "this event"}"? This action cannot be undone.`,
+          variant: "danger",
+          confirmText: "Delete",
+        });
+        if (!confirmedDelete) return;
+        endpoint = `/events/${eventId}`;
+
+        startTransition(async () => {
+          try {
+            await api.delete(endpoint);
+            router.refresh();
+          } catch (error: any) {
+            modal.alert({ title: "Delete Failed", message: error.message || "Failed to delete event", variant: "danger" });
+          }
+        });
+        return;
       default:
         return;
     }
 
     startTransition(async () => {
       try {
-        await api.patch(endpoint, payload);
+        if (action === "submit" || action === "approve" || action === "publish") {
+          await api.patch(endpoint, {});
+        } else {
+          await api.patch(endpoint, payload);
+        }
         router.refresh();
       } catch (error: any) {
         modal.alert({ title: "Update Failed", message: error.message || "Failed to update event status", variant: "danger" });
@@ -411,7 +453,7 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
           ...(showFilters.includes("type") ? [TYPE_FILTER] : []),
           ...(showFilters.includes("status") ? [STATUS_FILTER] : []),
         ]}
-        onRowClick={(event) => router.push(`/dashboard/events/${event.id}`)}
+        onRowClick={(event) => router.push(`/dashboard/events/${event.eventCode}`)}
         actions={(event) => (
           <div className="relative">
             <button
@@ -427,13 +469,13 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
             {activeMenu === event.id && (
               <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
                 <button
-                  onClick={() => handleAction("view", event.id)}
+                  onClick={() => handleAction("view", event.id, event.eventCode)}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                 >
                   <Eye className="h-4 w-4" /> View Details
                 </button>
 
-                {event.status === "PENDING_REVIEW" && (
+                {isAdmin && event.status === "PENDING_REVIEW" && (
                   <>
                     <button
                       onClick={() => handleAction("approve", event.id)}
@@ -474,6 +516,42 @@ export default function EventsTable({ events, showFilters = ["type", "status"] }
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
                   >
                     <RotateCcw className="h-4 w-4" /> Restore
+                  </button>
+                )}
+
+                {isOrganizer && event.status === "APPROVED" && (
+                  <button
+                    onClick={() => handleAction("publish", event.id, event.eventCode)}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50"
+                  >
+                    Publish
+                  </button>
+                )}
+
+                {isOrganizer && event.status === "DRAFT" && (
+                  <button
+                    onClick={() => handleAction("submit", event.id)}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50"
+                  >
+                    <Send className="h-4 w-4" /> Submit for Review
+                  </button>
+                )}
+
+                {isAdmin && event.status === "DRAFT" && (
+                  <button
+                    onClick={() => handleAction("approve", event.id)}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-green-50"
+                  >
+                    <CheckCircle className="h-4 w-4" /> Approve Draft
+                  </button>
+                )}
+
+                {!["LIVE", "ENDED", "PAUSED", "PUBLISHED"].includes(event.status) && (
+                  <button
+                    onClick={() => handleAction("delete", event.id)}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" /> Delete Event
                   </button>
                 )}
               </div>

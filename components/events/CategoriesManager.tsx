@@ -341,10 +341,7 @@ export function CategoriesManager({
       for (const cat of categories) {
         if (!cat.name.trim())
           throw new Error("All categories must have a name");
-        // REMOVED: Strict validation for candidates (now optional for nomination events)
-         if (cat.candidates.length === 0) {
-          throw new Error(`Please add at least one candidate to the category: ${cat.name}`);
-        }
+        // Candidates are now optional during initial setup or nomination phase
         for (const cand of cat.candidates) {
           if (!cand.name.trim())
             throw new Error(`All candidates in ${cat.name} must have a name`);
@@ -353,65 +350,27 @@ export function CategoriesManager({
         }
       }
 
-      // 1. Delete removed candidates
-      for (const { categoryId, candidateId } of deletedCandidateIds) {
-        await api.delete(
-          `/events/${eventId}/categories/${categoryId}/candidates/${candidateId}`,
-        );
-      }
-
-      // 2. Delete removed categories
-      for (const categoryId of deletedCategoryIds) {
-        await api.delete(`/events/${eventId}/categories/${categoryId}`);
-      }
-
-      // 3. Create or update categories and candidates
-      for (const cat of categories) {
-        let categoryId = cat.id;
-
-        const catPayload = {
+      // 1. Prepare the atomic payload
+      const syncPayload = {
+        categories: categories.map((cat) => ({
+          _id: cat.id, // Pass existing ID for matching
           name: cat.name,
           description: cat.description || null,
-        };
-
-        if (categoryId) {
-          await api.put(
-            `/events/${eventId}/categories/${categoryId}`,
-            catPayload,
-          );
-        } else {
-          const newCat = await api.post(
-            `/events/${eventId}/categories`,
-            catPayload,
-          );
-          categoryId = newCat.category?._id || newCat.category?.id || newCat._id || newCat.id;
-        }
-
-        if (!categoryId) continue;
-
-        for (const cand of cat.candidates) {
-          const candPayload = {
+          candidates: cat.candidates.map((cand) => ({
+            _id: cand.id, // Pass existing ID for matching
             name: cand.name,
             description: cand.bio || null,
             email: cand.email || null,
             phone: cand.phone || null,
             imageUrl: cand.image || null,
             imagePublicId: cand.imagePublicId || null,
-          };
+            code: cand.code, // Preserve code if it exists
+          })),
+        })),
+      };
 
-          if (cand.id) {
-            await api.put(
-              `/events/${eventId}/categories/${categoryId}/candidates/${cand.id}`,
-              candPayload,
-            );
-          } else {
-            await api.post(
-              `/events/${eventId}/categories/${categoryId}/candidates`,
-              candPayload,
-            );
-          }
-        }
-      }
+      // 2. Perform atomic sync
+      await api.put(`/events/${eventId}`, syncPayload);
 
       toast.success("Changes saved successfully!");
       setDeletedCategoryIds([]);

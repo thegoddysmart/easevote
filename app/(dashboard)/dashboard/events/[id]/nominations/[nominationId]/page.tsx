@@ -20,11 +20,12 @@ import { notFound } from "next/navigation";
 export default async function NominationDetailPage({
   params,
 }: {
-  params: { id: string; nominationId: string };
+  params: Promise<{ id: string; nominationId: string }>;
 }) {
+  const { id, nominationId } = await params;
   const session = await getServerSession(authOptions);
   const apiClient = createServerApiClient(session?.accessToken as string | undefined);
-  const nomination = await apiClient.get<any>(`/nominations/${params.nominationId}`).catch(() => null);
+  const nomination = await apiClient.get<any>(`/nominations/${nominationId}`).catch(() => null);
 
   if (!nomination) {
     notFound();
@@ -38,7 +39,7 @@ export default async function NominationDetailPage({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link
-            href={`/dashboard/events/${params.id}/nominations`}
+            href={`/dashboard/events/${id}/nominations`}
             className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
           >
             <ArrowLeft size={24} />

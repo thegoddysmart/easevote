@@ -12,6 +12,7 @@ type Props = {
 
 export default async function AdminApprovalsPage(props: Props) {
   const session = await getServerSession(authOptions);
+  const role = session?.user?.role;
   const apiClient = createServerApiClient(session?.accessToken);
 
   const searchParams = await props.searchParams;
@@ -25,16 +26,17 @@ export default async function AdminApprovalsPage(props: Props) {
   const eventsParams = new URLSearchParams();
   if (query) eventsParams.set("query", query);
   eventsParams.set("status", "PENDING_REVIEW");
+  eventsParams.set("limit", "200");
   const eventsQuery = eventsParams.toString()
     ? `?${eventsParams.toString()}`
     : "";
 
-  // Fetch pending review events list
+  // Fetch pending review events list using admin endpoint
   const eventsRes = await apiClient
-    .get(`/events${eventsQuery}`)
+    .get(`/events/admin/all${eventsQuery}`)
     .catch(() => ({ data: [] }));
 
-  const rawEvents = eventsRes.data || [];
+  const rawEvents = eventsRes.data || eventsRes.events || [];
 
   // Local Aggregation Logic
   let votingPendingCount = 0;
@@ -45,22 +47,36 @@ export default async function AdminApprovalsPage(props: Props) {
     if (e.type === "VOTING") votingPendingCount++;
     if (e.type === "TICKETING") ticketingPendingCount++;
 
-    // Calculate sub-stats if needed for the table display
-    let subStats = {};
-    if (e.type === "VOTING" || e.type === "HYBRID") {
-      let totalVotes = 0;
-      e.categories?.forEach((cat: any) => {
-        cat.candidates?.forEach((cand: any) => {
-          totalVotes += Number(cand.votes || 0);
+    // Manual summation fallback for votes
+    let totalVotes = Number(e.totalVotes ?? e.votes) || 0;
+    if (totalVotes === 0 && e.categories) {
+      e.categories.forEach((cat: any) => {
+        cat.candidates?.forEach((c: any) => {
+          totalVotes += Number(c.votes ?? c.voteCount) || 0;
         });
       });
-      subStats = { votes: totalVotes };
-    } else if (e.type === "TICKETING") {
-      let totalSold = 0;
-      e.ticketTypes?.forEach((tt: any) => {
-        totalSold += Number(tt.sold || 0);
+    }
+
+    // Manual summation fallback for tickets
+    let ticketsSold = Number(e.totalTicketsSold ?? e.stats?.ticketsSold) || 0;
+    if (ticketsSold === 0 && e.ticketTypes) {
+      e.ticketTypes.forEach((tt: any) => {
+        ticketsSold += Number(tt.sold ?? tt.soldCount) || 0;
       });
-      subStats = { ticketsSold: totalSold };
+    }
+
+    // Manual revenue calculation fallback
+    let totalRevenue = Number(e.totalRevenue ?? e.revenue ?? e.stats?.revenue) || 0;
+    if (totalRevenue === 0) {
+      if (e.type === "VOTING") {
+        totalRevenue = totalVotes * (Number(e.costPerVote ?? e.votePrice ?? e.price) || 0);
+      } else if (e.type === "TICKETING" || e.type === "HYBRID") {
+        if (e.ticketTypes) {
+          e.ticketTypes.forEach((tt: any) => {
+            totalRevenue += (Number(tt.sold ?? tt.soldCount) || 0) * (Number(tt.price) || 0);
+          });
+        }
+      }
     }
 
     return {
@@ -69,16 +85,20 @@ export default async function AdminApprovalsPage(props: Props) {
       title: e.title || "Untitled Event",
       organizer: {
         name:
-          e.organizerId?.fullName ||
-          e.organizerId?.businessName ||
-          "Unknown Organizer",
-        avatar: e.organizerId?.logo || "",
+          typeof e.organizerId === "object"
+            ? e.organizerId?.businessName || e.organizerId?.fullName || "Unspecified Organizer"
+            : "Unknown Organizer",
+        avatar: typeof e.organizerId === "object" ? e.organizerId?.logo || "" : "",
       },
       type: e.type || "UNKNOWN",
       status: e.status || "PENDING_REVIEW",
       startDate: e.startDate || new Date().toISOString(),
       endDate: e.endDate || new Date().toISOString(),
-      stats: subStats,
+      stats: {
+        votes: totalVotes,
+        revenue: totalRevenue,
+        ticketsSold: ticketsSold,
+      },
     };
   });
 
@@ -149,7 +169,7 @@ export default async function AdminApprovalsPage(props: Props) {
             Events Awaiting Review
           </h3>
         </div>
-        <EventsTable events={events} />
+        <EventsTable events={events} role={role as any} />
       </div>
     </div>
   );

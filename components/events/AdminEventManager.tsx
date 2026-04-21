@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/components/providers/ModalProvider";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import {
   Calendar,
   MapPin,
@@ -24,6 +25,9 @@ import {
   List,
   Trash2,
   ExternalLink,
+  Share2,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { EventForm } from "./EventForm";
@@ -72,7 +76,7 @@ type EventDetails = {
 
 interface AdminEventManagerProps {
   event: EventDetails;
-  role: "ADMIN" | "SUPER_ADMIN";
+  role: "ADMIN" | "SUPER_ADMIN" | "ORGANIZER";
   backUrl: string;
 }
 
@@ -109,6 +113,12 @@ const statusConfig: Record<
     color: "text-slate-500",
     bg: "bg-slate-100",
     icon: MoreHorizontal,
+  },
+  PUBLISHED: {
+    label: "Published",
+    color: "text-teal-700",
+    bg: "bg-teal-100",
+    icon: CheckCircle,
   },
   PAUSED: {
     label: "Paused",
@@ -197,8 +207,8 @@ export function AdminEventManager({
               <a
                 href={
                   event.type === "TICKETING"
-                    ? `/events/tickets/${event.id}`
-                    : `/events/${event.id}`
+                    ? `/events/tickets/${event.eventCode || event.id}`
+                    : `/events/${event.eventCode || event.id}`
                 }
                 target="_blank"
                 rel="noopener noreferrer"
@@ -236,7 +246,12 @@ export function AdminEventManager({
           </div>
 
           <div className="flex flex-col items-end gap-4">
-            <AdminEventActions eventId={event.id} status={event.status} onStatusChange={setCurrentStatus} />
+            <AdminEventActions
+              eventId={event.id}
+              status={event.status}
+              role={role}
+              onStatusChange={setCurrentStatus}
+            />
 
             <div className="flex items-center bg-slate-100 p-1 rounded-lg">
               <button
@@ -393,57 +408,15 @@ export function AdminEventManager({
             {/* Detailed Lists */}
             {(event.type === "VOTING" || event.type === "HYBRID") &&
               event.categories && (
-                <div className="bg-white rounded-xl border border-slate-200 p-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                    Categories & Candidates
-                  </h3>
-                  <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-bold text-slate-900">
+                      Categories & Candidates
+                    </h3>
+                  </div>
+                  <div className="grid gap-4">
                     {event.categories.map((category: any, i: number) => (
-                      <div
-                        key={category.id ?? i}
-                        className="border border-slate-100 rounded-lg overflow-hidden"
-                      >
-                        <div className="bg-slate-50 px-4 py-2 border-b border-slate-100 flex justify-between items-center">
-                          <span className="font-medium text-slate-700">
-                            {category.name}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            {category.candidates.length} candidates
-                          </span>
-                        </div>
-                        <div className="divide-y divide-slate-50">
-                          {(category.candidates || [])
-                            .slice(0, 5)
-                            .map((candidate: any, idx: number) => (
-                              <div
-                                key={candidate?.id || idx}
-                                className="px-4 py-2 flex items-center justify-between"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className="text-xs font-mono text-slate-400 w-4">
-                                    {idx + 1}
-                                  </span>
-                                  <span className="text-sm text-slate-700">
-                                    {candidate?.name || "Unknown Candidate"}
-                                  </span>
-                                </div>
-                                <span className="text-sm font-medium text-slate-900">
-                                  {(
-                                    candidate?.voteCount ??
-                                    candidate?.votes ??
-                                    0
-                                  ).toLocaleString()}{" "}
-                                  votes
-                                </span>
-                              </div>
-                            ))}
-                          {category.candidates.length > 5 && (
-                            <div className="px-4 py-2 text-center text-xs text-slate-500">
-                              + {category.candidates.length - 5} more candidates
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      <CategoryAccordion key={category.id ?? i} category={category} />
                     ))}
                   </div>
                 </div>
@@ -637,12 +610,20 @@ export function AdminEventManager({
               <div>
                 <h4 className="font-medium text-red-900">Delete Event</h4>
                 <p className="text-sm text-red-600">
-                  Permanently remove this event
+                  {["LIVE", "ENDED", "PAUSED", "PUBLISHED"].includes(event.status)
+                    ? "Live or published events cannot be deleted to preserve data integrity."
+                    : "Permanently remove this event"}
                 </p>
               </div>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+                disabled={["LIVE", "ENDED", "PAUSED", "PUBLISHED"].includes(event.status)}
+                className={clsx(
+                  "px-4 py-2 rounded-lg flex items-center gap-2 transition-colors",
+                  ["LIVE", "ENDED", "PAUSED", "PUBLISHED"].includes(event.status)
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+                    : "bg-red-600 hover:bg-red-700 text-white shadow-sm"
+                )}
               >
                 <Trash2 className="w-4 h-4" />
                 Delete Event
@@ -701,5 +682,124 @@ function VotingToggle({
         )}
       />
     </button>
+  );
+}
+
+function CategoryAccordion({ category }: { category: any }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const totalCategoryVotes = category.candidates.reduce((sum: number, c: any) => sum + (c.votes || c.voteCount || 0), 0);
+
+  return (
+    <div className={clsx(
+      "border rounded-2xl overflow-hidden transition-all duration-300",
+      isExpanded ? "border-primary-200 ring-1 ring-primary-100 shadow-lg shadow-primary-50" : "border-slate-200 bg-white"
+    )}>
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full text-left p-5 flex items-center justify-between hover:bg-slate-50 transition-colors"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600">
+            <Users className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-lg font-bold text-slate-900">{category.name}</h4>
+            <div className="flex items-center gap-3 text-sm text-slate-500">
+              <span className="flex items-center gap-1">
+                <Users className="w-3.5 h-3.5" />
+                {category.candidates?.length || 0} Candidates
+              </span>
+              <span className="w-1 h-1 bg-slate-300 rounded-full" />
+              <span className="flex items-center gap-1 font-medium text-primary-600">
+                <Vote className="w-3.5 h-3.5" />
+                {totalCategoryVotes.toLocaleString()} Total Votes
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className={clsx(
+          "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 transition-transform duration-300",
+          isExpanded && "rotate-180 bg-primary-100 text-primary-600"
+        )}>
+          <ChevronDown className="w-4 h-4" />
+        </div>
+      </button>
+
+      {isExpanded && (
+        <div className="p-6 bg-white border-t border-slate-100 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {category.candidates.map((candidate: any, idx: number) => (
+              <CandidateProfileCard 
+                key={candidate.id || idx} 
+                candidate={candidate} 
+                categoryMaxVotes={Math.max(...category.candidates.map((c: any) => c.votes || c.voteCount || 0))} 
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CandidateProfileCard({ candidate, categoryMaxVotes }: { candidate: any, categoryMaxVotes: number }) {
+  const votes = candidate.votes || candidate.voteCount || 0;
+  const progress = categoryMaxVotes > 0 ? (votes / categoryMaxVotes) * 100 : 0;
+
+  return (
+    <div className="group relative bg-slate-50/50 rounded-2xl p-4 border border-slate-100 hover:border-primary-200 hover:bg-white hover:shadow-xl hover:shadow-primary-50/50 transition-all duration-300">
+      <div className="flex items-start gap-4">
+        <div className="relative w-16 h-16 flex-shrink-0">
+          {candidate.imageUrl ? (
+            <div className="w-full h-full rounded-2xl overflow-hidden ring-2 ring-white ring-offset-2 ring-offset-slate-100 group-hover:ring-primary-100 transition-all">
+              <img 
+                src={candidate.imageUrl} 
+                alt={candidate.name} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-full h-full rounded-2xl bg-gradient-to-br from-primary-500 to-magenta-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-white">
+              {candidate.name.substring(0, 1).toUpperCase()}
+            </div>
+          )}
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <h5 className="text-base font-bold text-slate-900 truncate group-hover:text-primary-600 transition-colors">
+            {candidate.name}
+          </h5>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-full bg-primary-50 text-primary-700 text-[10px] font-bold uppercase tracking-wider">
+              {candidate.code || "N/A"}
+            </span>
+            <span className="text-xs text-slate-500 font-medium">
+              {votes.toLocaleString()} Votes
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {(candidate.bio || candidate.description) && (
+        <div className="mt-4">
+          <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed">
+            {candidate.bio || candidate.description}
+          </p>
+        </div>
+      )}
+
+      <div className="mt-4 space-y-2">
+        <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          <span>Performance</span>
+          <span className="text-primary-600">{Math.round(progress)}% of leader</span>
+        </div>
+        <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-primary-500 to-magenta-500 transition-all duration-1000 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

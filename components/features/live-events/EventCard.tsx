@@ -50,7 +50,7 @@ export default function EventCard({ event }: { event: any }) {
         </p>
 
         <Link
-          href={`/events/${event.id || event._id}`}
+          href={`/events/${event.eventCode || event.id || event._id}`}
           className="block w-full text-center py-3 rounded-xl bg-slate-50 font-bold hover:bg-brand-bright hover:text-white! transition"
         >
           {buttonText}

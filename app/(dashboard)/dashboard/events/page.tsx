@@ -118,7 +118,7 @@ export default async function AdminEventsPage(props: Props) {
         </a>
       </div>
 
-      <EventsTable events={mappedEvents} />
+      <EventsTable events={mappedEvents} role={role as any} />
     </div>
   );
 }

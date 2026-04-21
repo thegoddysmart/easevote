@@ -21,6 +21,7 @@ import {
   DollarSign,
   Image as ImageIcon,
   Check,
+  Clock,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
@@ -113,6 +114,10 @@ export default function CreateEventPage() {
     minVotesPerPurchase: "1",
     maxVotesPerPurchase: "",
     allowPublicNominations: false,
+    votingStartDate: "",
+    votingStartTime: "09:00",
+    votingEndDate: "",
+    votingEndTime: "21:00",
     coverImage: "",
     coverImageFile: null as File | null,
   });
@@ -159,7 +164,9 @@ export default function CreateEventPage() {
     setFormData(prev => ({
         ...prev,
         startDate: dateString,
-        endDate: dateString
+        endDate: dateString,
+        votingStartDate: dateString,
+        votingEndDate: dateString
     }));
   }, []);
 
@@ -346,6 +353,17 @@ export default function CreateEventPage() {
       if (endString < startString) {
         return "End date must be on or after the start date";
       }
+
+      // Voting dates validation
+      if (!formData.votingStartDate) return "Voting start date is required";
+      if (!formData.votingEndDate) return "Voting end date is required";
+
+      const vStartString = formData.votingStartDate;
+      const vEndString = formData.votingEndDate;
+
+      if (vEndString < vStartString) {
+        return "Voting end date must be on or after the voting start date";
+      }
     }
 
     if (!formData.coverImage.trim() && !formData.coverImageFile) {
@@ -366,14 +384,11 @@ export default function CreateEventPage() {
       if (!formData.votePrice || parseFloat(formData.votePrice) <= 0) {
         return "Vote price is required for voting events";
       }
-      if (categories.length === 0) {
-        return "Please add at least one category to your voting event.";
-      }
+      // if (categories.length === 0) {
+      //   return "Please add at least one category to your voting event.";
+      // }
       for (const category of categories) {
         if (!category.name.trim()) return "All categories must have a name";
-        if (category.candidates.length === 0) {
-          return `Please add at least one candidate to the category: ${category.name}`;
-        }
         for (const candidate of category.candidates) {
           if (!candidate.name.trim())
             return `All candidates in ${category.name} must have a name`;
@@ -432,6 +447,10 @@ export default function CreateEventPage() {
         ...(isAdmin && selectedOrganizerId ? { organizerId: selectedOrganizerId } : {}),
         startDate: formData.startDate ? new Date(`${formData.startDate}T${formData.startTime}:00`).toISOString() : undefined,
         endDate: formData.endDate ? new Date(`${formData.endDate}T${formData.endTime}:00`).toISOString() : undefined,
+        votingStartDate: (formData.type === "VOTING" && formData.votingStartDate) ? new Date(`${formData.votingStartDate}T${formData.votingStartTime}:00`).toISOString() : undefined,
+        votingEndDate: (formData.type === "VOTING" && formData.votingEndDate) ? new Date(`${formData.votingEndDate}T${formData.votingEndTime}:00`).toISOString() : undefined,
+        votingStartTime: (formData.type === "VOTING" && formData.votingStartDate) ? new Date(`${formData.votingStartDate}T${formData.votingStartTime}:00`).toISOString() : undefined,
+        votingEndTime: (formData.type === "VOTING" && formData.votingEndDate) ? new Date(`${formData.votingEndDate}T${formData.votingEndTime}:00`).toISOString() : undefined,
         location: formData.location || null,
         venue: formData.venue || null,
         isPublic: formData.isPublic,
@@ -457,8 +476,8 @@ export default function CreateEventPage() {
 
       // 1. Create Event
       const eventRes = await api.post("/events", eventPayload);
-      const eventId =
-        eventRes.id || eventRes.data?.id || eventRes.event?.id || eventRes._id;
+      const eventId = eventRes.id || eventRes.data?.id || eventRes.event?.id || eventRes._id;
+      const eventCode = eventRes.eventCode || eventRes.data?.eventCode || eventRes.event?.eventCode;
 
       if (!eventId) throw new Error("Event ID not returned from creation");
 
@@ -495,7 +514,7 @@ export default function CreateEventPage() {
         }
       }
 
-      router.push(`/dashboard/events/${eventId}`);
+      router.push(`/dashboard/events/${eventCode || eventId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create event");
     } finally {
@@ -781,6 +800,105 @@ export default function CreateEventPage() {
                     </div>
                   </div>
                 </div>
+
+                {formData.type === "VOTING" && (
+                  <div className="mt-8 pt-6 border-t border-slate-100">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                      <div className="p-1.5 bg-primary-50 rounded-lg">
+                        <Clock className="h-5 w-5 text-primary-600" />
+                      </div>
+                      Voting Duration
+                    </h3>
+                    <p className="text-xs text-slate-500 mb-4 -mt-2">
+                      Defining the exact period when votes can be cast.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">
+                          <Calendar className="h-4 w-4 inline mr-1" />
+                          Voting Starts *
+                        </label>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1 group">
+                            <input
+                              type="date"
+                              name="votingStartDate"
+                              value={formData.votingStartDate}
+                              min={minDate}
+                              onChange={handleChange}
+                              onClick={(e) => e.currentTarget.showPicker()}
+                              onKeyDown={(e) => e.preventDefault()}
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 peer"
+                              required
+                            />
+                            <div className="w-full h-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white flex items-center transition-all peer-focus:ring-2 peer-focus:ring-primary-500 peer-focus:border-primary-500 peer-hover:border-primary-300">
+                              <span
+                                className={
+                                  formData.votingStartDate
+                                    ? "text-slate-900"
+                                    : "text-slate-400"
+                                }
+                              >
+                                {formData.votingStartDate
+                                  ? formatInputDate(formData.votingStartDate)
+                                  : "mm/dd/yyyy"}
+                              </span>
+                            </div>
+                          </div>
+                          <input
+                            type="time"
+                            name="votingStartTime"
+                            value={formData.votingStartTime}
+                            onChange={handleChange}
+                            className="w-32 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 hover:border-primary-300 transition-all cursor-pointer bg-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">
+                          <Calendar className="h-4 w-4 inline mr-1" />
+                          Voting Ends *
+                        </label>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1 group">
+                            <input
+                              type="date"
+                              name="votingEndDate"
+                              value={formData.votingEndDate}
+                              min={formData.votingStartDate || minDate}
+                              onChange={handleChange}
+                              onClick={(e) => e.currentTarget.showPicker()}
+                              onKeyDown={(e) => e.preventDefault()}
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 peer"
+                              required
+                            />
+                            <div className="w-full h-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white flex items-center transition-all peer-focus:ring-2 peer-focus:ring-primary-500 peer-focus:border-primary-500 peer-hover:border-primary-300">
+                              <span
+                                className={
+                                  formData.votingEndDate
+                                    ? "text-slate-900"
+                                    : "text-slate-400"
+                                }
+                              >
+                                {formData.votingEndDate
+                                  ? formatInputDate(formData.votingEndDate)
+                                  : "mm/dd/yyyy"}
+                              </span>
+                            </div>
+                          </div>
+                          <input
+                            type="time"
+                            name="votingEndTime"
+                            value={formData.votingEndTime}
+                            onChange={handleChange}
+                            className="w-32 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 hover:border-primary-300 transition-all cursor-pointer bg-white"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

@@ -4,6 +4,7 @@ import { createServerApiClient } from "@/lib/api-client";
 import EventsTable from "../events/EventsTable";
 import Link from "next/link";
 import { Ticket, DollarSign, List, Activity } from "lucide-react";
+import TicketManagementClient from "./TicketManagementClient";
 
 export const dynamic = "force-dynamic";
 
@@ -57,14 +58,6 @@ export default async function AdminTicketingPage(props: Props) {
         eventTicketsSold += sold;
         eventRevenue += sold * price;
       });
-    } else if (e.options && Array.isArray(e.options)) {
-      // Fallback for older schema if 'options' was used
-      e.options.forEach((opt: any) => {
-        const sold = Number(opt.sold || opt.ticketsSold || 0);
-        const price = Number(opt.price || 0);
-        eventTicketsSold += sold;
-        eventRevenue += sold * price;
-      });
     }
 
     // Aggregate globals
@@ -81,7 +74,6 @@ export default async function AdminTicketingPage(props: Props) {
           typeof e.organizerId === "object"
             ? e.organizerId?.fullName || e.organizerId?.businessName || "Unspecified Organizer"
             : role === "ORGANIZER" ? (session?.user?.name || "My Business") : "Unknown Organizer",
-        avatar: typeof e.organizerId === "object" ? e.organizerId?.logo || "" : "",
       },
       type: e.type || "UNKNOWN",
       status: e.status || "DRAFT",
@@ -189,13 +181,18 @@ export default async function AdminTicketingPage(props: Props) {
         </div>
       </div>
 
-      {/* Events Table (Filtered for Ticketing) */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200">
-          <h3 className="font-semibold text-slate-900">Ticketing Events</h3>
+      {/* Ticket Management Interface */}
+      <TicketManagementClient events={events} />
+
+      {/* Keep the full table at the bottom for Admin views, or show for quick reference */}
+      {isAdmin && (
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200">
+            <h3 className="font-semibold text-slate-900">Ticketing Events (Full List)</h3>
+          </div>
+          <EventsTable events={events} showFilters={["status"]} />
         </div>
-        <EventsTable events={events} showFilters={["status"]} />
-      </div>
+      )}
     </div>
   );
 }

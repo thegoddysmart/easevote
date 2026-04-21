@@ -163,14 +163,9 @@ export const organizerNavigation: NavigationSection[] = [
     title: "My Events",
     items: [
       {
-        name: "All Events",
+        name: "Events List",
         href: "/dashboard/events",
         icon: Calendar,
-        children: [
-          { name: "Voting Events", href: "/dashboard/voting" },
-          { name: "Ticketing", href: "/dashboard/ticketing" },
-          { name: "Deleted Events", href: "/dashboard/events/deleted" },
-        ],
       },
       { name: "Create Event", href: "/dashboard/events/new", icon: Vote },
     ],
@@ -183,8 +178,16 @@ export const organizerNavigation: NavigationSection[] = [
     ],
   },
   {
+    title: "Ticketing",
+    items: [
+      { name: "Ticket Sales", href: "/dashboard/tickets", icon: PieChart },
+      { name: "Manage Tickets", href: "/dashboard/ticketing", icon: Ticket },
+    ],
+  },
+  {
     title: "Financial",
     items: [
+      { name: "Transactions", href: "/dashboard/transactions", icon: CreditCard },
       { name: "Earnings", href: "/dashboard/earnings", icon: DollarSign },
     ],
   },

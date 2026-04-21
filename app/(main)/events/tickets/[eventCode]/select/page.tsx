@@ -34,7 +34,7 @@ export default async function TicketSelectionPage({
     id: event.id || event._id,
     title: event.title,
     eventCode: event.eventCode,
-    image: event.coverImage || "/placeholder-event.jpg",
+    image: event.imageUrl || event.coverImage || "/placeholder-event.jpg",
     category: event.type as any,
     date: new Date(event.startDate).toLocaleDateString("en-GB", {
       weekday: "long",

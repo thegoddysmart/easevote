@@ -150,9 +150,12 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex gap-4">
               <img
-                src={event.image}
+                src={event.image || "/placeholder-event.jpg"}
                 alt="Event"
                 className="w-20 h-20 rounded-lg object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/placeholder-event.jpg";
+                }}
               />
               <div>
                 <h3 className="font-bold text-slate-900 text-lg">

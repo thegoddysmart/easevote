@@ -30,9 +30,12 @@ export const TicketConfirmation: React.FC<TicketConfirmationProps> = ({
         {/* Top Section (Event Image) */}
         <div className="h-48 bg-slate-800 relative">
           <img
-            src={event.image}
+            src={event.image || "/placeholder-event.jpg"}
             className="w-full h-full object-cover opacity-80"
             alt={event.title}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/placeholder-event.jpg";
+            }}
           />
           <div className="absolute top-4 left-4 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
             VIP Access

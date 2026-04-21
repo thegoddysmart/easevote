@@ -76,7 +76,7 @@ export default async function TicketEventDetailPage({
   // Map API data to Page UI expectations
   const pageEvent = {
     ...event,
-    image: event.coverImage || "/placeholder-event.jpg",
+    image: event.imageUrl || event.coverImage || "/placeholder-event.jpg",
     category: event.type,
     date: new Date(event.startDate).toLocaleDateString("en-GB", {
       weekday: "long",

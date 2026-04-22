@@ -21,7 +21,6 @@ type Organizer = {
   eventsCount: number;
   totalRevenue: number;
   balance: number;
-  balance: number;
   joinedAt: Date;
   isDeleted: boolean;
 };
@@ -193,8 +192,8 @@ export default function OrganizersTable({
           label: "Archived",
           key: "isDeleted",
           options: [
-            { label: "Active Only", value: false },
-            { label: "Deleted Only", value: true },
+            { label: "Active Only", value: "false" },
+            { label: "Deleted Only", value: "true" },
           ],
         },
         {

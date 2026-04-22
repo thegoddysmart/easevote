@@ -81,7 +81,7 @@ export default async function AdminEventDetailsPage(props: Props) {
       revenue: totalRevenue,
       votes: totalVotes,
       ticketsSold: ticketsSold,
-      candidatesCount: eventData.stats?.candidatesCount ?? 0,
+      candidatesCount: eventData.categories?.reduce((sum: number, cat: any) => sum + (cat.candidates?.length || 0), 0) ?? eventData.stats?.candidatesCount ?? 0,
       ticketTypesCount: eventData.stats?.ticketTypesCount ?? 0,
     },
     categories: eventData.categories || [],

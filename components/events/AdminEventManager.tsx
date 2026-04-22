@@ -414,7 +414,7 @@ export function AdminEventManager({
                 </div>
                 <div className="text-2xl font-bold text-slate-900">
                   {event.type === "VOTING"
-                    ? (event.categories?.reduce((sum, cat) => sum + (cat.candidates?.length || 0), 0) || event.stats?.candidatesCount || 0)
+                    ? event.stats?.candidatesCount || 0
                     : event.stats?.ticketTypesCount || 0}
                 </div>
               </div>

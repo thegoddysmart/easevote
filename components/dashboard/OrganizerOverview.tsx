@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { computeEventStats } from "@/lib/event-stats";
-import { ArrowRight, BarChart3, Calendar, DollarSign, TrendingUp, Users, Vote, Zap } from "lucide-react";
+import { Activity, ArrowRight, BarChart3, Calendar, DollarSign, TrendingUp, Users, Vote, Zap } from "lucide-react";
 
 interface OrganizerOverviewProps {
   data: {
     events: any[];
     analytics: {
       totalRevenue: number;
+      netEarnings: number;
       totalVotes: number;
+      totalTickets: number;
       activeEvents: number;
     };
   };
@@ -26,7 +28,7 @@ function fmtCount(n: number): string {
 }
 
 export function OrganizerOverview({ data }: OrganizerOverviewProps) {
-  const { events, analytics } = data;
+  const { events, analytics } = data as any;
 
   return (
     <div className="space-y-8">
@@ -40,50 +42,67 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
         <div className="flex items-center gap-3">
             <Link
                 href="/dashboard/events/new"
-                className="flex items-center gap-2 bg-primary-900 hover:bg-primary-800 text-white! px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-primary-900/20 active:scale-95"
+                className="flex items-center gap-2 bg-primary-900 hover:bg-primary-800 text-white! px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-slate-900/20 active:scale-95"
             >
-                Launch Event
+                Create Event
             </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-xl shadow-slate-100/50 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-8 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
-                <DollarSign size={80} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* GROSS REVENUE */}
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+            <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                <DollarSign size={120} />
             </div>
-            <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Total Revenue Generated</p>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Gross Revenue</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
                 {fmtGHS(analytics.totalRevenue || 0)}
             </h2>
-            <div className="flex items-center gap-2 text-slate-400 font-bold text-sm bg-slate-50 w-fit px-3 py-1 rounded-full border border-slate-100">
-                <TrendingUp size={14} /> Tracking performance
+            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                <TrendingUp size={12} /> TOTAL COLLECTED
             </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-xl shadow-slate-100/50 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-8 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
-                <Vote size={80} />
+        {/* NET EARNINGS */}
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+            <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                <Zap size={120} />
             </div>
-            <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Engagement (Total Votes)</p>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Net Earnings</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                {fmtGHS(analytics.netEarnings || 0)}
+            </h2>
+            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                <Activity size={12} /> AFTER COMMISSION
+            </div>
+        </div>
+
+        {/* ENGAGEMENT */}
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+             <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                <Vote size={120} />
+            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Total Engagement</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
                 {fmtCount(analytics.totalVotes || 0)}
             </h2>
-            <div className="flex items-center gap-2 text-slate-400 font-bold text-sm bg-slate-50 w-fit px-3 py-1 rounded-full border border-slate-100">
-                <BarChart3 size={14} /> Real-time engagement
+            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                <BarChart3 size={12} /> TOTAL VOTES CAST
             </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-xl shadow-slate-100/50 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-8 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
-                <Calendar size={80} />
+        {/* TICKETS/UNITS */}
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+             <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                <Users size={120} />
             </div>
-            <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Active Live Events</p>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">
-                {(analytics.activeEvents || 0)}
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Units Sold</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                {fmtCount(analytics.totalTickets || 0)}
             </h2>
-            <div className="flex items-center gap-2 text-slate-400 font-bold text-sm bg-slate-50 w-fit px-3 py-1 rounded-full border border-slate-100">
-                <Users size={14} /> Live event tracking
+            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                <Calendar size={12} /> TOTAL TICKETS
             </div>
         </div>
       </div>
@@ -99,16 +118,16 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
             
             <div className="grid grid-cols-1 gap-4">
                 {events.length === 0 ? (
-                    <div className="bg-slate-50 rounded-3xl p-12 text-center border-2 border-dashed border-slate-200">
-                        <Calendar size={48} className="text-slate-300 mx-auto mb-4" />
+                    <div className="bg-slate-50 rounded-[2.5rem] p-12 text-center border-2 border-dashed border-slate-100">
+                        <Calendar size={48} className="text-slate-200 mx-auto mb-4" />
                         <h4 className="text-lg font-bold text-slate-400">No events found</h4>
                         <p className="text-slate-400 text-sm mt-1">Create your first event to see analytics here.</p>
                     </div>
                 ) : (
-                    events.map((event) => {
+                    events.map((event: any) => {
                         return (
-                          <div key={event._id} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center gap-6 hover:shadow-md transition-shadow group">
-                              <div className="w-16 h-16 rounded-xl overflow-hidden shadow-inner bg-slate-100 flex-shrink-0">
+                          <div key={event._id} className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center gap-6 hover:shadow-md transition-shadow group">
+                              <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-inner bg-slate-100 flex-shrink-0">
                                   <img 
                                       src={event.imageUrl || event.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.title || "E")}&background=f8fafc&color=0f172a&size=128`} 
                                       className="w-full h-full object-cover" 
@@ -123,7 +142,6 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
                                   <h4 className="text-lg font-bold text-slate-900 truncate">{event.title}</h4>
                                   <p className="text-sm text-slate-500 font-medium">
                                     {(() => {
-                                      // Priority: Ledger Statistics from backend (audit), else compute from cached fields
                                       const stats = event.ledgerStats || computeEventStats(event);
                                       const rev = Number(stats.revenue || 0);
                                       const qty = event.type === "VOTING" ? stats.votes : stats.ticketsSold;
@@ -133,7 +151,7 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
                               </div>
                               <Link 
                                   href={`/dashboard/events/${event.eventCode || event._id}`}
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-50 p-2 rounded-lg text-slate-400 hover:text-slate-900"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-50 p-3 rounded-2xl text-slate-400 hover:text-slate-900"
                               >
                                   <ArrowRight size={20} />
                               </Link>
@@ -147,8 +165,8 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
         <div className="space-y-6">
             <h3 className="text-xl font-bold text-slate-900">Quick Actions</h3>
             <div className="grid grid-cols-1 gap-3">
-                 <Link href="/dashboard/events" className="p-4 bg-white rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all flex items-center gap-4 group">
-                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                 <Link href="/dashboard/events" className="p-5 bg-white rounded-[2rem] border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition-all flex items-center gap-4 group">
+                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                         <BarChart3 size={24} />
                     </div>
                     <div className="flex-1">
@@ -156,8 +174,8 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
                         <p className="text-xs text-slate-400 font-medium">Manage all your events</p>
                     </div>
                  </Link>
-                 <Link href="/dashboard/events/new" className="p-4 bg-white rounded-2xl border border-slate-100 hover:border-pink-200 hover:bg-pink-50/30 transition-all flex items-center gap-4 group">
-                    <div className="w-12 h-12 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                 <Link href="/dashboard/events/new" className="p-5 bg-white rounded-[2rem] border border-slate-100 hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center gap-4 group">
+                    <div className="w-12 h-12 bg-slate-100 text-slate-900 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Zap size={24} />
                     </div>
                     <div className="flex-1">
@@ -165,17 +183,8 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
                         <p className="text-xs text-slate-400 font-medium">Launch a voting or ticketing event</p>
                     </div>
                  </Link>
-                 <Link href="/dashboard/earnings" className="p-4 bg-white rounded-2xl border border-slate-100 hover:border-green-200 hover:bg-green-50/30 transition-all flex items-center gap-4 group">
-                    <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <DollarSign size={24} />
-                    </div>
-                    <div className="flex-1">
-                        <p className="font-bold text-slate-900 text-sm">Earnings</p>
-                        <p className="text-xs text-slate-400 font-medium">View revenue and payouts</p>
-                    </div>
-                 </Link>
-                 <Link href="/dashboard/account" className="p-4 bg-white rounded-2xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/30 transition-all flex items-center gap-4 group">
-                    <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                 <Link href="/dashboard/settings" className="p-5 bg-white rounded-[2rem] border border-slate-100 hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center gap-4 group">
+                    <div className="w-12 h-12 bg-slate-100 text-slate-900 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Users size={24} />
                     </div>
                     <div className="flex-1">

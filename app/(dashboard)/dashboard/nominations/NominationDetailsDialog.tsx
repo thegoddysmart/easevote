@@ -18,6 +18,7 @@ import {
   MapPin,
   AlignLeft,
   Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
 
 type Nomination = {
@@ -35,7 +36,7 @@ type Nomination = {
   };
   reason: string | null;
   customFields: any;
-  nomineePhotoUrl: string | null;
+  photoUrl: string | null;
   fieldLabels?: Record<string, string>;
 };
 
@@ -61,20 +62,20 @@ export default function NominationDetailsDialog({
   const hasCustomFields = Object.keys(customFields).length > 0;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange} className="max-w-2xl">
+      <DialogContent className="max-h-[85vh] flex flex-col p-4">
+        <DialogHeader className="p-0">
           <div className="flex items-center justify-between pr-8">
-            <DialogTitle className="text-xl font-bold">
+            <DialogTitle className="text-xl font-bold text-slate-900 tracking-tight">
               Nomination Details
             </DialogTitle>
             <span
-              className={`px-3 py-1 rounded-full text-xs font-bold border ${
+              className={`px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border ${
                 nomination.status === "APPROVED"
-                  ? "bg-green-100 text-green-700 border-green-200"
+                  ? "bg-green-50 text-green-700 border-green-100"
                   : nomination.status === "REJECTED"
-                  ? "bg-red-100 text-red-700 border-red-200"
-                  : "bg-yellow-100 text-yellow-700 border-yellow-200"
+                  ? "bg-red-50 text-red-700 border-red-100"
+                  : "bg-amber-50 text-amber-700 border-amber-100"
               }`}
             >
               {nomination.status === "PENDING"
@@ -82,27 +83,29 @@ export default function NominationDetailsDialog({
                 : nomination.status}
             </span>
           </div>
-          <DialogDescription>
-            Reviewing application for <strong>{nomination.categoryName}</strong>{" "}
-            in {nomination.event.title}
+          <DialogDescription className="text-slate-500 font-medium text-sm">
+            Reviewing nomination for <strong className="text-slate-900">{nomination.categoryName}</strong>{" "}
+            in <span className="text-primary-600 font-bold">{nomination.event?.title || "Unknown Event"}</span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="space-y-6 py-4">
             {/* Profile Header */}
-            <div className="flex gap-4 items-start">
-              <div className="w-24 h-24 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden">
-                {nomination.nomineePhotoUrl ? (
+            <div className="flex gap-6 items-start">
+              <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm shrink-0 overflow-hidden p-1">
+                 <div className="w-full h-full rounded-[0.8rem] overflow-hidden bg-white flex items-center justify-center border border-slate-50">
+                {nomination.photoUrl ? (
                   <img
-                    src={nomination.nomineePhotoUrl}
+                    src={nomination.photoUrl}
                     alt={nomination.nomineeName}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-10 h-10 text-slate-300" />
+                  <User className="w-8 h-8 text-slate-200" />
                 )}
               </div>
+            </div>
               <div>
                 <h3 className="text-xl font-bold text-slate-900">
                   {nomination.nomineeName}
@@ -134,7 +137,7 @@ export default function NominationDetailsDialog({
               <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <AlignLeft className="w-4 h-4" /> Reason / Bio
               </h4>
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-slate-700 leading-relaxed text-sm">
+              <div className="bg-white p-6 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed text-sm shadow-sm font-medium">
                 {nomination.reason || "No description provided."}
               </div>
             </div>
@@ -145,19 +148,19 @@ export default function NominationDetailsDialog({
                 <h4 className="text-sm font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                   <FileTextIcon className="w-4 h-4" /> Additional Details
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.entries(customFields).map(([key, value]) => {
                     const label =
                       nomination.fieldLabels?.[key] || key.replace(/_/g, " ");
                     return (
                       <div
                         key={key}
-                        className="p-3 border border-slate-200 rounded-lg"
+                        className="p-4 border border-slate-100 rounded-2xl bg-white shadow-sm"
                       >
-                        <span className="text-xs font-semibold text-slate-500 block mb-1 uppercase">
+                        <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase tracking-widest">
                           {label}
                         </span>
-                        <span className="text-sm text-slate-900 font-medium">
+                        <span className="text-sm text-slate-900 font-bold">
                           {String(value)}
                         </span>
                       </div>
@@ -166,30 +169,28 @@ export default function NominationDetailsDialog({
                 </div>
               </div>
             )}
+            {/* Spacer for scroll visibility */}
+            <div className="h-4" />
           </div>
         </div>
 
-        <DialogFooter className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
-          </Button>
-
+        <DialogFooter className="mt-6 pt-6 border-t border-slate-50 flex items-center justify-end gap-3">
           {nomination.status === "PENDING" && (
             <>
               <Button
                 variant="destructive"
                 onClick={() => onReview(nomination.id, "REJECTED")}
                 disabled={processing}
-                className="gap-2 bg-red-600 hover:bg-red-700 text-white"
+                className="gap-2 bg-red-600 hover:bg-red-700 text-white rounded-xl h-12 px-6 font-bold text-sm shadow-lg shadow-red-600/20 active:scale-[0.98] transition-all cursor-pointer"
               >
-                <X className="w-4 h-4" /> Reject
+                {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : <X className="w-5 h-5" />} Reject
               </Button>
               <Button
                 onClick={() => onReview(nomination.id, "APPROVED")}
                 disabled={processing}
-                className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+                className="gap-2 bg-primary-700 hover:bg-primary-800 text-white rounded-xl h-12 px-6 font-bold text-sm shadow-xl active:scale-[0.98] transition-all cursor-pointer"
               >
-                <Check className="w-4 h-4" /> Approve
+                {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />} Approve
               </Button>
             </>
           )}

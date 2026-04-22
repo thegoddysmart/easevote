@@ -8,6 +8,11 @@ import {
   TrendingUp,
   Activity,
   AlertOctagon,
+  Zap,
+  Vote,
+  BarChart3,
+  Users,
+  Calendar,
 } from "lucide-react";
 import TransactionsTable from "./TransactionsTable";
 import AdminStatCard from "@/components/admin/AdminStatCard";
@@ -36,16 +41,21 @@ export default async function AdminTransactionsPage({
 
   if (isOrganizer) {
     // Organizer-specific data
-    const [balanceRes, purchasesRes, eventsRes] = await Promise.all([
+    const [balanceRes, purchasesRes, eventsRes, statsRes] = await Promise.all([
       apiClient.get("/payouts/balance").catch(() => null),
       apiClient.get(`/purchases/organizer?${queryStr}`).catch(() => ({ data: [], pagination: {} })),
       apiClient.get("/events/my/events?limit=100").catch(() => ({ data: [] })),
+      apiClient.get("/events/my/stats").catch(() => ({ data: {} })),
     ]);
 
     const balanceData = balanceRes?.data || {};
+    const pulseData = statsRes?.data || {};
+
     stats = {
-      totalVolume: balanceData.grossRevenue || 0,
-      netRevenue: balanceData.netRevenue || 0,
+      totalVolume: balanceData.grossRevenue || pulseData.grossRevenue || 0,
+      netRevenue: balanceData.netRevenue || pulseData.totalRevenue || 0,
+      totalVotes: pulseData.totalVotes || 0,
+      totalTickets: pulseData.totalTickets || 0,
       successRate: 100,
       pendingCount: balanceData.totalWithdrawn ? 1 : 0,
     };
@@ -91,61 +101,86 @@ export default async function AdminTransactionsPage({
     ticketQuantity: tx.ticketQuantity || 0
   }));
 
+  // Helper for compact GHS formatting
+  const fmtGHS = (amount: number) => {
+    if (amount >= 1_000_000) return `GHS ${parseFloat((amount / 1_000_000).toFixed(3))}M`;
+    if (amount >= 1_000) return `GHS ${parseFloat((amount / 1_000).toFixed(3))}K`;
+    return `GHS ${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  // Helper for compact count formatting
+  const fmtCount = (count: number) => {
+    if (count >= 1_000_000) return `${parseFloat((count / 1_000_000).toFixed(2))}M`;
+    if (count >= 1_000) return `${parseFloat((count / 1_000).toFixed(2))}K`;
+    return count.toLocaleString();
+  };
+
   return (
-    <div className="space-y-8 p-8 bg-slate-50 min-h-screen">
-      {/* Header */}
+    <div className="p-8 space-y-8">
       <div>
-        <h1 className="text-3xl font-display font-bold text-slate-900">
-          {isOrganizer ? "My Event Transactions" : "Transactions"}
-        </h1>
-        <p className="text-slate-500 mt-2">
-          {isOrganizer 
-            ? "Monitor all financial activities and payment statuses for your events."
-            : "Monitor all platform-wide financial activities, revenue, and payment statuses."}
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">My Event Transactions</h1>
+        <p className="text-slate-500 mt-1 font-medium italic">
+          Monitor all financial activities and payment statuses for your events.
         </p>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AdminStatCard
-          title={isOrganizer ? "Gross Revenue" : "Total Volume"}
-          value={new Intl.NumberFormat("en-GH", {
-            style: "currency",
-            currency: "GHS",
-          }).format(stats.totalVolume)}
-          icon={Activity}
-          trend={isOrganizer ? "Total collected" : "Gross processed"}
-          trendDirection="neutral"
-        />
-        <AdminStatCard
-          title={isOrganizer ? "Net Earnings" : "Net Revenue"}
-          value={new Intl.NumberFormat("en-GH", {
-            style: "currency",
-            currency: "GHS",
-          }).format(stats.netRevenue)}
-          icon={DollarSign}
-          trend={isOrganizer ? "After commission" : "Fees & Commissions"}
-          trendDirection="up"
-        />
-        {!isOrganizer && (
-          <AdminStatCard
-            title="Success Rate"
-            value={`${stats.successRate.toFixed(1)}%`}
-            icon={TrendingUp}
-            trend="Completion Rate"
-            trendDirection={stats.successRate > 90 ? "up" : "down"}
-          />
-        )}
-        {!isOrganizer && (
-          <AdminStatCard
-            title="Pending Actions"
-            value={stats.pendingCount}
-            icon={AlertOctagon}
-            trend="Needs Attention"
-            trendDirection="neutral"
-            color="amber"
-          />
-        )}
+        {/* GROSS REVENUE */}
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+            <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                <DollarSign size={120} />
+            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Gross Revenue</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+               {fmtGHS(stats.totalVolume)}
+            </h2>
+            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                <TrendingUp size={12} /> TOTAL COLLECTED
+            </div>
+        </div>
+
+        {/* NET EARNINGS */}
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+            <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                <Zap size={120} />
+            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Net Earnings</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+               {fmtGHS(stats.netRevenue)}
+            </h2>
+            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                <Activity size={12} /> AFTER COMMISSION
+            </div>
+        </div>
+
+        {/* ENGAGEMENT */}
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+             <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                <Vote size={120} />
+            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Total Engagement</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                {fmtCount(stats.totalVotes)}
+            </h2>
+            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                <BarChart3 size={12} /> TOTAL VOTES CAST
+            </div>
+        </div>
+
+        {/* UNITS SOLD */}
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+             <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                <Users size={120} />
+            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Units Sold</p>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                {fmtCount(stats.totalTickets)}
+            </h2>
+            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                <Calendar size={12} /> TOTAL TICKETS
+            </div>
+        </div>
       </div>
 
       {/* Transactions Table */}

@@ -1,15 +1,15 @@
 import { notFound, redirect } from "next/navigation";
 import { createServerApiClient } from "@/lib/api-client";
-import NominationWrapper from "./NominationWrapper";
+import NominationWrapper from "../../events/nominate/NominationWrapper";
 
 interface PageProps {
-  searchParams: Promise<{
-    eventCode?: string;
+  params: Promise<{
+    code: string;
   }>;
 }
 
-export default async function NominationPage({ searchParams }: PageProps) {
-  const { eventCode } = await searchParams;
+export default async function PublicNominationPage({ params }: PageProps) {
+  const { code: eventCode } = await params;
 
   if (!eventCode) {
     redirect("/events");
@@ -25,7 +25,6 @@ export default async function NominationPage({ searchParams }: PageProps) {
     event = res?.data || res?.event || res;
   } else {
     // Lookup by short eventCode
-    // The backend now handles natural filtering, so we just pass the code.
     const res = await apiClient.get<any>(`/events?eventCode=${eventCode}`).catch(() => null);
     const eventsList = res?.data || res?.events || (Array.isArray(res) ? res : []);
     
@@ -52,5 +51,9 @@ export default async function NominationPage({ searchParams }: PageProps) {
     totalRevenue: Number(event.totalRevenue),
   };
 
-  return <NominationWrapper event={clientEvent} formConfig={formConfig} />;
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <NominationWrapper event={clientEvent} formConfig={formConfig} />
+    </div>
+  );
 }

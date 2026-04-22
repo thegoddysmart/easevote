@@ -7,19 +7,24 @@ const Dialog = ({
   open,
   onOpenChange,
   children,
+  className,
 }: {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   children: React.ReactNode;
+  className?: string;
 }) => {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative z-50 w-full max-w-lg rounded-lg bg-primary-50 p-6 shadow-lg border">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
+      <div className={cn(
+        "relative z-50 w-full max-w-lg rounded-[2.5rem] bg-white p-6 shadow-2xl border border-slate-100 overflow-hidden",
+        className
+      )}>
         {children}
         <button
           onClick={() => onOpenChange?.(false)}
-          className="absolute right-4 top-4 opacity-70 hover:opacity-100 cursor-pointer"
+          className="absolute right-6 top-6 p-2 rounded-full hover:bg-slate-50 transition-colors opacity-70 hover:opacity-100 cursor-pointer"
         >
           ✕
         </button>

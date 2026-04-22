@@ -52,6 +52,10 @@ async function handler(
   const auth = req.headers.get("Authorization") || req.headers.get("authorization");
   if (auth) headers["Authorization"] = auth;
 
+  // Forward Cookies for session authentication
+  const cookie = req.headers.get("cookie");
+  if (cookie) headers["Cookie"] = cookie;
+
   let body: ArrayBuffer | undefined;
   if (req.method !== "GET" && req.method !== "HEAD") {
     try {

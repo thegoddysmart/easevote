@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
-import EventFilterDropdown from "./EventFilterDropdown";
+import EventFilterDropdown from "@/components/dashboard/EventFilterDropdown";
 
 type Transaction = {
   id: string;

@@ -115,15 +115,18 @@ export default async function DashboardPage() {
     ]);
 
     const rawEvents: any[] = Array.isArray(eventsRes) ? eventsRes : (eventsRes as any)?.data ?? [];
-    const statsData = statsRes.data || statsRes || {};
+    // The backend returns stats inside a 'data' property
+    const statsData = statsRes.data || {};
 
     return (
       <OrganizerOverview
         data={{
           events: rawEvents.slice(0, 5),
           analytics: {
-            totalRevenue: statsData.totalRevenue || 0,
+            totalRevenue: statsData.grossRevenue || 0, // Using Gross here as the primary "Total Revenue Generated"
+            netEarnings: statsData.totalRevenue || 0,   // This is the Net organizer share
             totalVotes: statsData.totalVotes || 0,
+            totalTickets: statsData.totalTickets || 0,
             activeEvents: rawEvents.filter((e: any) => e.status === "LIVE" || e.status === "PUBLISHED").length,
           },
         }}

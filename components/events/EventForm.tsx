@@ -111,6 +111,8 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
     allowPublicNominations: false,
     imageUrl: "",
     imagePublicId: "",
+    votingStartDate: "",
+    votingStartTime: "09:00",
     votingEndDate: "",
     votingEndTime: "23:59",
     nominationStartDate: "",

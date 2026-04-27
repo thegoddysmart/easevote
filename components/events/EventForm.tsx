@@ -115,6 +115,11 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
     votingStartTime: "09:00",
     votingEndDate: "",
     votingEndTime: "23:59",
+    nominationStartDate: "",
+    nominationStartTime: "09:00",
+    nominationEndDate: "",
+    nominationEndTime: "23:59",
+    whatsappGroupLink: "",
   });
 
   const [ticketTypes, setTicketTypes] = useState<TicketTypeForm[]>([]);
@@ -216,6 +221,8 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
         const end = parseDateTime(d.endDate);
         const vStart = parseDateTime(d.votingStartTime || d.votingStartDate || d.startDate);
         const vEnd = parseDateTime(d.votingEndTime || d.votingEndDate || d.endDate);
+        const nStart = parseDateTime(d.nominationStartTime || d.nominationStartDate || d.startDate);
+        const nEnd = parseDateTime(d.nominationEndTime || d.nominationEndDate || d.endDate);
 
         setFormData({
           title: d.title || "",
@@ -229,6 +236,10 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
           votingStartTime: vStart.time,
           votingEndDate: vEnd.date,
           votingEndTime: vEnd.time,
+          nominationStartDate: nStart.date,
+          nominationStartTime: nStart.time,
+          nominationEndDate: nEnd.date,
+          nominationEndTime: nEnd.time,
           costPerVote:
             d.costPerVote?.toString() || d.votePrice?.toString() || "",
           minVotesPerPurchase:
@@ -246,6 +257,7 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
             d.allowPublicNominations ?? d.allowNominations ?? false,
           imageUrl: d.imageUrl || d.coverImage || "",
           imagePublicId: d.imagePublicId || "",
+          whatsappGroupLink: d.whatsappGroupLink || "",
         });
 
         if (data.ticketTypes && data.ticketTypes.length > 0) {
@@ -373,6 +385,13 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
         ? new Date(`${formData.votingEndDate}T${formData.votingEndTime}:00`).toISOString()
         : undefined;
 
+      const nominationStartISO = formData.allowPublicNominations && formData.nominationStartDate
+        ? new Date(`${formData.nominationStartDate}T${formData.nominationStartTime}:00`).toISOString()
+        : undefined;
+      const nominationEndISO = formData.allowPublicNominations && formData.nominationEndDate
+        ? new Date(`${formData.nominationEndDate}T${formData.nominationEndTime}:00`).toISOString()
+        : undefined;
+
       // Validation
       if ((formData.type === "VOTING" || formData.type === "HYBRID")) {
         if (!votingStartISO || !votingEndISO) {
@@ -394,6 +413,7 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
       const {
         startDate, startTime, endDate, endTime,
         votingStartDate, votingStartTime, votingEndDate, votingEndTime,
+        nominationStartDate, nominationStartTime, nominationEndDate, nominationEndTime,
         ...cleanedData
       } = formData;
 
@@ -403,12 +423,15 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
         ...(endISO && endISO !== originalEnd ? { endDate: endISO } : {}),
         ...(votingStartISO ? { votingStartTime: votingStartISO, votingStartDate: votingStartISO } : {}),
         ...(votingEndISO ? { votingEndTime: votingEndISO, votingEndDate: votingEndISO } : {}),
+        ...(nominationStartISO ? { nominationStartTime: nominationStartISO, nominationStartDate: nominationStartISO } : {}),
+        ...(nominationEndISO ? { nominationEndTime: nominationEndISO, nominationEndDate: nominationEndISO, nominationDeadline: nominationEndISO } : {}),
         costPerVote: formData.costPerVote ? parseFloat(formData.costPerVote) : null,
         minVotesPerPurchase: parseInt(formData.minVotesPerPurchase) || 1,
         maxVotesPerPurchase: formData.maxVotesPerPurchase ? parseInt(formData.maxVotesPerPurchase) : null,
         allowPublicNominations: formData.allowPublicNominations,
         imageUrl: formData.imageUrl,
         imagePublicId: formData.imagePublicId,
+        whatsappGroupLink: formData.whatsappGroupLink,
       };
 
       const result = await api.put(`/events/${eventId}`, payload);
@@ -970,7 +993,110 @@ export function EventForm({ eventId, currentStatus, backUrl }: EventFormProps) {
                 </span>
               </label>
 
-              {/* Nomination Phase Timelines Removed - Managed in Nomination Settings */}
+              {formData.allowPublicNominations && (
+                <div className="bg-white rounded-xl border border-slate-200 p-6 mt-6 animate-in fade-in slide-in-from-top-2 duration-500">
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <div className="p-1.5 bg-primary-50 rounded-lg">
+                      <Calendar className="h-5 w-5 text-primary-600" />
+                    </div>
+                    Nomination Window
+                  </h3>
+                  <p className="text-xs text-slate-500 mb-4 -mt-2">
+                    Define the exact period when public nominations are accepted for this event.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        <Calendar className="h-4 w-4 inline mr-1" />
+                        Nominations Open *
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1 group">
+                          <input
+                            type="date"
+                            name="nominationStartDate"
+                            value={formData.nominationStartDate}
+                            onChange={handleChange}
+                            onClick={(e) => e.currentTarget.showPicker()}
+                            onKeyDown={(e) => e.preventDefault()}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 peer"
+                            required
+                          />
+                          <div className="w-full h-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white flex items-center transition-all peer-focus:ring-2 peer-focus:ring-primary-500 peer-focus:border-primary-500 peer-hover:border-primary-300">
+                            <span className={formData.nominationStartDate ? "text-slate-900" : "text-slate-400"}>
+                              {formData.nominationStartDate ? formatInputDate(formData.nominationStartDate) : "mm/dd/yyyy"}
+                            </span>
+                          </div>
+                        </div>
+                        <input
+                          type="time"
+                          name="nominationStartTime"
+                          value={formData.nominationStartTime}
+                          onChange={handleChange}
+                          className="w-32 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 hover:border-primary-300 transition-all cursor-pointer bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-slate-700">
+                        <Calendar className="h-4 w-4 inline mr-1" />
+                        Nominations Close *
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1 group">
+                          <input
+                            type="date"
+                            name="nominationEndDate"
+                            value={formData.nominationEndDate}
+                            min={formData.nominationStartDate}
+                            onChange={handleChange}
+                            onClick={(e) => e.currentTarget.showPicker()}
+                            onKeyDown={(e) => e.preventDefault()}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 peer"
+                            required
+                          />
+                          <div className="w-full h-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white flex items-center transition-all peer-focus:ring-2 peer-focus:ring-primary-500 peer-focus:border-primary-500 peer-hover:border-primary-300">
+                            <span className={formData.nominationEndDate ? "text-slate-900" : "text-slate-400"}>
+                              {formData.nominationEndDate ? formatInputDate(formData.nominationEndDate) : "mm/dd/yyyy"}
+                            </span>
+                          </div>
+                        </div>
+                        <input
+                          type="time"
+                          name="nominationEndTime"
+                          value={formData.nominationEndTime}
+                          onChange={handleChange}
+                          className="w-32 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 hover:border-primary-300 transition-all cursor-pointer bg-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {formData.allowPublicNominations && (
+                <div className="mt-6 pt-6 border-t border-slate-100">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    WhatsApp Group Link (for Approved Nominees)
+                  </label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      type="url"
+                      name="whatsappGroupLink"
+                      value={formData.whatsappGroupLink}
+                      onChange={handleChange}
+                      placeholder="https://chat.whatsapp.com/..."
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1 pl-1">
+                    Approved nominees will receive this link via SMS.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}

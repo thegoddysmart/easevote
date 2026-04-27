@@ -178,6 +178,12 @@ export function AdminEventManager({
     }
   };
 
+  const handleShareNomination = () => {
+    const url = `${window.location.origin}/nominations/${event.eventCode}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Nomination link copied to clipboard!");
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
       {/* Header */}
@@ -217,6 +223,15 @@ export function AdminEventManager({
                 <ExternalLink className="w-4 h-4" />
                 View Public Page
               </a>
+              {event.allowPublicNominations && (
+                <button
+                  onClick={handleShareNomination}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg hover:bg-primary-100 text-xs font-bold transition-all border border-primary-100 shadow-sm ml-2"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  Share Form
+                </button>
+              )}
             </div>
             <div className="flex items-center gap-4 text-slate-500 text-sm">
               <span className="flex items-center gap-1">
@@ -575,29 +590,55 @@ export function AdminEventManager({
         <div className="space-y-6 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Voting Controls */}
           {(event.type === "VOTING" || event.type === "HYBRID") && (
-            <div className="bg-white rounded-xl border border-slate-200 p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                Voting Configuration
-              </h3>
-
-              <div className="flex items-center justify-between py-4 border-b border-slate-50">
-                <div>
-                  <h4 className="font-medium text-slate-900">
-                    Public Vote Counts
-                  </h4>
-                  <p className="text-sm text-slate-500">
-                    Show the number of votes per candidate on the public results
-                    page.
-                  </p>
+            <>
+              <div className="bg-white rounded-xl border border-slate-200 p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  Nomination Form
+                </h3>
+                <div className="flex items-center justify-between py-4 border-b border-slate-50">
+                  <div>
+                    <h4 className="font-medium text-slate-900">
+                      Configure Nomination Form
+                    </h4>
+                    <p className="text-sm text-slate-500">
+                      Set up custom questions and manage common nomination settings.
+                    </p>
+                  </div>
+                  <Link
+                    href={`/dashboard/events/${event.id}/nominations/settings`}
+                    className="flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-700 rounded-lg font-bold hover:bg-primary-100 transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Open Builder
+                  </Link>
                 </div>
-                <VotingToggle
-                  initialValue={event.showVoteCount ?? true} // Need to pass this prop from parent or assume default
-                  eventId={event.id}
-                />
               </div>
-            </div>
+
+              <div className="bg-white rounded-xl border border-slate-200 p-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  Voting Configuration
+                </h3>
+
+                <div className="flex items-center justify-between py-4 border-b border-slate-50">
+                  <div>
+                    <h4 className="font-medium text-slate-900">
+                      Public Vote Counts
+                    </h4>
+                    <p className="text-sm text-slate-500">
+                      Show the number of votes per candidate on the public results
+                      page.
+                    </p>
+                  </div>
+                  <VotingToggle
+                    initialValue={event.showVoteCount ?? true} // Need to pass this prop from parent or assume default
+                    eventId={event.id}
+                  />
+                </div>
+              </div>
+            </>
           )}
 
+          {event.status === "DRAFT" && (
           <div className="bg-white rounded-xl border border-red-200 p-6">
             <h3 className="text-lg font-semibold text-red-900 mb-2">
               Danger Zone
@@ -610,26 +651,19 @@ export function AdminEventManager({
               <div>
                 <h4 className="font-medium text-red-900">Delete Event</h4>
                 <p className="text-sm text-red-600">
-                  {["LIVE", "ENDED", "PAUSED", "PUBLISHED"].includes(event.status)
-                    ? "Live or published events cannot be deleted to preserve data integrity."
-                    : "Permanently remove this event"}
+                  Permanently remove this draft event
                 </p>
               </div>
               <button
                 onClick={handleDelete}
-                disabled={["LIVE", "ENDED", "PAUSED", "PUBLISHED"].includes(event.status)}
-                className={clsx(
-                  "px-4 py-2 rounded-lg flex items-center gap-2 transition-colors",
-                  ["LIVE", "ENDED", "PAUSED", "PUBLISHED"].includes(event.status)
-                    ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                    : "bg-red-600 hover:bg-red-700 text-white shadow-sm"
-                )}
+                className="px-4 py-2 rounded-lg flex items-center gap-2 transition-colors bg-red-600 hover:bg-red-700 text-white shadow-sm cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete Event
               </button>
             </div>
           </div>
+          )}
         </div>
       )}
     </div>
@@ -687,7 +721,7 @@ function VotingToggle({
 
 function CategoryAccordion({ category }: { category: any }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const totalCategoryVotes = category.candidates.reduce((sum: number, c: any) => sum + (c.votes || c.voteCount || 0), 0);
+  const totalCategoryVotes = category.totalVotes || 0;
 
   return (
     <div className={clsx(
@@ -732,7 +766,7 @@ function CategoryAccordion({ category }: { category: any }) {
               <CandidateProfileCard 
                 key={candidate.id || idx} 
                 candidate={candidate} 
-                categoryMaxVotes={Math.max(...category.candidates.map((c: any) => c.votes || c.voteCount || 0))} 
+                categoryMaxVotes={category.maxVotes || 0} 
               />
             ))}
           </div>
@@ -791,7 +825,7 @@ function CandidateProfileCard({ candidate, categoryMaxVotes }: { candidate: any,
       <div className="mt-4 space-y-2">
         <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
           <span>Performance</span>
-          <span className="text-primary-600">{Math.round(progress)}% of leader</span>
+          <span className="text-primary-600">{Math.round(progress)}%</span>
         </div>
         <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
           <div 

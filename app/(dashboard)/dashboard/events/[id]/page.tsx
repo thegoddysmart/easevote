@@ -31,7 +31,13 @@ export default async function AdminEventDetailsPage(props: Props) {
   }
 
   // Manual summation fallback for votes
-  let totalVotes = Number(eventData.stats?.votes ?? eventData.totalVotes ?? eventData.votes) || 0;
+  let totalVotes = Number(
+    eventData.ledgerStats?.votes ??
+    eventData.stats?.votes ?? 
+    eventData.totalPaidVotes ?? 
+    eventData.totalVotes ?? 
+    eventData.votes
+  ) || 0;
   if (totalVotes === 0 && eventData.categories) {
     eventData.categories.forEach((cat: any) => {
       cat.candidates?.forEach((c: any) => {
@@ -66,7 +72,7 @@ export default async function AdminEventDetailsPage(props: Props) {
 
   let totalRevenue = calculatedRevenue > 0 
     ? calculatedRevenue 
-    : (Number(eventData.stats?.revenue ?? eventData.totalRevenue ?? eventData.revenue) || 0);
+    : (Number(eventData.ledgerStats?.revenue ?? eventData.stats?.revenue ?? eventData.totalRevenue ?? eventData.revenue) || 0);
 
   // Provide robust fallbacks for nested objects to prevent runtime errors
   const event = {
@@ -81,7 +87,7 @@ export default async function AdminEventDetailsPage(props: Props) {
       revenue: totalRevenue,
       votes: totalVotes,
       ticketsSold: ticketsSold,
-      candidatesCount: eventData.stats?.candidatesCount ?? 0,
+      candidatesCount: eventData.categories?.reduce((sum: number, cat: any) => sum + (cat.candidates?.length || 0), 0) ?? eventData.stats?.candidatesCount ?? 0,
       ticketTypesCount: eventData.stats?.ticketTypesCount ?? 0,
     },
     categories: eventData.categories || [],

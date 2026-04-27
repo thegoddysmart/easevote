@@ -4,6 +4,7 @@ import { createServerApiClient } from "@/lib/api-client";
 import { SuperAdminOverview } from "@/components/dashboard/SuperAdminOverview";
 import { OrganizerOverview } from "@/components/dashboard/OrganizerOverview";
 import { redirect } from "next/navigation";
+import { computeEventStats } from "@/lib/event-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -20,49 +21,37 @@ export default async function DashboardPage() {
   // ─── 1. Super Admin / Admin View ───────────────────────────────
   if (role === "SUPER_ADMIN" || role === "ADMIN") {
     // Fetch from REAL endpoints only, tolerate partial failures
-    const [usersRes, eventsRes, statsRes] = await Promise.allSettled([
+    const [usersRes, eventsRes, statsRes, pulseRes] = await Promise.allSettled([
       apiClient.get("/users"),
       apiClient.get("/events/admin/all?limit=200"),
       apiClient.get("/admin/stats/revenue"),
+      apiClient.get("/admin/stats/platform"),
     ]);
+
+    // ── Pulse Stats (Source of Truth for Totals) ──
+    const pulseRaw = pulseRes.status === "fulfilled" ? pulseRes.value : { data: {} };
+    const pulse = pulseRaw.data || pulseRaw || {};
+    const overview = pulse.overview || {};
 
     // ── Users ──
     const usersRaw = usersRes.status === "fulfilled" ? usersRes.value : [];
     const users: any[] = Array.isArray(usersRaw) ? usersRaw : usersRaw?.data ?? [];
-    const totalUsers = users.length;
-    const totalOrganizers = users.filter((u: any) => u.role === "ORGANIZER").length;
+    const totalUsers = overview.totalUsers || users.length;
+    const totalOrganizers = overview.registeredOrganizers || users.filter((u: any) => u.role === "ORGANIZER").length;
 
     // ── Events ──
     const eventsRaw = eventsRes.status === "fulfilled" ? eventsRes.value : { data: [] };
     const events: any[] = Array.isArray(eventsRaw) ? eventsRaw : eventsRaw?.data ?? [];
-    const activeEvents = events.filter((e) => 
+    const activeEvents = overview.activeEvents || events.filter((e) => 
       ["LIVE", "Live", "PUBLISHED", "APPROVED", "Upcoming"].includes(e.status)
     ).length;
 
-    // ── Derive other stats from event data ──
-    let totalVotes = 0;
-    let ticketsSold = 0;
-    let derivedPlatformRevenue = 0;
-
-    events.forEach((e) => {
-      totalVotes += Number(e.totalPaidVotes ?? 0);
-      ticketsSold += Number(e.totalTicketsSold ?? 0);
-
-      // 3. Accumulate Verified Revenue
-      derivedPlatformRevenue += Number(e.totalRevenue ?? 0);
-    });
-
-    // ── Transaction Stats (New Source of Truth) ──
-    const statsRaw = statsRes.status === "fulfilled" ? statsRes.value : { data: {} };
-    const statsData = statsRaw.data || statsRaw || {};
-    
-    let totalRevenue = statsData.totalVolume || statsData.totalRevenue || 0;
-    if (totalRevenue === 0) {
-      totalRevenue = derivedPlatformRevenue;
-    }
-    const platformFee = statsData.netRevenue || statsData.netCommission || (totalRevenue * 0.1); // Fallback to 10% if missing
-    const pendingPayouts = totalRevenue - platformFee;
-
+    // Stats from Ledger
+    const totalVotes = overview.totalVotesCast || 0;
+    const ticketsSold = overview.ticketsSold || 0;
+    const totalRevenue = overview.totalRevenue || 0;
+    const platformFee = overview.platformFeeEarned || 0;
+    const pendingPayouts = overview.pendingPayouts || 0;
     // ── Event type distribution ──
     const votingCount = events.filter((e) => e.type === "VOTING").length;
     const ticketingCount = events.filter((e) => e.type === "TICKETING").length;
@@ -73,34 +62,14 @@ export default async function DashboardPage() {
       { name: "Other Events", value: otherCount },
     ].filter((d) => d.value > 0);
 
-    // ── Monthly revenue (bucketed by event createdAt as proxy) ──
-    const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const now = new Date();
-    const revenueByMonth: Record<string, number> = {};
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      revenueByMonth[MONTH_NAMES[d.getMonth()]] = 0;
-    }
-    events.forEach((e) => {
-      if (!e.createdAt) return;
-      const key = MONTH_NAMES[new Date(e.createdAt).getMonth()];
-      if (key in revenueByMonth) {
-        revenueByMonth[key] += Number(e.totalRevenue || 0);
-      }
-    });
-    const revenueData = Object.entries(revenueByMonth).map(([name, revenue]) => ({
-      name,
-      revenue: Math.round(revenue),
-    }));
+    // ── Revenue Trend (from Ledger) ──
+    const revenueData = overview.revenueTrend || [];
 
-    // ── Top events by votes ──
-    const topEvents = [...events]
-      .map((e) => ({ ...e, _computedVotes: Number(e.totalPaidVotes || 0) }))
-      .sort((a, b) => b._computedVotes - a._computedVotes)
-      .slice(0, 4);
+    // ── Top Events (from Ledger) ──
+    const topEvents = overview.topEvents || [];
 
     // ── Recent events as activity proxy ──
-    const recentActivities = [...events]
+    const recentActivities = pulse.recentActivity || [...events]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 5)
       .map((e, i) => ({
@@ -140,27 +109,25 @@ export default async function DashboardPage() {
 
   // ─── 2. Organizer View ─────────────────────────────────────────
   if (role === "ORGANIZER") {
-    const eventsRes = await apiClient.get("/events/my/events?limit=100").catch(() => ({ data: [] }));
+    const [eventsRes, statsRes] = await Promise.all([
+        apiClient.get("/events/my/events?limit=100").catch(() => ({ data: [] })),
+        apiClient.get("/events/my/stats").catch(() => ({ data: {} }))
+    ]);
+
     const rawEvents: any[] = Array.isArray(eventsRes) ? eventsRes : (eventsRes as any)?.data ?? [];
-
-    // Aggregate results from raw event data
-    let totalRevenue = 0;
-    let totalVotes = 0;
-    rawEvents.forEach((e: any) => {
-      totalVotes += Number(e.totalPaidVotes || 0);
-      totalRevenue += Number(e.totalRevenue || 0);
-    });
-
-    const activeEvents = rawEvents.filter((e: any) => e.status === "LIVE" || e.status === "PUBLISHED").length;
+    // The backend returns stats inside a 'data' property
+    const statsData = statsRes.data || {};
 
     return (
       <OrganizerOverview
         data={{
           events: rawEvents.slice(0, 5),
           analytics: {
-            totalRevenue,
-            totalVotes,
-            activeEvents,
+            totalRevenue: statsData.grossRevenue || 0, // Using Gross here as the primary "Total Revenue Generated"
+            netEarnings: statsData.totalRevenue || 0,   // This is the Net organizer share
+            totalVotes: statsData.totalVotes || 0,
+            totalTickets: statsData.totalTickets || 0,
+            activeEvents: rawEvents.filter((e: any) => e.status === "LIVE" || e.status === "PUBLISHED").length,
           },
         }}
       />

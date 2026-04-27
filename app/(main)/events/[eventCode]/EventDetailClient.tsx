@@ -43,12 +43,13 @@ export default function EventDetailClient({
   onNominate,
 }: EventDetailProps) {
   const [activeTab, setActiveTab] = useState<
-    "vote" | "tickets" | "overview" | "results"
+    "vote" | "tickets" | "overview" | "results" | "nominate"
   >(() => {
     const status = getEventStatus(event);
     const resultsEnabled = event.liveResults !== false && event.showLiveResults !== false;
     
     if (status.phase === "ENDED" && resultsEnabled) return "results";
+    if (status.phase === "NOMINATION" || (event.isNominationOpen && !event.isVotingOpen)) return "nominate";
     return event.type === "TICKETING" ? "tickets" : "vote";
   });
   const router = useRouter();
@@ -154,9 +155,7 @@ export default function EventDetailClient({
         c.code.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
-  const totalVotes =
-    event.totalVotes ||
-    allCandidates.reduce((sum: number, c: any) => sum + (c.voteCount || 0), 0);
+  const totalVotes = event.ledgerStats?.votes || event.totalVotes || event.totalPaidVotes || 0;
 
   /* ---------------------------------------------------------------------- */
 
@@ -291,6 +290,9 @@ export default function EventDetailClient({
                 ? (event.liveResults !== false && event.showLiveResults !== false)
                   ? [{ id: "results", label: "Results", icon: Trophy }]
                   : []
+                : []),
+              ...(event.allowPublicNominations || event.isNominationOpen 
+                ? [{ id: "nominate", label: "Nominate", icon: PenTool }]
                 : []),
               { id: "overview", label: "About", icon: Info },
             ].map((tab) => (
@@ -597,12 +599,7 @@ export default function EventDetailClient({
 
                   if (sortedCandidates.length === 0) return null;
 
-                  const categoryTotalVotes =
-                    category.totalVotes ||
-                    sortedCandidates.reduce(
-                      (acc, c) => acc + (c.voteCount ?? c.votes ?? 0),
-                      0,
-                    );
+                  const categoryTotalVotes = category.totalVotes || 0;
 
                   return (
                     <div
@@ -699,6 +696,91 @@ export default function EventDetailClient({
                   );
                 })}
               </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "nominate" && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto">
+            {!event.isNominationOpen ? (
+              <div className="bg-white rounded-[2.5rem] p-12 shadow-2xl shadow-slate-200/50 border border-slate-100 text-center">
+                 <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400 mx-auto mb-6">
+                    <Clock size={40} />
+                 </div>
+                 <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Nominations are Inactive</h2>
+                 <p className="text-slate-500 max-w-md mx-auto mb-8">The nomination period for this event is either yet to start or has already concluded. Check back later or contact the organizer for details.</p>
+                 {event.nominationStartTime && (
+                   <div className="inline-flex items-center gap-2 px-6 py-2 bg-slate-50 rounded-full border border-slate-100 text-sm font-bold text-slate-600">
+                     <Calendar size={16} className="text-primary-600" />
+                     Opens: {new Date(event.nominationStartTime).toLocaleString("en-GB", { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                   </div>
+                 )}
+              </div>
+            ) : (
+              <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+               <div className="relative h-64 bg-slate-900 flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 opacity-40">
+                    <Image 
+                      src={event.imageUrl || event.coverImage || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop"}
+                      fill
+                      className="object-cover"
+                      alt="Banner"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-linear-to-b from-transparent to-slate-900/90"></div>
+                  <div className="relative z-10 text-center px-6">
+                     <div className="w-20 h-20 bg-primary-600 rounded-3xl flex items-center justify-center text-white mx-auto mb-6 shadow-2xl shadow-primary-600/30 rotate-3">
+                        <PenTool size={40} />
+                     </div>
+                     <h2 className="text-3xl font-display font-bold text-white! mb-2">Public Nominations Open</h2>
+                     <p className="text-white/70 max-w-lg mx-auto">Submit your application or nominate a worthy candidate for various categories in this event.</p>
+                  </div>
+               </div>
+
+               <div className="p-8 md:p-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div className="space-y-6">
+                       <h3 className="text-xl font-bold text-slate-900">How it works</h3>
+                       <div className="space-y-4">
+                          {[
+                            { step: "1", title: "Select Category", desc: "Choose the category that best fits the nominee." },
+                            { step: "2", title: "Provide Details", desc: "Fill out the required information and upload a profile photo." },
+                            { step: "3", title: "Submission", desc: "Review and submit. The organizer will review your nomination." },
+                          ].map(s => (
+                            <div key={s.step} className="flex gap-4">
+                               <div className="w-8 h-8 rounded-full bg-primary-50 text-primary-700 flex items-center justify-center font-bold text-xs shrink-0">{s.step}</div>
+                               <div>
+                                  <h4 className="font-bold text-slate-900 text-sm">{s.title}</h4>
+                                  <p className="text-slate-500 text-sm">{s.desc}</p>
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+
+                     <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 flex flex-col items-center text-center">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Nomination Deadline</p>
+                        <div className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                           <Calendar className="text-primary-600" size={24} />
+                           {(() => {
+                             const deadline = event.nominationEndDate || event.votingEndTime || event.votingEndDate || event.endDate;
+                             return deadline 
+                               ? new Date(deadline).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+                               : "Not Specified";
+                           })()}
+                        </div>
+                        <button
+                          disabled={!event.hasNominationForm}
+                          onClick={() => router.push(`/events/nominate?eventCode=${event.eventCode}`)}
+                          className="w-full py-5 bg-primary-600 text-white rounded-2xl font-bold hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/20 active:scale-95 disabled:bg-slate-300 disabled:cursor-not-allowed disabled:shadow-none"
+                        >
+                          {event.hasNominationForm ? "Nominate Now" : "Form Pending Setup"}
+                        </button>
+                       <p className="mt-4 text-[10px] text-slate-400 font-medium">By nominating, you agree to the event&apos;s terms and privacy policy.</p>
+                    </div>
+                  </div>
+               </div>
+            </div>
             )}
           </div>
         )}

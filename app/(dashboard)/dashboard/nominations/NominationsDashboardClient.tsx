@@ -14,10 +14,14 @@ import {
   XCircle,
   MoreVertical,
   Download,
+  Calendar,
+  Loader2,
 } from "lucide-react";
 import NominationDetailsDialog from "./NominationDetailsDialog";
 import { clsx } from "clsx";
 import { useModal } from "@/components/providers/ModalProvider";
+import EventFilterDropdown from "@/components/dashboard/EventFilterDropdown";
+import { api } from "@/lib/api-client";
 
 type Nomination = {
   id: string;
@@ -35,7 +39,7 @@ type Nomination = {
   reason: string | null;
   // metadata: any; // Legacy
   customFields: any; // Correct field for form answers
-  nomineePhotoUrl: string | null;
+  photoUrl: string | null;
   fieldLabels?: Record<string, string>; // Map of field key -> label
 };
 
@@ -47,16 +51,19 @@ interface DashboardProps {
     approved: number;
     rejected: number;
   };
+  eventsList: { id: string; title: string }[];
 }
 
 export default function NominationsDashboardClient({
   initialNominations,
   stats,
+  eventsList
 }: DashboardProps) {
   const router = useRouter();
   const modal = useModal();
   const [nominations, setNominations] = useState(initialNominations);
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [eventFilter, setEventFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -67,11 +74,12 @@ export default function NominationsDashboardClient({
 
   const filteredNominations = nominations.filter((nom) => {
     const matchesStatus = statusFilter === "ALL" || nom.status === statusFilter;
+    const matchesEvent = eventFilter === "ALL" || nom.event?.id === eventFilter;
     const matchesSearch =
       nom.nomineeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       nom.categoryName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      nom.event.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
+      (nom.event?.title || "").toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesEvent && matchesSearch;
   });
 
   /* Logic: Review Nomination */
@@ -79,23 +87,28 @@ export default function NominationsDashboardClient({
     id: string,
     newStatus: "APPROVED" | "REJECTED"
   ) => {
+    const isApprove = newStatus === "APPROVED";
+    
+    // Safety confirmation
+    const confirmed = await modal.confirm({
+      title: isApprove ? "Confirm Approval" : "Confirm Rejection",
+      message: isApprove 
+        ? "Are you sure you want to approve this nomination? This will officially add them as a candidate and notify them via SMS/Email."
+        : "Are you sure you want to reject this nomination? This action cannot be easily undone.",
+      confirmText: isApprove ? "Approve" : "Reject",
+      variant: isApprove ? "info" : "danger",
+    });
+
+    if (!confirmed) return;
+
     setProcessingId(id);
     try {
-      // Real backend uses specific PATCH endpoints for approve/reject
+      // Use authenticated API client for approve/reject
       const action = newStatus === "APPROVED" ? "approve" : "reject";
-      const res = await fetch(`/api/proxy/nominations/${id}/${action}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        // If rejecting, we could optionally send a reason, but the dashboard currently doesn't prompt for one.
-        body: newStatus === "REJECTED" ? JSON.stringify({ reason: "Rejected by organizer" }) : undefined,
-      });
+      const body = newStatus === "REJECTED" ? { reason: "Rejected by organizer" } : undefined;
+      await api.patch(`/nominations/${id}/${action}`, body);
 
-      if (!res.ok) throw new Error("Failed to update status");
-
-      // Some backend responses might be 200 OK without a body or with { success: true }
-      const data = await res.json().catch(() => ({ success: true }));
-      
-      if (data.success || res.status === 200) {
+      {
         // Optimistic update
         setNominations((prev) =>
           prev.map((n) => (n.id === id ? { ...n, status: newStatus } : n))
@@ -270,17 +283,26 @@ export default function NominationsDashboardClient({
       </div>
 
       {/* Filters & Table */}
-      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm">
         {/* Toolbar */}
         <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
-          <div className="flex items-center gap-2 bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-200 w-full md:w-80">
-            <Search size={18} className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search nominees..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent border-none outline-none text-sm w-full placeholder:text-gray-400"
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+            <div className="flex items-center gap-2 bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-200 w-full md:w-80">
+              <Search size={18} className="text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search nominees..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent border-none outline-none text-sm w-full placeholder:text-gray-400"
+              />
+            </div>
+
+            <EventFilterDropdown 
+              value={eventFilter}
+              onChange={setEventFilter}
+              eventsList={eventsList}
+              placeholder="All Events"
             />
           </div>
 
@@ -330,9 +352,9 @@ export default function NominationsDashboardClient({
                   </td>
                 </tr>
               ) : (
-                filteredNominations.map((nom) => (
+                filteredNominations.map((nom, idx) => (
                   <tr
-                    key={nom.id}
+                    key={nom.id || `nom-${idx}`}
                     className="group hover:bg-gray-50/50 transition cursor-pointer"
                     onClick={() => {
                       setSelectedNomination(nom);
@@ -354,7 +376,7 @@ export default function NominationsDashboardClient({
                         {nom.categoryName}
                       </div>
                       <div className="text-xs text-primary-600">
-                        {nom.event.title}
+                        {nom.event?.title || "No Event"}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-500">
@@ -373,10 +395,14 @@ export default function NominationsDashboardClient({
                                 handleReview(nom.id, "APPROVED");
                               }}
                               disabled={!!processingId}
-                              className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition disabled:opacity-50"
+                              className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition disabled:opacity-50 cursor-pointer"
                               title="Approve"
                             >
-                              <Check size={18} />
+                              {processingId === nom.id ? (
+                                <Loader2 size={18} className="animate-spin" />
+                              ) : (
+                                <Check size={18} />
+                              )}
                             </button>
                             <button
                               onClick={(e) => {
@@ -384,10 +410,14 @@ export default function NominationsDashboardClient({
                                 handleReview(nom.id, "REJECTED");
                               }}
                               disabled={!!processingId}
-                              className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition disabled:opacity-50"
+                              className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition disabled:opacity-50 cursor-pointer"
                               title="Reject"
                             >
-                              <X size={18} />
+                              {processingId === nom.id ? (
+                                <Loader2 size={18} className="animate-spin" />
+                              ) : (
+                                <X size={18} />
+                              )}
                             </button>
                           </>
                         )}

@@ -13,11 +13,17 @@ export default async function NominationsPage() {
 
   const apiClient = createServerApiClient(session?.accessToken as string | undefined);
 
-  // Fetch all nominations for events owned by this organizer
-  // GET /dashboard/nominations returns nominations with category and event info
-  const nominations = await apiClient.get("/nominations").catch(() => []);
+  // Fetch data: Nominations and Events for filtering
+  const [nominations, events] = await Promise.all([
+    apiClient.get("/nominations").catch(() => []),
+    apiClient.get("/events/my/events?limit=100").catch(() => []),
+  ]);
 
   const nominationList = Array.isArray(nominations) ? nominations : [];
+  const eventsList = (Array.isArray(events) ? events : events?.data || []).map((e: any) => ({
+    id: e._id || e.id,
+    title: e.title,
+  }));
 
   // Calculate Stats
   const stats = {
@@ -39,7 +45,7 @@ export default async function NominationsPage() {
 
     return {
       ...n,
-      categoryName: n.category?.name || n.categoryName || "Unknown",
+      categoryName: n.categoryName || n.category?.name || "Unknown",
       reason: n.bio,
       createdAt: n.createdAt ? new Date(n.createdAt).toISOString() : null,
       reviewedAt: n.reviewedAt ? new Date(n.reviewedAt).toISOString() : null,
@@ -52,6 +58,7 @@ export default async function NominationsPage() {
     <NominationsDashboardClient
       initialNominations={localizedNominations}
       stats={stats}
+      eventsList={eventsList}
     />
   );
 }

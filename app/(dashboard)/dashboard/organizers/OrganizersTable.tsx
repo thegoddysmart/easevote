@@ -22,6 +22,7 @@ type Organizer = {
   totalRevenue: number;
   balance: number;
   joinedAt: Date;
+  isDeleted: boolean;
 };
 
 const statusConfig: Record<
@@ -44,6 +45,12 @@ const statusConfig: Record<
     label: "Rejected",
     color: "text-red-700",
     bg: "bg-red-100",
+    icon: XCircle,
+  },
+  DELETED: {
+    label: "Deleted",
+    color: "text-slate-700",
+    bg: "bg-slate-200",
     icon: XCircle,
   },
 };
@@ -131,18 +138,27 @@ export default function OrganizersTable({
     {
       key: "userStatus",
       header: "Account",
-      render: (org: Organizer) => (
-        <span
-          className={clsx(
-            "text-xs font-medium px-2 py-0.5 rounded",
-            org.userStatus === "ACTIVE"
-              ? "bg-green-50 text-green-600"
-              : "bg-red-50 text-red-600"
-          )}
-        >
-          {org.userStatus}
-        </span>
-      ),
+      render: (org: Organizer) => {
+        if (org.isDeleted) {
+          return (
+            <span className="text-xs font-medium px-2 py-0.5 rounded bg-slate-200 text-slate-700">
+              DELETED
+            </span>
+          );
+        }
+        return (
+          <span
+            className={clsx(
+              "text-xs font-medium px-2 py-0.5 rounded",
+              org.userStatus === "ACTIVE"
+                ? "bg-green-50 text-green-600"
+                : "bg-red-50 text-red-600"
+            )}
+          >
+            {org.userStatus}
+          </span>
+        );
+      },
     },
     {
       key: "joinedAt",
@@ -169,6 +185,15 @@ export default function OrganizersTable({
           options: [
             { label: "Active", value: "ACTIVE" },
             { label: "Pending", value: "PENDING" },
+            { label: "Disabled", value: "DISABLED" },
+          ],
+        },
+        {
+          label: "Archived",
+          key: "isDeleted",
+          options: [
+            { label: "Active Only", value: "false" },
+            { label: "Deleted Only", value: "true" },
           ],
         },
         {

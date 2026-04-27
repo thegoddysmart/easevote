@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createServerApiClient } from "@/lib/api-client";
 import EventsTable from "./EventsTable";
+import { computeEventStats } from "@/lib/event-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -42,37 +43,7 @@ export default async function AdminEventsPage(props: Props) {
 
   // Clean up and map the raw MongoDB events to the expected frontend schema
   const mappedEvents = rawEvents.map((e: any) => {
-    // Manual summation fallback for votes
-    let totalVotes = Number(e.totalVotes ?? e.votes) || 0;
-    if (totalVotes === 0 && e.categories) {
-      e.categories.forEach((cat: any) => {
-        cat.candidates?.forEach((c: any) => {
-          totalVotes += Number(c.votes ?? c.voteCount) || 0;
-        });
-      });
-    }
-
-    // Manual summation fallback for tickets
-    let ticketsSold = Number(e.totalTicketsSold ?? e.stats?.ticketsSold) || 0;
-    if (ticketsSold === 0 && e.ticketTypes) {
-      e.ticketTypes.forEach((tt: any) => {
-        ticketsSold += Number(tt.sold ?? tt.soldCount) || 0;
-      });
-    }
-
-    // Manual revenue calculation fallback
-    let totalRevenue = Number(e.totalRevenue ?? e.revenue ?? e.stats?.revenue) || 0;
-    if (totalRevenue === 0) {
-      if (e.type === "VOTING") {
-        totalRevenue = totalVotes * (Number(e.costPerVote ?? e.votePrice ?? e.price) || 0);
-      } else if (e.type === "TICKETING" || e.type === "HYBRID") {
-        if (e.ticketTypes) {
-          e.ticketTypes.forEach((tt: any) => {
-            totalRevenue += (Number(tt.sold ?? tt.soldCount) || 0) * (Number(tt.price) || 0);
-          });
-        }
-      }
-    }
+    const { votes, revenue, ticketsSold } = computeEventStats(e);
 
     return {
       id: e._id,
@@ -90,9 +61,9 @@ export default async function AdminEventsPage(props: Props) {
       startDate: e.startDate || new Date().toISOString(),
       endDate: e.endDate || new Date().toISOString(),
       stats: {
-        votes: totalVotes,
-        revenue: totalRevenue,
-        ticketsSold: ticketsSold,
+        votes,
+        revenue,
+        ticketsSold,
       },
     };
   });

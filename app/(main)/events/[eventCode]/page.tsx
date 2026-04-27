@@ -101,6 +101,11 @@ export default async function EventDetailPage({ params }: PageProps) {
     visibleCategories = event.categories.map((cat: any) => ({ ...cat, candidates: [] }));
   }
 
+  const eventId = event._id || event.id;
+  const formRes = await apiClient.get<any>(`/nominations/events/${eventId}/form`).catch(() => null);
+  const form = formRes?.data || formRes;
+  const hasNominationForm = !!form;
+
   const clientEvent: any = {
     ...event,
     isVotingOpen,
@@ -109,6 +114,7 @@ export default async function EventDetailPage({ params }: PageProps) {
     date: timelineLabel,
     timelineEnd: timelineEnd?.toISOString() || null,
     categories: visibleCategories,
+    hasNominationForm,
   };
 
   return (

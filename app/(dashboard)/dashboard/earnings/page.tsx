@@ -26,9 +26,14 @@ export default async function EarningsPage() {
     hasGaps: Boolean(balanceRes?.data?.hasGaps),
   };
 
-  // Fetch payout/transaction history via /api/payouts/me
-  const historyRes = await apiClient.get("/payouts/me").catch(() => ({ data: [] }));
+  // Fetch payout/transaction history and events
+  const [historyRes, eventsRes] = await Promise.all([
+    apiClient.get("/payouts/me").catch(() => ({ data: [] })),
+    apiClient.get("/events/my/events?limit=100").catch(() => ({ data: [] })),
+  ]);
+
   const transactionList = Array.isArray(historyRes.data) ? historyRes.data : [];
+  const events = eventsRes.data || eventsRes.events || (Array.isArray(eventsRes) ? eventsRes : []);
 
   const formattedTransactions = transactionList.map((tx: any) => ({
     id: tx._id,
@@ -37,7 +42,8 @@ export default async function EarningsPage() {
     amount: Number(tx.amount ?? 0),
     status: tx.status,
     createdAt: tx.createdAt,
-    eventName: "N/A",
+    eventName: tx.eventId?.title || "N/A",
+    eventCode: tx.eventId?.eventCode || "N/A",
     customerName: tx.paymentDetails?.accountName || "System",
     paymentMethod: tx.paymentDetails?.method || "N/A",
   }));
@@ -46,6 +52,7 @@ export default async function EarningsPage() {
     <EarningsDashboardClient
       stats={stats}
       transactions={formattedTransactions}
+      events={events}
     />
   );
 }

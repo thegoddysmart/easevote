@@ -15,6 +15,7 @@ import {
 import { clsx } from "clsx";
 import { api } from "@/lib/api-client";
 import { useRouter } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 
 interface OrganizerPayoutsClientProps {
   stats: {
@@ -23,11 +24,13 @@ interface OrganizerPayoutsClientProps {
     totalWithdrawn: number;
   };
   initialPayouts: any[];
+  events: any[];
 }
 
 export default function OrganizerPayoutsClient({
-  stats,
+  stats: initialStats,
   initialPayouts,
+  events,
 }: OrganizerPayoutsClientProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,8 +44,62 @@ export default function OrganizerPayoutsClient({
     bankOrNetwork: ""
   });
   const [error, setError] = useState("");
+  const [selectedEventId, setSelectedEventId] = useState("");
+  const [eventBalance, setEventBalance] = useState<number | null>(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  
+  // Global Filtering State
+  const [selectedEventFilter, setSelectedEventFilter] = useState("ALL");
+  const [stats, setStats] = useState(initialStats);
+  const [payouts, setPayouts] = useState(initialPayouts);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const filteredPayouts = initialPayouts.filter((p) =>
+  const fetchEventData = async (eventId: string) => {
+    setIsLoading(true);
+    try {
+      if (eventId === "ALL") {
+        setStats(initialStats);
+        setPayouts(initialPayouts);
+      } else {
+        const [statsRes, historyRes] = await Promise.all([
+          api.get(`/payouts/balance?eventId=${eventId}`),
+          api.get(`/payouts/me?eventId=${eventId}`)
+        ]);
+
+        setStats({
+          balance: Number(statsRes.data?.availableBalance ?? 0),
+          totalRevenue: Number(statsRes.data?.netRevenue ?? 0),
+          totalWithdrawn: Number(statsRes.data?.totalWithdrawn ?? 0),
+        });
+
+        const list = Array.isArray(historyRes.data) ? historyRes.data : [];
+        setPayouts(list);
+      }
+    } catch (err) {
+      console.error("Failed to fetch event data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch balance for a specific event when selected
+  const fetchEventBalance = async (eventId: string) => {
+    if (!eventId) {
+      setEventBalance(null);
+      return;
+    }
+    setIsLoadingBalance(true);
+    try {
+      const res = await api.get(`/payouts/balance?eventId=${eventId}`);
+      setEventBalance(res.data?.availableBalance || 0);
+    } catch (err) {
+      console.error("Failed to fetch event balance:", err);
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  };
+
+  const filteredPayouts = payouts.filter((p) =>
     p.reference.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -54,16 +111,23 @@ export default function OrganizerPayoutsClient({
     try {
       const amount = parseFloat(payoutAmount);
       if (amount <= 0) throw new Error("Amount must be greater than 0");
-      if (amount > stats.balance) throw new Error("Insufficient balance");
+      if (!selectedEventId) throw new Error("Please select an event");
+      
+      const currentBalance = eventBalance !== null ? eventBalance : stats.balance;
+      if (amount > currentBalance) throw new Error("Insufficient balance for this event");
+      
       if (!paymentDetails.accountNumber) throw new Error("Account number is required");
 
       await api.post("/payouts/request", {
         amount,
+        eventId: selectedEventId,
         paymentDetails
       });
 
       setIsModalOpen(false);
       setPayoutAmount("");
+      setSelectedEventId("");
+      setEventBalance(null);
       router.refresh(); 
     } catch (err: any) {
       setError(err.message || "Failed to submit request");
@@ -90,9 +154,33 @@ export default function OrganizerPayoutsClient({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Payout History</h1>
-        <p className="text-slate-500 font-medium">Manage your requests and track your available balance.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Payout History</h1>
+          <p className="text-slate-500 font-medium">Manage your requests and track your available balance.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="relative min-w-[250px]">
+            <select 
+              value={selectedEventFilter}
+              onChange={(e) => {
+                setSelectedEventFilter(e.target.value);
+                fetchEventData(e.target.value);
+              }}
+              className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-900 font-bold py-3 pl-4 pr-10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer transition-all shadow-sm"
+            >
+              <option value="ALL">All Events</option>
+              {events.map((e: any) => (
+                <option key={e._id} value={e._id}>{e.title}</option>
+              ))}
+            </select>
+            <ChevronDown
+              size={18}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
+          </div>
+          {isLoading && <Loader2 size={16} className="animate-spin text-primary-600" />}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -149,6 +237,7 @@ export default function OrganizerPayoutsClient({
             <thead className="bg-slate-50/50 text-[11px] uppercase text-slate-400 font-black tracking-widest">
               <tr>
                 <th className="px-8 py-5">Reference</th>
+                <th className="px-8 py-5">Event</th>
                 <th className="px-8 py-5">Method</th>
                 <th className="px-8 py-5">Date</th>
                 <th className="px-8 py-5">Amount</th>
@@ -159,6 +248,10 @@ export default function OrganizerPayoutsClient({
               {filteredPayouts.map((p) => (
                 <tr key={p._id} className="group hover:bg-slate-50/50 transition-colors">
                   <td className="px-8 py-6 font-bold text-slate-900">{p.reference}</td>
+                  <td className="px-8 py-6">
+                    <div className="font-bold text-slate-900 text-sm">{p.eventId?.title || "N/A"}</div>
+                    <div className="text-[10px] text-slate-400 font-black tracking-widest uppercase">{p.eventId?.eventCode || "N/A"}</div>
+                  </td>
                   <td className="px-8 py-6 capitalize font-medium text-slate-600">
                     {p.paymentDetails.method} • {p.paymentDetails.bankOrNetwork}
                   </td>
@@ -171,7 +264,7 @@ export default function OrganizerPayoutsClient({
               ))}
               {filteredPayouts.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">
+                  <td colSpan={6} className="py-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">
                     No payout records found.
                   </td>
                 </tr>
@@ -184,20 +277,49 @@ export default function OrganizerPayoutsClient({
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !isSubmitting && setIsModalOpen(false)}></div>
-            <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden">
+            <div className="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
                 <div className="p-8 border-b border-slate-50 flex items-center justify-between">
                     <div>
                         <h3 className="text-2xl font-black text-slate-900 tracking-tight">Request Payout</h3>
-                        <p className="text-slate-500 text-sm font-medium">Available: GHS {stats.balance.toFixed(2)}</p>
+                        <p className="text-slate-500 text-sm font-medium">
+                            {eventBalance !== null 
+                                ? `Available for Event: GHS ${eventBalance.toFixed(2)}` 
+                                : "Select an event below to check your balance."
+                            }
+                        </p>
                     </div>
                     <button onClick={() => setIsModalOpen(false)} className="p-3 hover:bg-slate-50 rounded-2xl transition-colors text-slate-400"><X size={24} /></button>
                 </div>
-                <form onSubmit={handleRequestPayout} className="p-8 space-y-6">
+                <form onSubmit={handleRequestPayout} className="p-8 space-y-5 overflow-y-auto">
                     {error && <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold"><AlertCircle size={18} />{error}</div>}
+                    
+                    <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 flex items-center gap-1">
+                            Select Event <span className="text-red-500">*</span>
+                        </label>
+                        <select 
+                            required
+                            value={selectedEventId}
+                            onChange={(e) => {
+                                setSelectedEventId(e.target.value);
+                                fetchEventBalance(e.target.value);
+                            }}
+                            className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-primary-500 font-bold outline-none appearance-none"
+                        >
+                            <option value="">Choose an event...</option>
+                            {events.map((event: any) => (
+                                <option key={event._id} value={event._id}>
+                                    {event.title} ({event.eventCode})
+                                </option>
+                            ))}
+                        </select>
+                        {isLoadingBalance && <p className="text-[10px] text-primary-600 font-bold animate-pulse">Fetching event balance...</p>}
+                    </div>
+
                     <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Amount (GHS)</label>
                         <input 
-                            type="number" step="0.01" placeholder="0.00" required value={payoutAmount}
+                            type="number" step="0.01" min="0.01" placeholder="0.00" required value={payoutAmount}
                             onChange={(e) => {
                                 let val = e.target.value;
                                 if (val.length > 1 && val.startsWith("0") && val[1] !== ".") {

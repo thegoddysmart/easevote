@@ -15,7 +15,8 @@ import {
   X,
   Clock,
   Zap,
-  ArrowRight
+  ArrowRight,
+  ChevronDown
 } from "lucide-react";
 import { clsx } from "clsx";
 import { api } from "@/lib/api-client";
@@ -40,12 +41,15 @@ interface DashboardProps {
     eventName: string;
     customerName: string;
     paymentMethod: string;
+    eventCode?: string;
   }[];
+  events: any[];
 }
 
 export default function EarningsDashboardClient({
-  stats,
-  transactions,
+  stats: initialStats,
+  transactions: initialTransactions,
+  events,
 }: DashboardProps) {
   const router = useRouter();
   const [filter, setFilter] = useState("ALL");
@@ -64,6 +68,73 @@ export default function EarningsDashboardClient({
   const [error, setError] = useState("");
   const [isReconciling, setIsReconciling] = useState(false);
   const [reconcileSuccess, setReconcileSuccess] = useState(false);
+  const [selectedEventFilter, setSelectedEventFilter] = useState("ALL");
+  const [stats, setStats] = useState(initialStats);
+  const [transactions, setTransactions] = useState(initialTransactions);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Payout Request Modal Specific State
+  const [selectedEventId, setSelectedEventId] = useState("");
+  const [eventBalance, setEventBalance] = useState<number | null>(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+
+  const fetchEventData = async (eventId: string) => {
+    setIsLoading(true);
+    try {
+      if (eventId === "ALL") {
+        setStats(initialStats);
+        setTransactions(initialTransactions);
+      } else {
+        const [statsRes, historyRes] = await Promise.all([
+          api.get(`/payouts/balance?eventId=${eventId}`),
+          api.get(`/payouts/me?eventId=${eventId}`)
+        ]);
+
+        setStats({
+          balance: Number(statsRes.data?.availableBalance ?? 0),
+          totalRevenue: Number(statsRes.data?.netRevenue ?? 0),
+          grossRevenue: Number(statsRes.data?.grossRevenue ?? 0),
+          totalWithdrawn: Number(statsRes.data?.totalWithdrawn ?? 0),
+          unverifiedRevenue: Number(statsRes.data?.unverifiedRevenue ?? 0),
+          hasGaps: Boolean(statsRes.data?.hasGaps),
+        });
+
+        const list = Array.isArray(historyRes.data) ? historyRes.data : [];
+        setTransactions(list.map((tx: any) => ({
+          id: tx._id,
+          reference: tx.reference,
+          type: "PAYOUT",
+          amount: Number(tx.amount ?? 0),
+          status: tx.status,
+          createdAt: tx.createdAt,
+          eventName: tx.eventId?.title || "N/A",
+          eventCode: tx.eventId?.eventCode || "N/A",
+          customerName: tx.paymentDetails?.accountName || "System",
+          paymentMethod: tx.paymentDetails?.method || "N/A",
+        })));
+      }
+    } catch (err) {
+      console.error("Failed to fetch event data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchPayoutBalance = async (eventId: string) => {
+    if (!eventId) {
+      setEventBalance(null);
+      return;
+    }
+    setIsLoadingBalance(true);
+    try {
+      const res = await api.get(`/payouts/balance?eventId=${eventId}`);
+      setEventBalance(res.data?.availableBalance || 0);
+    } catch (err) {
+      console.error("Failed to fetch payout balance:", err);
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  };
 
   const filteredTransactions = transactions.filter((tx) => {
     const matchesFilter =
@@ -113,16 +184,23 @@ export default function EarningsDashboardClient({
     try {
       const amount = parseFloat(payoutAmount);
       if (amount <= 0) throw new Error("Amount must be greater than 0");
-      if (amount > stats.balance) throw new Error("Insufficient balance");
+      if (!selectedEventId) throw new Error("Please select an event");
+      
+      const currentBalance = eventBalance !== null ? eventBalance : stats.balance;
+      if (amount > currentBalance) throw new Error("Insufficient balance for this event");
+      
       if (!paymentDetails.accountNumber) throw new Error("Account number is required");
 
       await api.post("/payouts/request", {
         amount,
+        eventId: selectedEventId,
         paymentDetails
       });
 
       setIsModalOpen(false);
       setPayoutAmount("");
+      setSelectedEventId("");
+      setEventBalance(null);
       router.refresh(); // Refresh server stats
     } catch (err: any) {
       setError(err.message || "Failed to submit request");
@@ -174,7 +252,27 @@ export default function EarningsDashboardClient({
             Track your revenue and financial history.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          <div className="relative min-w-[250px]">
+            <select 
+              value={selectedEventFilter}
+              onChange={(e) => {
+                setSelectedEventFilter(e.target.value);
+                fetchEventData(e.target.value);
+              }}
+              className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-900 font-bold py-3 pl-4 pr-10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer transition-all shadow-sm"
+            >
+              <option value="ALL">All Events</option>
+              {events.map((e: any) => (
+                <option key={e._id} value={e._id}>{e.title}</option>
+              ))}
+            </select>
+            <ChevronDown
+              size={18}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
+          </div>
+          {isLoading && <Loader2 size={16} className="animate-spin text-primary-600" />}
         </div>
       </div>
 
@@ -311,11 +409,12 @@ export default function EarningsDashboardClient({
           <table className="w-full text-left">
             <thead className="bg-slate-50/50 text-[11px] uppercase text-slate-400 font-black tracking-widest">
               <tr>
-                <th className="px-8 py-5">Reference</th>
-                <th className="px-8 py-5">Payment Details</th>
-                <th className="px-8 py-5">Date</th>
-                <th className="px-8 py-5">Amount</th>
-                <th className="px-8 py-5">Status</th>
+                <th className="px-8 py-5 text-left">Reference</th>
+                <th className="px-8 py-5 text-left">Event</th>
+                <th className="px-8 py-5 text-left">Payment Details</th>
+                <th className="px-8 py-5 text-left">Date</th>
+                <th className="px-8 py-5 text-left">Amount</th>
+                <th className="px-8 py-5 text-left">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -327,6 +426,10 @@ export default function EarningsDashboardClient({
                   <td className="px-8 py-6">
                     <div className="font-bold text-slate-900 mb-1">{tx.reference}</div>
                     <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Manual Process</div>
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="font-bold text-slate-900 text-sm">{tx.eventName}</div>
+                    <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{tx.eventCode}</div>
                   </td>
                   <td className="px-8 py-6">
                     <div className="font-bold text-slate-700 text-sm">{tx.customerName}</div>
@@ -350,12 +453,12 @@ export default function EarningsDashboardClient({
 
               {filteredTransactions.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-20 text-center">
+                  <td colSpan={6} className="py-20 text-center">
                     <div className="flex flex-col items-center gap-3">
                          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
                             <Clock size={32} />
                          </div>
-                         <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No payout requests found.</p>
+                         <p className="text-slate-400 font-bold uppercase text-xs tracking-widest">No payout records found.</p>
                     </div>
                   </td>
                 </tr>
@@ -377,11 +480,16 @@ export default function EarningsDashboardClient({
             ></div>
             
             {/* Modal Content */}
-            <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-scale-in">
+            <div className="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-scale-in flex flex-col max-h-[90vh]">
                 <div className="p-8 border-b border-slate-50 flex items-center justify-between">
                     <div>
                         <h3 className="text-2xl font-black text-slate-900 tracking-tight">Request Payout</h3>
-                        <p className="text-slate-500 text-sm font-medium">Funds will be manually processed within 24-48 hours.</p>
+                        <p className="text-slate-500 text-sm font-medium">
+                            {eventBalance !== null 
+                                ? `Available for Event: GHS ${eventBalance.toFixed(2)}` 
+                                : "Select an event below to check your balance."
+                            }
+                        </p>
                     </div>
                     <button 
                         onClick={() => setIsModalOpen(false)}
@@ -391,7 +499,7 @@ export default function EarningsDashboardClient({
                     </button>
                 </div>
 
-                <form onSubmit={handleRequestPayout} className="p-8 space-y-6">
+                <form onSubmit={handleRequestPayout} className="p-8 space-y-5 overflow-y-auto">
                     {error && (
                         <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-bold">
                             <AlertCircle size={18} />
@@ -400,12 +508,36 @@ export default function EarningsDashboardClient({
                     )}
 
                     <div className="space-y-2">
+                        <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 flex items-center gap-1">
+                            Select Event <span className="text-red-500">*</span>
+                        </label>
+                        <select 
+                            required
+                            value={selectedEventId}
+                            onChange={(e) => {
+                                setSelectedEventId(e.target.value);
+                                fetchPayoutBalance(e.target.value);
+                            }}
+                            className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-primary-500 font-bold outline-none appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_1rem_center] bg-no-repeat"
+                        >
+                            <option value="">Choose an event...</option>
+                            {events.map((event: any) => (
+                                <option key={event._id} value={event._id}>
+                                    {event.title} ({event.eventCode})
+                                </option>
+                            ))}
+                        </select>
+                        {isLoadingBalance && <p className="text-[10px] text-primary-600 font-bold animate-pulse">Fetching event balance...</p>}
+                    </div>
+
+                    <div className="space-y-2">
                         <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Amount to Withdraw (GHS)</label>
                         <div className="relative">
                             <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                             <input 
                                 type="number"
                                 step="0.01"
+                                min="0.01"
                                 placeholder="0.00"
                                 required
                                 value={payoutAmount}

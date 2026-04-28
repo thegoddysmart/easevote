@@ -132,6 +132,7 @@ export default function AdminPayoutsClient({ initialPayouts }: AdminPayoutsClien
             <thead className="bg-slate-50/80 text-[11px] uppercase text-slate-400 font-black tracking-widest">
               <tr>
                 <th className="px-8 py-5">Organizer</th>
+                <th className="px-8 py-5">Event</th>
                 <th className="px-8 py-5">Payout Details</th>
                 <th className="px-8 py-5">Amount</th>
                 <th className="px-8 py-5">Status</th>
@@ -151,6 +152,10 @@ export default function AdminPayoutsClient({ initialPayouts }: AdminPayoutsClien
                             <div className="text-xs text-slate-500 font-medium">{p.organizerId?.businessName || p.organizerId?.email}</div>
                         </div>
                     </div>
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="font-bold text-slate-900 text-sm">{p.eventId?.title || "N/A"}</div>
+                    <div className="text-[10px] text-slate-400 font-black tracking-widest uppercase">{p.eventId?.eventCode || "N/A"}</div>
                   </td>
                   <td className="px-8 py-6">
                     <div className="font-bold text-slate-700 text-sm mb-1">{p.paymentDetails.method.toUpperCase()} • {p.paymentDetails.bankOrNetwork}</div>
@@ -203,7 +208,7 @@ export default function AdminPayoutsClient({ initialPayouts }: AdminPayoutsClien
               ))}
               {filteredPayouts.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">
+                  <td colSpan={6} className="py-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">
                     No payout requests to manage.
                   </td>
                 </tr>

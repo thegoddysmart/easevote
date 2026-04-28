@@ -26,6 +26,7 @@ import {
   Trash2,
   Send,
   Zap,
+  Percent,
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -48,6 +49,7 @@ type AdminEvent = {
     revenue?: number;
     ticketsSold?: number;
   };
+  commissionRate?: number;
 };
 
 const statusConfig: Record<
@@ -164,6 +166,14 @@ export default function EventsTable({ events, showFilters = ["type", "status"], 
     eventTitle: string;
   }>({ isOpen: false, eventId: null, eventTitle: "" });
   const [pruneData, setPruneData] = useState(false);
+  
+  // Commission Modal State
+  const [commissionModal, setCommissionModal] = useState<{
+    isOpen: boolean;
+    eventId: string | null;
+    currentRate: number | string;
+    eventTitle: string;
+  }>({ isOpen: false, eventId: null, currentRate: "", eventTitle: "" });
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState(
@@ -228,6 +238,17 @@ export default function EventsTable({ events, showFilters = ["type", "status"], 
         eventTitle: event?.title || "Event",
       });
       setPruneData(false); // Reset default
+      return;
+    }
+
+    if (action === "set_commission") {
+      const event = events.find((e) => e.id === id);
+      setCommissionModal({
+        isOpen: true,
+        eventId: id,
+        currentRate: event?.commissionRate ?? "",
+        eventTitle: event?.title || "Event",
+      });
       return;
     }
 
@@ -455,7 +476,7 @@ export default function EventsTable({ events, showFilters = ["type", "status"], 
           ...(showFilters.includes("status") ? [STATUS_FILTER] : []),
         ]}
         onRowClick={(event) => router.push(`/dashboard/events/${event.eventCode}`)}
-        actions={(event) => (
+        actions={(event, index) => (
           <div className="relative">
             <button
               onClick={(e) => {
@@ -468,7 +489,10 @@ export default function EventsTable({ events, showFilters = ["type", "status"], 
             </button>
 
             {activeMenu === event.id && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
+              <div className={clsx(
+                "absolute right-0 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50",
+                index > 5 ? "bottom-full mb-1" : "top-full mt-1"
+              )}>
                 <button
                   onClick={() => handleAction("view", event.id, event.eventCode)}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
@@ -517,6 +541,15 @@ export default function EventsTable({ events, showFilters = ["type", "status"], 
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
                   >
                     <RotateCcw className="h-4 w-4" /> Restore
+                  </button>
+                )}
+
+                {isAdmin && (
+                  <button
+                    onClick={() => handleAction("set_commission", event.id)}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 border-t border-slate-50 mt-1"
+                  >
+                    <Percent className="h-4 w-4" /> Set Commission
                   </button>
                 )}
 
@@ -639,6 +672,81 @@ export default function EventsTable({ events, showFilters = ["type", "status"], 
                 className="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition flex items-center gap-2"
               >
                 {isPending ? "Archiving..." : "Confirm Archive"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Commission Modal */}
+      {commissionModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-8 space-y-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tight">Set Commission Rate</h3>
+              <p className="text-slate-500 text-sm font-medium mt-1">
+                Custom rate for <strong>{commissionModal.eventTitle}</strong>. 
+                Leave empty or set to 0 to use global default.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">
+                  Commission Percentage (%)
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    placeholder="e.g. 10"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none font-bold text-lg"
+                    value={commissionModal.currentRate}
+                    onChange={(e) => setCommissionModal({ ...commissionModal, currentRate: e.target.value })}
+                  />
+                  <div className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
+                    %
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-primary-50 p-4 rounded-2xl border border-primary-100 flex gap-3">
+                <AlertCircle size={20} className="text-primary-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-primary-700 font-medium leading-relaxed">
+                  This rate will be applied to all future revenue calculations and balance payouts for this specific event.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setCommissionModal({ ...commissionModal, isOpen: false })}
+                className="px-6 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-2xl transition"
+                disabled={isPending}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!commissionModal.eventId) return;
+                  startTransition(async () => {
+                    try {
+                      await api.patch(`/events/${commissionModal.eventId}/commission`, {
+                        commissionRate: Number(commissionModal.currentRate) || 0
+                      });
+                      setCommissionModal({ ...commissionModal, isOpen: false });
+                      router.refresh();
+                    } catch (error: any) {
+                      modal.alert({ title: "Update Failed", message: error.message || "Failed to update commission rate", variant: "danger" });
+                    }
+                  });
+                }}
+                disabled={isPending}
+                className="px-8 py-3 text-sm font-black text-white bg-primary-700 hover:bg-primary-800 rounded-2xl transition flex items-center gap-2 shadow-lg shadow-primary-200"
+              >
+                {isPending ? "Saving..." : "Save Rate"}
               </button>
             </div>
           </div>

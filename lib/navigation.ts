@@ -102,7 +102,6 @@ export const superAdminNavigation: NavigationSection[] = [
     title: "System",
     items: [
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
-      { name: "Security", href: "/dashboard/security", icon: Shield },
       { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
       { name: "My Account", href: "/dashboard/account", icon: UserCog },
     ],

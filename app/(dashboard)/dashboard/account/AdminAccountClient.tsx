@@ -33,11 +33,11 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const modal = useModal();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const [activeTab, setActiveTab] = useState<"profile" | "security">(    tabParam === "security" ? "security" : "profile"
+  const [activeTab, setActiveTab] = useState<"profile" | "security">(tabParam === "security" ? "security" : "profile"
   );
 
   // Profile Form State
@@ -79,7 +79,7 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
       if (result.success !== false) {
         // Update the next-auth session as well
         await updateSession({ avatar: profileData.avatar });
-        
+
         await modal.alert({ title: "Profile Updated", message: "Profile updated successfully!", variant: "info" });
         router.refresh();
       } else {
@@ -108,7 +108,7 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
       const newUrl = res.url || res.imageUrl;
       // Update user profile with new avatar
       await api.put(`/users/${user.id}`, { ...profileData, avatar: newUrl });
-      
+
       // Update the next-auth session as well
       await updateSession({ avatar: newUrl });
 
@@ -190,22 +190,20 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
         <div className="flex border-b border-gray-200">
           <button
             onClick={() => setActiveTab("profile")}
-            className={`px-6 py-4 text-sm font-medium flex items-center gap-2 transition-colors ${
-              activeTab === "profile"
+            className={`px-6 py-4 text-sm font-medium flex items-center gap-2 transition-colors ${activeTab === "profile"
                 ? "border-b-2 border-primary-600 text-primary-700"
                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-            }`}
+              }`}
           >
             <User size={18} />
             Profile Details
           </button>
           <button
             onClick={() => setActiveTab("security")}
-            className={`px-6 py-4 text-sm font-medium flex items-center gap-2 transition-colors ${
-              activeTab === "security"
+            className={`px-6 py-4 text-sm font-medium flex items-center gap-2 transition-colors ${activeTab === "security"
                 ? "border-b-2 border-primary-600 text-primary-700"
                 : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-            }`}
+              }`}
           >
             <Lock size={18} />
             Security
@@ -397,9 +395,9 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
                       label: "One lowercase letter",
                       met: /[a-z]/.test(passwordData.newPassword),
                     },
-                    { 
-                      label: "One number", 
-                      met: /[0-9]/.test(passwordData.newPassword) 
+                    {
+                      label: "One number",
+                      met: /[0-9]/.test(passwordData.newPassword)
                     },
                     {
                       label: "One special character",
@@ -408,20 +406,18 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
                   ].map((req, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <div
-                        className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors ${
-                          req.met
+                        className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors ${req.met
                             ? "bg-green-100 text-green-600"
                             : "bg-slate-200 text-slate-400"
-                        }`}
+                          }`}
                       >
                         <CheckCircle2 size={10} />
                       </div>
                       <span
-                        className={`text-xs transition-colors ${
-                          req.met
+                        className={`text-xs transition-colors ${req.met
                             ? "text-green-700 font-medium"
                             : "text-slate-500"
-                        }`}
+                          }`}
                       >
                         {req.label}
                       </span>

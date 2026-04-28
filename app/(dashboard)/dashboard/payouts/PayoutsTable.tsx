@@ -88,6 +88,16 @@ export default function PayoutsTable({ payouts }: { payouts: Payout[] }) {
       sortable: true,
     },
     {
+      key: "event",
+      header: "Event",
+      render: (item: any) => (
+        <div>
+          <div className="font-medium text-slate-900">{item.eventId?.title || "N/A"}</div>
+          <div className="text-xs text-slate-500 font-mono uppercase">{item.eventId?.eventCode || "N/A"}</div>
+        </div>
+      ),
+    },
+    {
       key: "amount",
       header: "Amount",
       render: (item: Payout) => (

@@ -28,6 +28,7 @@ import {
   Share2,
   ChevronDown,
   ChevronUp,
+  Percent,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { EventForm } from "./EventForm";
@@ -72,6 +73,7 @@ type EventDetails = {
   organizerId: string;
   showVoteCount?: boolean;
   showSalesEnd?: boolean;
+  commissionRate?: number;
 };
 
 interface AdminEventManagerProps {
@@ -145,6 +147,8 @@ export function AdminEventManager({
     "overview" | "edit" | "categories" | "settings"
   >("overview");
   const [currentStatus, setCurrentStatus] = useState(event.status);
+  const [commissionRate, setCommissionRate] = useState<string>(event.commissionRate?.toString() || "");
+  const [isSavingCommission, setIsSavingCommission] = useState(false);
 
   const StatusIcon = statusConfig[currentStatus]?.icon || AlertCircle;
   const statusColor = statusConfig[currentStatus]?.color || "text-slate-700";
@@ -175,6 +179,21 @@ export function AdminEventManager({
     } catch (err: any) {
       console.error(err);
       modal.alert({ title: "Delete Failed", message: err.message || "An error occurred", variant: "danger" });
+    }
+  };
+
+  const handleUpdateCommission = async () => {
+    setIsSavingCommission(true);
+    try {
+      await api.patch(`/events/${event.id}/commission`, {
+        commissionRate: commissionRate ? parseFloat(commissionRate) : 0
+      });
+      toast.success("Commission rate updated successfully");
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update commission rate");
+    } finally {
+      setIsSavingCommission(false);
     }
   };
 
@@ -613,6 +632,55 @@ export function AdminEventManager({
                   </Link>
                 </div>
               </div>
+
+              {role === "SUPER_ADMIN" && (
+                <div className="bg-white rounded-xl border border-slate-200 p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
+                      <Percent className="h-5 w-5" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900">
+                      Finance & Commission
+                    </h3>
+                  </div>
+                  
+                  <div className="bg-primary-50/50 rounded-xl p-5 border border-primary-100/50">
+                    <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+                      <div className="flex-1">
+                        <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-2 ml-1">
+                          Custom Commission Rate (%)
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="100"
+                            value={commissionRate}
+                            onChange={(e) => setCommissionRate(e.target.value)}
+                            placeholder="Global Default"
+                            className="w-full px-5 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none font-bold text-lg"
+                          />
+                          <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
+                            %
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleUpdateCommission}
+                        disabled={isSavingCommission}
+                        className="px-8 py-3.5 bg-primary-700 text-white rounded-xl font-bold hover:bg-primary-800 transition-all disabled:opacity-50 shadow-lg shadow-primary-100 shrink-0"
+                      >
+                        {isSavingCommission ? "Saving..." : "Update Rate"}
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-3 ml-1">
+                      This custom rate overrides the global platform commission for this specific event. 
+                      Leave empty to revert to default.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-white rounded-xl border border-slate-200 p-6">
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">

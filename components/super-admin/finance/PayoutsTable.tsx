@@ -45,6 +45,7 @@ export default function PayoutsTable({ payouts }: { payouts: PayoutRecord[] }) {
         <thead className="bg-gray-50 text-gray-700 font-medium">
           <tr>
             <th className="px-6 py-3">Organizer</th>
+            <th className="px-6 py-3">Event</th>
             <th className="px-6 py-3">Amount</th>
             <th className="px-6 py-3">Account Details</th>
             <th className="px-6 py-3">Date</th>
@@ -61,6 +62,14 @@ export default function PayoutsTable({ payouts }: { payouts: PayoutRecord[] }) {
                 </div>
                 <div className="text-xs text-gray-500">
                   {payout.organizerEmail}
+                </div>
+              </td>
+              <td className="px-6 py-3">
+                <div className="font-semibold text-gray-900">
+                  {(payout as any).eventId?.title || "N/A"}
+                </div>
+                <div className="text-[10px] text-gray-500 font-mono uppercase">
+                  {(payout as any).eventId?.eventCode || "N/A"}
                 </div>
               </td>
               <td className="px-6 py-3 font-medium">
@@ -138,7 +147,7 @@ export default function PayoutsTable({ payouts }: { payouts: PayoutRecord[] }) {
           ))}
           {payouts.length === 0 && (
             <tr>
-              <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+              <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                 No payout requests found.
               </td>
             </tr>

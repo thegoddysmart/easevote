@@ -36,7 +36,7 @@ type DataTableProps<T> = {
   onRowClick?: (item: T) => void;
   loading?: boolean;
   emptyMessage?: string;
-  actions?: (item: T) => React.ReactNode;
+  actions?: (item: T, index: number) => React.ReactNode;
   filters?: FilterOption[];
 };
 
@@ -272,7 +272,7 @@ export function DataTable<T extends { id: string | number }>({
                       className="px-4 py-4"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {actions(item)}
+                      {actions(item, currentData.indexOf(item))}
                     </td>
                   )}
                 </tr>

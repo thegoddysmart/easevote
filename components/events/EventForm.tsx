@@ -71,8 +71,6 @@ type Event = {
     id: string;
     name: string;
     description: string | null;
-    price: number;
-    quantity: number;
     soldCount: number;
     maxPerOrder: number;
   }>;

@@ -21,11 +21,14 @@ export default async function PayoutsPage() {
     return <AdminPayoutsClient initialPayouts={res.data || []} />;
   }
 
-  // Organizer View: Fetch personal balance and history
-  const [balanceRes, historyRes] = await Promise.all([
+  // Organizer View: Fetch personal balance, history and events
+  const [balanceRes, historyRes, eventsRes] = await Promise.all([
     apiClient.get("/payouts/balance").catch(() => ({ data: {} })),
     apiClient.get("/payouts/me").catch(() => ({ data: [] })),
+    apiClient.get("/events/my/events?limit=100").catch(() => ({ data: [] })),
   ]);
+
+  const rawEvents = eventsRes.data || eventsRes.events || (Array.isArray(eventsRes) ? eventsRes : []);
 
   return (
     <OrganizerPayoutsClient 
@@ -35,6 +38,7 @@ export default async function PayoutsPage() {
         totalWithdrawn: balanceRes.data?.totalWithdrawn || 0,
       }}
       initialPayouts={historyRes.data || []}
+      events={rawEvents}
     />
   );
 }

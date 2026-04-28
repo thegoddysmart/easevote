@@ -4,6 +4,7 @@ import { createServerApiClient } from "@/lib/api-client";
 import { Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import RestoreButton from "./RestoreButton";
+import PermanentDeleteButton from "./PermanentDeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -73,8 +74,9 @@ export default async function DeletedEventsPage() {
                     <td className="px-6 py-4 text-sm text-slate-500">
                       {new Date(event.deletedAt || event.updatedAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
                       <RestoreButton eventId={event._id || event.id} />
+                      <PermanentDeleteButton eventId={event._id || event.id} />
                     </td>
                   </tr>
                 ))}

@@ -53,12 +53,7 @@ export default function Newsletter() {
               </button>
             </div>
 
-            <div className="pt-6 border-t border-white/20 mt-8">
-              <button className="inline-flex items-center gap-2 text-white/80 hover:text-white font-semibold transition-colors text-sm">
-                <MessageCircle size={18} className="text-[#25D366]" />
-                Prefer WhatsApp? Click to join our channel
-              </button>
-            </div>
+
           </div>
         </div>
       </div>

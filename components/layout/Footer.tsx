@@ -145,7 +145,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
 
         {/* Footer Bottom */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-primary-200/40">
-          <p>&copy; 2026 Goddy Smart Labs. All rights reserved.</p>
+          <p>&copy; 2026 Easevote Ghana. All rights reserved.</p>
           {/* Legal Links */}
           <div className="flex space-x-6 mt-4 md:mt-0">
             <button

@@ -433,22 +433,58 @@ export default function NominationWrapper({
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Additional Requirements</p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
                              {customFieldsConfig.map((field: any, idx: number) => (
-                               <div key={idx} className={clsx("space-y-3", (field.type === "textarea" || field.type === "TEXTAREA") ? "md:col-span-2" : "")}>
+                               <div key={idx} className={clsx("space-y-3", (field.type?.toLowerCase() === "textarea") ? "md:col-span-2" : "")}>
                                  <label className="text-sm font-bold text-slate-700">
                                    {field.question} {field.required && <span className="text-primary-600">*</span>}
                                  </label>
-                                 {field.type === "textarea" ? (
-                                   <textarea
-                                     {...register(field.question, { required: field.required })}
-                                     rows={3}
-                                     className="w-full p-4 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-primary-50/50 focus:border-primary-600 outline-none transition-all resize-none font-medium"
-                                   />
-                                 ) : (
-                                   <input
-                                     {...register(field.question, { required: field.required })}
-                                     className="w-full px-4 py-4 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-primary-50/50 focus:border-primary-600 outline-none transition-all font-medium"
-                                   />
-                                 )}
+                                 {(() => {
+                                   const fieldType = (field.type || "text").toLowerCase().trim();
+                                   
+                                   if (fieldType === "textarea") {
+                                     return (
+                                       <textarea
+                                         {...register(field.question, { required: field.required })}
+                                         rows={3}
+                                         className="w-full p-4 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-primary-50/50 focus:border-primary-600 outline-none transition-all resize-none font-medium"
+                                       />
+                                     );
+                                   }
+                                   
+                                   if (fieldType === "select" || fieldType === "multi_select" || fieldType === "dropdown") {
+                                     return (
+                                       <select
+                                         {...register(field.question, { required: field.required })}
+                                         className="w-full px-4 py-4 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-primary-50/50 focus:border-primary-600 outline-none transition-all font-medium appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23667c99%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%3F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_1.2rem_center] bg-no-repeat"
+                                       >
+                                         <option value="">Select an option...</option>
+                                         {(field.options || []).map((opt: string) => (
+                                           <option key={opt} value={opt}>{opt}</option>
+                                         ))}
+                                       </select>
+                                     );
+                                   }
+                                   
+                                   if (fieldType === "checkbox") {
+                                     return (
+                                       <label className="flex items-center gap-3 p-2 cursor-pointer group">
+                                         <input
+                                           type="checkbox"
+                                           {...register(field.question, { required: field.required })}
+                                           className="w-5 h-5 rounded border-slate-300 text-primary-600 focus:ring-primary-500 transition-all cursor-pointer"
+                                         />
+                                         <span className="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">I agree / Yes</span>
+                                       </label>
+                                     );
+                                   }
+                                   
+                                   return (
+                                     <input
+                                       type={fieldType === "number" ? "number" : fieldType === "email" ? "email" : "text"}
+                                       {...register(field.question, { required: field.required })}
+                                       className="w-full px-4 py-4 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-primary-50/50 focus:border-primary-600 outline-none transition-all font-medium"
+                                     />
+                                   );
+                                 })()}
                                  {errors[field.question] && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest pl-1">Field required</p>}
                                </div>
                              ))}

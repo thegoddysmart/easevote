@@ -149,23 +149,38 @@ export default function NominationDetailsDialog({
                   <FileTextIcon className="w-4 h-4" /> Additional Details
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.entries(customFields).map(([key, value]) => {
-                    const label =
-                      nomination.fieldLabels?.[key] || key.replace(/_/g, " ");
-                    return (
+                  {Array.isArray(customFields) ? (
+                    customFields.map((field: any, idx: number) => (
                       <div
-                        key={key}
+                        key={idx}
                         className="p-4 border border-slate-100 rounded-2xl bg-white shadow-sm"
                       >
                         <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase tracking-widest">
-                          {label}
+                          {field.question}
                         </span>
                         <span className="text-sm text-slate-900 font-bold">
-                          {String(value)}
+                          {field.answer === true ? "Yes" : field.answer === false ? "No" : String(field.answer || "N/A")}
                         </span>
                       </div>
-                    );
-                  })}
+                    ))
+                  ) : (
+                    Object.entries(customFields).map(([key, value]) => {
+                      const label = nomination.fieldLabels?.[key] || key.replace(/_/g, " ");
+                      return (
+                        <div
+                          key={key}
+                          className="p-4 border border-slate-100 rounded-2xl bg-white shadow-sm"
+                        >
+                          <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase tracking-widest">
+                            {label}
+                          </span>
+                          <span className="text-sm text-slate-900 font-bold">
+                            {String(value)}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}

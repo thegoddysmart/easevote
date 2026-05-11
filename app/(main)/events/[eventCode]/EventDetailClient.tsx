@@ -9,7 +9,6 @@ import {
   ArrowLeft,
   Calendar,
   MapPin,
-  Share2,
   Clock,
   Search,
   Trophy,
@@ -25,7 +24,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TicketCheckoutModal } from "@/components/features/checkout/TicketCheckoutModal";
 import { getEventStatus } from "@/lib/utils/event-status";
+import { formatEventDate } from "@/lib/utils/date-format";
 import Image from "next/image";
+import { EventShareButton } from "@/components/features/events/EventShareButton";
 
 interface EventDetailProps {
   event: any;
@@ -54,27 +55,6 @@ export default function EventDetailClient({
   });
   const router = useRouter();
 
-  const handleShare = async () => {
-    const shareData = {
-      title: event.title,
-      text: `Join me at ${event.title} on EaseVote!`,
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        toast.success("Link copied to clipboard!");
-      }
-    } catch (err) {
-      if ((err as Error).name !== "AbortError") {
-        toast.error("Sharing failed. Link copied as fallback!");
-        await navigator.clipboard.writeText(window.location.href);
-      }
-    }
-  };
 
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
@@ -210,7 +190,7 @@ export default function EventDetailClient({
               <div className="flex flex-wrap gap-6 text-sm md:text-base text-white/80 font-medium mb-6">
                 <div className="flex items-center gap-2">
                   <Calendar size={18} className="text-primary-700" />
-                  {event.date}
+                  {formatEventDate(event.startDate || event.date)}
                 </div>
                 {event.location && (
                   <div className="flex items-center gap-2">
@@ -234,12 +214,7 @@ export default function EventDetailClient({
               {/* Actions Bar */}
               {/* Share Button */}
               <div className="flex flex-wrap gap-4">
-                <button 
-                  onClick={handleShare}
-                  className="flex items-center gap-2 text-sm font-bold bg-white text-slate-900 px-6 py-3 rounded-full hover:bg-primary-700 hover:text-white transition-colors"
-                >
-                  <Share2 size={16} /> Share Event
-                </button>
+                <EventShareButton eventTitle={event.title} />
                 {/* Nominate Button */}
                 {/* Nominate Button - Only show if Nomination is Open AND Voting is NOT Open */}
                 {event.isNominationOpen && !event.isVotingOpen && (

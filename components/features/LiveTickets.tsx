@@ -12,6 +12,7 @@ import {
 import { russoOne } from "../ui/fonts";
 import SearchBar from "../ui/SearchBar";
 import { getEventStatus } from "@/lib/utils/event-status";
+import { formatEventDate } from "@/lib/utils/date-format";
 
 export default function LiveTickets({ events }: { events: any[] }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -157,9 +158,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
                     <div className="flex items-center text-slate-600 text-sm">
                       <Calendar size={16} className="mr-2 text-primary-600" />
                       <span>
-                        {new Date(
-                          ticket.startDate || ticket.date,
-                        ).toLocaleDateString()}
+                        {formatEventDate(ticket.startDate || ticket.date)}
                       </span>
                     </div>
                     <div className="flex items-center text-slate-600 text-sm">

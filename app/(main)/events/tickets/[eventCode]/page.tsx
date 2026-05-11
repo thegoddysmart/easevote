@@ -4,9 +4,9 @@ import {
   Clock,
   Info,
   MapPin,
-  Share2,
   Ticket,
 } from "lucide-react";
+import { EventShareButton } from "@/components/features/events/EventShareButton";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createServerApiClient } from "@/lib/api-client";
@@ -184,9 +184,10 @@ export default async function TicketEventDetailPage({
                 Get Tickets <Ticket size={20} />
               </Link>
 
-              <button className="w-full bg-white text-slate-700 border border-gray-200 py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                <Share2 size={18} /> Share Event
-              </button>
+              <EventShareButton 
+                eventTitle={pageEvent.title} 
+                className="w-full bg-white text-slate-700 border border-gray-200 py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+              />
 
               <div className="mt-8 pt-6 border-t border-gray-100">
                 <p className="text-xs text-slate-400 text-center">

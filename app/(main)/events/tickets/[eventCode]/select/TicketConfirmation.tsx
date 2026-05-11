@@ -1,6 +1,7 @@
 import React from "react";
-import { CheckCircle, Download, Share2, Calendar, MapPin } from "lucide-react";
+import { CheckCircle, Download, Calendar, MapPin } from "lucide-react";
 import { TicketingEvent } from "@/types";
+import { EventShareButton } from "@/components/features/events/EventShareButton";
 
 interface TicketConfirmationProps {
   transactionId: string;
@@ -106,9 +107,10 @@ export const TicketConfirmation: React.FC<TicketConfirmationProps> = ({
         <button className="flex-1 bg-primary-600 text-white py-3 rounded-xl font-bold hover:bg-primary-700 transition-colors flex items-center justify-center gap-2">
           <Download size={18} /> Save Ticket
         </button>
-        <button className="flex-1 bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors flex items-center justify-center gap-2">
-          <Share2 size={18} /> Share
-        </button>
+        <EventShareButton 
+          eventTitle={event.title} 
+          className="flex-1 bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
+        />
       </div>
 
       <button

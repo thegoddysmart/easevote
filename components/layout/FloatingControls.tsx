@@ -28,7 +28,7 @@ const FloatingControls: React.FC = () => {
     <div className="fixed bottom-6 right-6 flex flex-col gap-4 z-40">
       {/* WhatsApp Bot */}
       <a
-        href="https://wa.me/233550073142"
+        href="https://whatsapp.com/channel/0029VasdXktEVccLQcMCkp39"
         target="_blank"
         rel="noopener noreferrer"
         className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer text-white!"

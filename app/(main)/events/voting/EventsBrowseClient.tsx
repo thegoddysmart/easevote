@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// We'll define a local interface or import one if available, but to be safe/self-contained for now matching the passed data
-// import { Event } from "@/types";
 import {
   Search,
   Filter,
@@ -14,6 +12,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getEventStatus } from "@/lib/utils/event-status";
+import { formatEventDate } from "@/lib/utils/date-format";
+import EventCard from "@/components/features/live-events/EventCard";
 
 interface ClientEvent {
   id: string;
@@ -57,11 +57,6 @@ export default function EventsBrowseClient({
   });
   const categories = Array.from(categoriesSet);
 
-  /**
-   * ---------------------------------------------------------------------
-   * FILTER LOGIC
-   * ---------------------------------------------------------------------
-   */
   const filteredEvents = initialEvents.filter((e) => {
     const matchesSearch =
       e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -179,89 +174,72 @@ export default function EventsBrowseClient({
             }
           >
             {filteredEvents.map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.id}`}
-                className={`group bg-white rounded-[2rem] border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer ${
-                  viewMode === "list"
-                    ? "flex flex-row min-h-[14rem] items-stretch"
-                    : "flex flex-col"
-                }`}
-              >
-                <div
-                  className={`relative overflow-hidden bg-gray-100 ${
-                    viewMode === "list"
-                      ? "w-48 sm:w-64 relative shrink-0"
-                      : "h-56"
-                  }`}
+              viewMode === "grid" ? (
+                <EventCard key={event.id} event={event} />
+              ) : (
+                <Link
+                  key={event.id}
+                  href={`/events/${event.id}`}
+                  className="group bg-white rounded-[2rem] border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-row min-h-[14rem] items-stretch"
                 >
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  <div className="w-48 sm:w-64 relative shrink-0 bg-gray-100 overflow-hidden">
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
 
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm text-white ${
-                        getEventStatus(event as any).color
-                      } ${getEventStatus(event as any).isActive ? "animate-pulse" : ""}`}
-                    >
-                      {getEventStatus(event as any).label}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div
-                  className={`p-6 flex flex-col ${
-                    viewMode === "list" ? "flex-1 justify-center" : ""
-                  }`}
-                >
-                  <div className="mb-2 flex justify-between items-start">
-                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wide">
-                      {event.category}
-                    </span>
-
-                    {event.votePrice !== undefined && (
-                      <span className="text-xs font-bold text-slate-400">
-                        GHS {event.votePrice.toFixed(2)}/vote
+                    <div className="absolute top-3 left-3 flex gap-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm text-white ${
+                          getEventStatus(event as any).color
+                        } ${getEventStatus(event as any).isActive ? "animate-pulse" : ""}`}
+                      >
+                        {getEventStatus(event as any).label}
                       </span>
-                    )}
+                    </div>
                   </div>
 
-                  <h3 className="text-xl font-display font-bold text-slate-900 mb-3 group-hover:text-primary-700 transition-colors">
-                    {event.title}
-                  </h3>
+                  {/* Content */}
+                  <div className="p-6 flex flex-col flex-1 justify-center">
+                    <div className="mb-2 flex justify-between items-start">
+                      <span className="text-xs font-bold text-primary-600 uppercase tracking-wide">
+                        {event.category}
+                      </span>
 
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
-                      <Calendar size={16} className="text-slate-300" />
-                      {event.date}
+                      {event.votePrice !== undefined && (
+                        <span className="text-xs font-bold text-slate-400">
+                          GHS {event.votePrice.toFixed(2)}/vote
+                        </span>
+                      )}
                     </div>
 
-                    {event.location && (
+                    <h3 className="text-xl font-display font-bold text-slate-900 mb-3 group-hover:text-primary-700 transition-colors">
+                      {event.title}
+                    </h3>
+
+                    <div className="space-y-2 mb-6">
                       <div className="flex items-center gap-2 text-sm text-slate-500">
-                        <MapPin size={16} className="text-slate-300" />
-                        {event.location}
+                        <Calendar size={16} className="text-slate-300" />
+                        {formatEventDate(event.startDate || event.date)}
                       </div>
-                    )}
-                  </div>
 
-                  {/* Action */}
-                  <div className="mt-auto">
-                    <div
-                      className={`py-3 rounded-xl border-2 border-slate-100 text-slate-700 font-bold group-hover:bg-primary-700 group-hover:border-primary-700 group-hover:text-white! transition-all flex items-center justify-center gap-2 ${
-                        viewMode === "list"
-                          ? "w-auto px-8 mt-2 text-slate-700"
-                          : "w-full"
-                      }`}
-                    >
-                      View Details <ArrowRight size={16} />
+                      {event.location && (
+                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                          <MapPin size={16} className="text-slate-300" />
+                          {event.location}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-auto">
+                      <div className="py-3 px-8 rounded-xl border-2 border-slate-100 text-slate-700 font-bold group-hover:bg-primary-700 group-hover:border-primary-700 group-hover:text-white! transition-all flex items-center justify-center gap-2 w-fit">
+                        View Details <ArrowRight size={16} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              )
             ))}
           </div>
         ) : (

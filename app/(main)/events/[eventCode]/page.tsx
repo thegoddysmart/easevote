@@ -102,9 +102,19 @@ export default async function EventDetailPage({ params }: PageProps) {
   }
 
   const eventId = event._id || event.id;
-  const formRes = await apiClient.get<any>(`/nominations/events/${eventId}/form`).catch(() => null);
-  const form = formRes?.data || formRes;
-  const hasNominationForm = !!form;
+  const isEventIdValid = /^[0-9a-fA-F]{24}$/.test(eventId);
+  
+  let hasNominationForm = false;
+  if (isEventIdValid) {
+    try {
+      const formRes = await apiClient.get<any>(`/nominations/events/${eventId}/form`);
+      const form = formRes?.data || formRes;
+      hasNominationForm = !!form;
+    } catch (err) {
+      // It's okay if the form doesn't exist or returns 404/400
+      console.log(`[EventPage] Nomination form not found or inaccessible for ${eventId}`);
+    }
+  }
 
   const clientEvent: any = {
     ...event,

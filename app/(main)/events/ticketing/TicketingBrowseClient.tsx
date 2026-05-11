@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getEventStatus } from "@/lib/utils/event-status";
+import { formatEventDate } from "@/lib/utils/date-format";
 
 interface ClientTicket {
   id: string;
@@ -175,7 +176,7 @@ export default function TicketingBrowseClient({
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center text-slate-600 text-sm font-medium">
                         <Calendar size={16} className="mr-2 text-primary-600" />
-                        <span>{new Date(ticket.date).toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        <span>{formatEventDate(ticket.date)}</span>
                       </div>
                       <div className="flex items-center text-slate-600 text-sm font-medium">
                         <MapPin size={16} className="mr-2 text-primary-600" />

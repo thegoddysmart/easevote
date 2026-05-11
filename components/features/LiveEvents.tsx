@@ -39,30 +39,20 @@ export default function LiveEvents({ events }: { events: any[] }) {
     setCurrentPage(1);
   };
 
-  // Dynamically extract unique categories from events
-  const filtersSet = new Set<string>();
-  filtersSet.add("All");
-  (events || []).forEach((e) => {
-    if (e.categories && Array.isArray(e.categories)) {
-      e.categories.forEach((cat: any) => {
-        if (cat.name) filtersSet.add(cat.name);
-      });
-    } else if (e.category) {
-      filtersSet.add(e.category);
-    } else if (e.type) {
-      filtersSet.add(e.type);
-    }
-  });
-  const filters = Array.from(filtersSet);
+  // Simplified status-based filters
+  const filters = ["All", "Live", "Nomination"];
+  const { getEventStatus } = require("@/lib/utils/event-status");
 
   const filteredEvents = (events || []).filter((e) => {
-    const matchCategory =
+    const status = getEventStatus(e);
+    
+    const matchStatus =
       filter === "All" ||
-      (e.categories && e.categories.some((c: any) => c.name === filter)) ||
-      e.category === filter ||
-      e.type === filter;
+      (filter === "Live" && status.isVotingOpen) ||
+      (filter === "Nomination" && status.isNominationOpen);
+      
     const matchSearch = e.title.toLowerCase().includes(search.toLowerCase());
-    return matchCategory && matchSearch;
+    return matchStatus && matchSearch;
   });
 
   // Pagination Logic

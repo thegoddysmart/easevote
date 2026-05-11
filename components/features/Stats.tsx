@@ -3,23 +3,21 @@ import { createServerApiClient } from "@/lib/api-client";
 
 export default async function Stats() {
   const apiClient = createServerApiClient();
+  const { getEventStatus } = require("@/lib/utils/event-status");
   
-  let totalEvents = 0;
-  let liveEvents = 0;
+  let liveCount = 0;
 
   try {
-    // Fetch events to get a real count
-    const eventsRes = await apiClient.get("/events?limit=1");
-    totalEvents = eventsRes.total || (Array.isArray(eventsRes.data) ? eventsRes.data.length : 0);
-
-    const liveRes = await apiClient.get("/events?status=LIVE&limit=1");
-    liveEvents = liveRes.total || (Array.isArray(liveRes.data) ? liveRes.data.length : 0);
+    // Fetch recently active events to get a real "Live Now" count
+    const res = await apiClient.get<any>("/events?limit=100").catch(() => null);
+    if (res) {
+      const allEvents = res.data || res.events || (Array.isArray(res) ? res : []);
+      liveCount = allEvents.filter((e: any) => getEventStatus(e).isActive).length;
+    }
   } catch (error) {
-    console.error("Failed to fetch platform stats:", error);
+    console.error("Failed to fetch platform live count:", error);
   }
 
-  // We'll use the real counts where available, and keep high-level impact numbers 
-  // as "professional estimates" or "lifetime stats" if not available via API.
   const stats = [
     {
       id: "votes",
@@ -34,7 +32,7 @@ export default async function Stats() {
     {
       id: "events",
       label: "Events Hosted",
-      value: Math.max(totalEvents, 120), 
+      value: 250, 
       suffix: "+",
       variant: "default" as const,
       delay: 0.2,
@@ -42,7 +40,7 @@ export default async function Stats() {
     {
       id: "live",
       label: "Live Now",
-      value: liveEvents,
+      value: liveCount,
       suffix: "",
       variant: "emerald" as const,
       delay: 0.4,

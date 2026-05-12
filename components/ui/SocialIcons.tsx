@@ -37,7 +37,7 @@ export default function SocialIcons() {
       </a>
 
       <a
-        href="https://www.instagram.com/ease_vote"
+        href="https://www.instagram.com/ease_vote.gh?igsh=MXhibG05YnhpbzV6Mw=="
         className={iconBase}
         target="_blank"
         rel="noopener noreferrer"
@@ -46,7 +46,12 @@ export default function SocialIcons() {
         <Icon path={siInstagram.path} />
       </a>
 
-      <a href="#" className={iconBase}>
+      <a
+        href="https://vt.tiktok.com/ZS9K5DWpp/"
+        className={iconBase}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <span className="sr-only">TikTok</span>
         <Icon path={siTiktok.path} />
       </a>

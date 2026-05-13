@@ -1,15 +1,40 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { AlertCircle, Clock } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 export function OrganizerStatusBanner() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
+  const [liveApproved, setLiveApproved] = useState(false);
 
-  if (
-    session?.user?.role !== "ORGANIZER" ||
-    session?.user?.status !== "PENDING"
-  ) {
+  const sessionIsPending =
+    session?.user?.role === "ORGANIZER" && session?.user?.status === "PENDING";
+
+  useEffect(() => {
+    if (!sessionIsPending || !session?.user?.id) return;
+
+    const checkApprovalStatus = async () => {
+      try {
+        const res = await api.get(`/users/${session.user.id}`);
+        const userData = res?.data || res;
+        if (userData?.status && userData.status !== "PENDING") {
+          setLiveApproved(true);
+          // Persist the new status into the JWT so all subsequent reads are correct
+          await update({ status: userData.status });
+        }
+      } catch {
+        // Silent failure — banner stays visible until the next poll
+      }
+    };
+
+    checkApprovalStatus();
+    const interval = setInterval(checkApprovalStatus, 30_000);
+    return () => clearInterval(interval);
+  }, [sessionIsPending, session?.user?.id, update]);
+
+  if (liveApproved || !sessionIsPending) {
     return null;
   }
 
@@ -32,7 +57,7 @@ export function OrganizerStatusBanner() {
             </span>
           </div>
         </div>
-        <div className="order-3 flex-shrink-0 w-full sm:order-2 sm:w-auto">
+        <div className="order-3 shrink-0 w-full sm:order-2 sm:w-auto">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-100/50 px-2 py-1 rounded">
             <AlertCircle size={14} />
             Pending Review

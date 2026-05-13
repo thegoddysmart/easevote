@@ -136,8 +136,8 @@ export function Header({
                   [...notifications]
                     .sort(
                       (a, b) =>
-                        new Date(a.time).getTime() -
-                        new Date(b.time).getTime()
+                        new Date(b.time).getTime() -
+                        new Date(a.time).getTime()
                     )
                     .map((notification) => (
                     <button
@@ -201,8 +201,8 @@ export function Header({
                         {[...pendingEvents]
                           .sort(
                             (a, b) =>
-                              new Date(a.updatedAt).getTime() -
-                              new Date(b.updatedAt).getTime()
+                              new Date(b.updatedAt).getTime() -
+                              new Date(a.updatedAt).getTime()
                           )
                           .map((event) => (
                           <Link
@@ -235,8 +235,8 @@ export function Header({
                         {[...pendingOrgs]
                           .sort(
                             (a, b) =>
-                              new Date(a.createdAt).getTime() -
-                              new Date(b.createdAt).getTime()
+                              new Date(b.createdAt).getTime() -
+                              new Date(a.createdAt).getTime()
                           )
                           .map((org) => (
                           <Link

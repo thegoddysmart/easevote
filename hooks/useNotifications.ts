@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import toast from "react-hot-toast";
 import { api } from "@/lib/api-client";
 
 export interface Notification {
@@ -15,30 +16,70 @@ export interface Notification {
   type?: "INFO" | "SUCCESS" | "WARNING" | "DANGER" | "PAYOUT" | "EVENT";
 }
 
+function showNotificationToast(notification: Notification) {
+  const body = [notification.title, notification.message]
+    .filter(Boolean)
+    .join(" — ");
+
+  if (notification.type === "DANGER") {
+    toast.error(body, { duration: 5000 });
+  } else {
+    toast(body, { icon: "🔔", duration: 5000 });
+  }
+}
+
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Tracks every notification ID we have ever seen so we can diff on each poll
+  const knownIdsRef = useRef<Set<string>>(new Set());
+  // Distinguishes the first fetch (surface most recent unread) from subsequent polls (surface genuinely new)
+  const isInitialFetchRef = useRef(true);
+
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       const response = await api.get("/notifications");
-      // api.get normally returns the data body directly in this project's client
       const data = Array.isArray(response) ? response : (response.data || []);
-      
-      const mappedNotifications = data.map((n: any) => ({
+
+      const mapped: Notification[] = data.map((n: any) => ({
         id: n._id || n.id,
         title: n.title || "Notification",
         message: n.message || "",
         time: n.createdAt || new Date().toISOString(),
         read: n.read || false,
-        type: n.type || "SYSTEM",
+        type: n.type || "INFO",
       }));
 
-      setNotifications(mappedNotifications);
-      setUnreadCount(mappedNotifications.filter((n: any) => !n.read).length);
+      setNotifications(mapped);
+      setUnreadCount(mapped.filter((n) => !n.read).length);
+
+      if (isInitialFetchRef.current) {
+        // Seed the known-IDs set so subsequent polls can diff correctly
+        mapped.forEach((n) => knownIdsRef.current.add(n.id));
+
+        // Surface only the single most-recent unread notification on login —
+        // showing all of them at once would be noisy
+        const mostRecentUnread = mapped.find((n) => !n.read);
+        if (mostRecentUnread) {
+          showNotificationToast(mostRecentUnread);
+        }
+
+        isInitialFetchRef.current = false;
+      } else {
+        // Find notifications that arrived since the last poll
+        const brandNew = mapped.filter((n) => !knownIdsRef.current.has(n.id));
+        brandNew.forEach((n) => {
+          knownIdsRef.current.add(n.id);
+          // Only toast if the backend created it as unread (i.e. it wasn't pre-read by another session)
+          if (!n.read) {
+            showNotificationToast(n);
+          }
+        });
+      }
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
     } finally {
@@ -70,8 +111,8 @@ export function useNotifications() {
 
   useEffect(() => {
     fetchNotifications();
-    // Optional: Refresh periodically
-    const interval = setInterval(fetchNotifications, 60000); // every minute
+    // 30 s gives a responsive feel without hammering the API
+    const interval = setInterval(fetchNotifications, 30_000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 

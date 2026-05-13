@@ -28,7 +28,7 @@ function showNotificationToast(notification: Notification) {
   }
 }
 
-export function useNotifications() {
+export function useNotifications({ enabled = true }: { enabled?: boolean } = {}) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -110,11 +110,11 @@ export function useNotifications() {
   };
 
   useEffect(() => {
+    if (!enabled) return;
     fetchNotifications();
-    // 30 s gives a responsive feel without hammering the API
     const interval = setInterval(fetchNotifications, 30_000);
     return () => clearInterval(interval);
-  }, [fetchNotifications]);
+  }, [enabled, fetchNotifications]);
 
   return {
     notifications,

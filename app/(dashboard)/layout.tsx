@@ -6,6 +6,7 @@ import { DashboardLayout } from "@/components/dashboard";
 import { getNavigationForRole } from "@/lib/navigation";
 import { OrganizerStatusBanner } from "@/components/organizer/OrganizerStatusBanner";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useAdminAlerts } from "@/hooks/useAdminAlerts";
 
 export default function UnifiedDashboardLayout({
   children,
@@ -19,7 +20,14 @@ export default function UnifiedDashboardLayout({
     },
   });
 
-  const { unreadCount } = useNotifications();
+  const role = session?.user?.role;
+
+  // Both hooks are called unconditionally (rules of hooks).
+  // The enabled flag makes each a no-op when it isn't the active role.
+  const { unreadCount } = useNotifications({ enabled: role === "ORGANIZER" });
+  const { pendingEventsCount, pendingOrganizersCount } = useAdminAlerts({
+    enabled: role === "ADMIN" || role === "SUPER_ADMIN",
+  });
 
   if (status === "loading") {
     return (
@@ -29,25 +37,51 @@ export default function UnifiedDashboardLayout({
     );
   }
 
-  const role = session?.user?.role;
-
-  // Validation: Only staff roles allowed in the dashboard area
+  // Only staff roles are allowed in the dashboard
   if (role !== "SUPER_ADMIN" && role !== "ADMIN" && role !== "ORGANIZER") {
     redirect("/");
   }
 
-  const navigation = getNavigationForRole(role).map(section => ({
+  const navigation = getNavigationForRole(role).map((section) => ({
     ...section,
-    items: section.items.map(item => {
-      if (item.name === "Notifications" || item.href === "/dashboard/notifications") {
+    items: section.items.map((item) => {
+      // ORGANIZER — badge the personal notifications bell (if it's ever added to their nav)
+      if (
+        role === "ORGANIZER" &&
+        (item.name === "Notifications" || item.href === "/dashboard/notifications")
+      ) {
         return { ...item, badge: unreadCount > 0 ? unreadCount : undefined };
       }
+
+      // ADMIN — badge "Pending Approvals" with combined pending count
+      if (role === "ADMIN" && item.name === "Pending Approvals") {
+        const total = pendingEventsCount + pendingOrganizersCount;
+        return { ...item, badge: total > 0 ? total : undefined };
+      }
+
+      // SUPER_ADMIN — split badges: events on "All Events", orgs on "Organizers"
+      if (role === "SUPER_ADMIN") {
+        if (item.name === "All Events") {
+          return {
+            ...item,
+            badge: pendingEventsCount > 0 ? pendingEventsCount : undefined,
+          };
+        }
+        if (item.name === "Organizers") {
+          return {
+            ...item,
+            badge:
+              pendingOrganizersCount > 0 ? pendingOrganizersCount : undefined,
+          };
+        }
+      }
+
       return item;
-    })
+    }),
   }));
 
-  const portalName = role === "SUPER_ADMIN" || role === "ADMIN" ? "Admin Portal" : "Organizer Portal";
-  const profileUrl = "/dashboard/account";
+  const portalName =
+    role === "SUPER_ADMIN" || role === "ADMIN" ? "Admin Portal" : "Organizer Portal";
 
   return (
     <DashboardLayout
@@ -59,7 +93,7 @@ export default function UnifiedDashboardLayout({
         image: session.user.avatar,
       }}
       portalName={portalName}
-      profileUrl={profileUrl}
+      profileUrl="/dashboard/account"
       settingsUrl="/dashboard/settings"
     >
       {role === "ORGANIZER" && <OrganizerStatusBanner />}

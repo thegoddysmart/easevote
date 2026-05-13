@@ -12,8 +12,11 @@ import {
   Settings,
   ChevronDown,
   Menu,
+  Calendar,
+  Building2,
 } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useAdminAlerts } from "@/hooks/useAdminAlerts";
 import { useModal } from "@/components/providers/ModalProvider";
 import { formatDistanceToNow } from "date-fns";
 import clsx from "clsx";
@@ -30,22 +33,26 @@ type HeaderProps = {
   settingsUrl?: string;
 };
 
-export function Header({ 
-  user, 
+export function Header({
+  user,
   onMobileMenuToggle,
   profileUrl = "/dashboard/account",
-  settingsUrl = "/dashboard/settings"
+  settingsUrl = "/dashboard/settings",
 }: HeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  
-  const { 
-    notifications, 
-    unreadCount, 
-    markAsRead, 
-    markAllAsRead, 
-    loading 
-  } = useNotifications();
+
+  const isOrganizer = user.role === "ORGANIZER";
+  const isAdmin = user.role === "ADMIN" || user.role === "SUPER_ADMIN";
+
+  const { notifications, unreadCount, markAsRead, markAllAsRead, loading } =
+    useNotifications({ enabled: isOrganizer });
+
+  const { pendingEvents, pendingOrgs, pendingCount } = useAdminAlerts({
+    enabled: isAdmin,
+  });
+
+  const bellCount = isOrganizer ? unreadCount : isAdmin ? pendingCount : 0;
 
   const modal = useModal();
 
@@ -55,7 +62,7 @@ export function Header({
       message: "Are you sure you want to sign out of your account?",
       confirmText: "Sign Out",
       cancelText: "Stay Logged In",
-      variant: "danger"
+      variant: "danger",
     });
 
     if (confirmed) {
@@ -94,19 +101,19 @@ export function Header({
             className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <Bell className="h-5 w-5 text-slate-600" />
-            {unreadCount > 0 && (
+            {bellCount > 0 && (
               <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                {unreadCount}
+                {bellCount > 99 ? "99+" : bellCount}
               </span>
             )}
           </button>
 
-          {isNotificationsOpen && (
+          {isNotificationsOpen && isOrganizer && (
             <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-slate-200 py-2">
               <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-semibold text-sm">Notifications</h3>
                 {unreadCount > 0 && (
-                  <button 
+                  <button
                     onClick={() => markAllAsRead()}
                     className="text-[10px] font-bold text-primary-600 hover:text-primary-700"
                   >
@@ -134,23 +141,125 @@ export function Header({
                         !notification.read && "bg-primary-50/30"
                       )}
                     >
-                      <p className={clsx(
-                        "text-sm",
-                        !notification.read ? "font-bold text-slate-900" : "font-medium text-slate-600"
-                      )}>
+                      <p
+                        className={clsx(
+                          "text-sm",
+                          !notification.read
+                            ? "font-bold text-slate-900"
+                            : "font-medium text-slate-600"
+                        )}
+                      >
                         {notification.title}
                       </p>
                       <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
                         {notification.message}
                       </p>
                       <p className="text-[10px] text-slate-400 mt-1">
-                        {formatDistanceToNow(new Date(notification.time), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(notification.time), {
+                          addSuffix: true,
+                        })}
                       </p>
                     </button>
                   ))
                 )}
               </div>
-              
+            </div>
+          )}
+
+          {isNotificationsOpen && isAdmin && (
+            <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-slate-200 py-2">
+              <div className="px-4 py-2 border-b border-slate-100">
+                <h3 className="font-semibold text-sm">Pending Reviews</h3>
+                {pendingCount > 0 && (
+                  <p className="text-[10px] text-slate-400 mt-0.5">
+                    {pendingCount} item{pendingCount !== 1 ? "s" : ""} awaiting
+                    action
+                  </p>
+                )}
+              </div>
+              <div className="max-h-72 overflow-y-auto">
+                {pendingCount === 0 ? (
+                  <div className="px-4 py-8 text-center text-slate-400">
+                    <Bell className="h-8 w-8 mx-auto mb-2 opacity-20" />
+                    <p className="text-sm">All caught up</p>
+                  </div>
+                ) : (
+                  <>
+                    {pendingEvents.length > 0 && (
+                      <div>
+                        <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                          Events
+                        </p>
+                        {pendingEvents.map((event) => (
+                          <Link
+                            key={event.id}
+                            href={`/dashboard/events/${event.id}`}
+                            onClick={() => setIsNotificationsOpen(false)}
+                            className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
+                          >
+                            <Calendar className="h-4 w-4 text-primary-500 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-slate-800 truncate">
+                                {event.title}
+                              </p>
+                              <p className="text-[10px] text-slate-400 mt-0.5">
+                                {formatDistanceToNow(
+                                  new Date(event.updatedAt),
+                                  { addSuffix: true }
+                                )}
+                              </p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    {pendingOrgs.length > 0 && (
+                      <div>
+                        <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                          Organizers
+                        </p>
+                        {pendingOrgs.map((org) => (
+                          <Link
+                            key={org.id}
+                            href={`/dashboard/organizers/${org.id}`}
+                            onClick={() => setIsNotificationsOpen(false)}
+                            className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
+                          >
+                            <Building2 className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-slate-800 truncate">
+                                {org.name}
+                              </p>
+                              <p className="text-[10px] text-slate-400 mt-0.5">
+                                {org.email}
+                              </p>
+                              <p className="text-[10px] text-slate-400">
+                                {formatDistanceToNow(
+                                  new Date(org.createdAt),
+                                  { addSuffix: true }
+                                )}
+                              </p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+              <div className="border-t border-slate-100 px-4 py-2">
+                <Link
+                  href={
+                    user.role === "ADMIN"
+                      ? "/dashboard/approvals"
+                      : "/dashboard/events"
+                  }
+                  onClick={() => setIsNotificationsOpen(false)}
+                  className="text-xs font-medium text-primary-600 hover:text-primary-700"
+                >
+                  View all pending →
+                </Link>
+              </div>
             </div>
           )}
         </div>
@@ -196,7 +305,7 @@ export function Header({
                 <p className="text-xs text-slate-500">{user.email}</p>
               </div>
               <div className="py-1">
-                <Link 
+                <Link
                   href={profileUrl}
                   onClick={() => setIsProfileOpen(false)}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
@@ -204,7 +313,7 @@ export function Header({
                   <User className="h-4 w-4" />
                   My Profile
                 </Link>
-                <Link 
+                <Link
                   href={settingsUrl}
                   onClick={() => setIsProfileOpen(false)}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"

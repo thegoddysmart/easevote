@@ -4,15 +4,24 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 import { api } from "@/lib/api-client";
 
-interface AdminAlert {
+export interface PendingEvent {
   id: string;
   title: string;
-  kind: "event" | "organizer";
+  eventCode: string;
+  type: string;
+  updatedAt: string;
+}
+
+export interface PendingOrganizer {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
 }
 
 export function useAdminAlerts({ enabled = true }: { enabled?: boolean } = {}) {
-  const [pendingEventsCount, setPendingEventsCount] = useState(0);
-  const [pendingOrganizersCount, setPendingOrganizersCount] = useState(0);
+  const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>([]);
+  const [pendingOrgs, setPendingOrgs] = useState<PendingOrganizer[]>([]);
 
   // Every ID we have ever seen — used to diff and only toast genuinely new arrivals
   const knownIdsRef = useRef<Set<string>>(new Set());
@@ -26,7 +35,7 @@ export function useAdminAlerts({ enabled = true }: { enabled?: boolean } = {}) {
         api.get("/users"),
       ]);
 
-      const events: any[] =
+      const rawEvents: any[] =
         eventsRes.status === "fulfilled"
           ? Array.isArray(eventsRes.value)
             ? eventsRes.value
@@ -40,44 +49,47 @@ export function useAdminAlerts({ enabled = true }: { enabled?: boolean } = {}) {
             : usersRes.value?.data ?? []
           : [];
 
-      const pendingOrgs = allUsers.filter(
-        (u: any) => u.role === "ORGANIZER" && u.status === "PENDING"
-      );
+      const mappedEvents: PendingEvent[] = rawEvents.map((e: any) => ({
+        id: String(e._id || e.id),
+        title: e.title || "Untitled Event",
+        eventCode: e.eventCode || e._id || e.id,
+        type: e.type || "VOTING",
+        updatedAt: e.updatedAt || e.createdAt || new Date().toISOString(),
+      }));
 
-      setPendingEventsCount(events.length);
-      setPendingOrganizersCount(pendingOrgs.length);
-
-      const currentAlerts: AdminAlert[] = [
-        ...events.map((e: any) => ({
-          id: String(e._id || e.id),
-          title: e.title || "Untitled Event",
-          kind: "event" as const,
-        })),
-        ...pendingOrgs.map((u: any) => ({
+      const mappedOrgs: PendingOrganizer[] = allUsers
+        .filter((u: any) => u.role === "ORGANIZER" && u.status === "PENDING")
+        .map((u: any) => ({
           id: String(u._id || u.id),
-          title: u.businessName || u.fullName || u.name || "New Organizer",
-          kind: "organizer" as const,
-        })),
+          name: u.businessName || u.fullName || u.name || "New Organizer",
+          email: u.email || "",
+          createdAt: u.createdAt || new Date().toISOString(),
+        }));
+
+      setPendingEvents(mappedEvents);
+      setPendingOrgs(mappedOrgs);
+
+      // Build a unified list for diffing
+      type AlertItem = { id: string; kind: "event" | "organizer"; label: string };
+      const current: AlertItem[] = [
+        ...mappedEvents.map((e) => ({ id: e.id, kind: "event" as const, label: e.title })),
+        ...mappedOrgs.map((o) => ({ id: o.id, kind: "organizer" as const, label: o.name })),
       ];
 
       if (isInitialFetchRef.current) {
-        // Seed all currently-pending items — do NOT toast them on login
-        currentAlerts.forEach((a) => knownIdsRef.current.add(a.id));
+        current.forEach((a) => knownIdsRef.current.add(a.id));
         isInitialFetchRef.current = false;
       } else {
-        // Toast only items that appeared since the last poll
-        const brandNew = currentAlerts.filter(
-          (a) => !knownIdsRef.current.has(a.id)
-        );
+        const brandNew = current.filter((a) => !knownIdsRef.current.has(a.id));
         brandNew.forEach((a) => {
           knownIdsRef.current.add(a.id);
           if (a.kind === "event") {
-            toast(`New event submitted for review — ${a.title}`, {
+            toast(`New event submitted for review — ${a.label}`, {
               icon: "📋",
               duration: 5000,
             });
           } else {
-            toast(`New organizer registration — ${a.title}`, {
+            toast(`New organizer registration — ${a.label}`, {
               icon: "👤",
               duration: 5000,
             });
@@ -97,8 +109,10 @@ export function useAdminAlerts({ enabled = true }: { enabled?: boolean } = {}) {
   }, [enabled, fetchAlerts]);
 
   return {
-    pendingEventsCount,
-    pendingOrganizersCount,
-    pendingCount: pendingEventsCount + pendingOrganizersCount,
+    pendingEvents,
+    pendingOrgs,
+    pendingEventsCount: pendingEvents.length,
+    pendingOrganizersCount: pendingOrgs.length,
+    pendingCount: pendingEvents.length + pendingOrgs.length,
   };
 }

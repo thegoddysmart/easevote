@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/components/providers/ModalProvider";
 import Link from "next/link";
@@ -27,7 +27,6 @@ import {
   ExternalLink,
   Share2,
   ChevronDown,
-  ChevronUp,
   Percent,
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -80,6 +79,47 @@ interface AdminEventManagerProps {
   event: EventDetails;
   role: "ADMIN" | "SUPER_ADMIN" | "ORGANIZER";
   backUrl: string;
+}
+
+type Tab = "overview" | "edit" | "categories" | "settings";
+
+const TAB_META: Record<Tab, { label: string; icon: React.ComponentType<{ className?: string }> }> = {
+  overview:   { label: "Overview",     icon: LayoutDashboard },
+  edit:       { label: "Edit Details", icon: Edit },
+  categories: { label: "Categories",  icon: List },
+  settings:   { label: "Settings",    icon: SettingsIcon },
+};
+
+function getAvailableTabs(status: string, type: string): { primary: Tab[]; secondary: Tab[] } {
+  const isVoting = type === "VOTING" || type === "HYBRID";
+  const all: Tab[] = ["overview", "edit"];
+  if (isVoting) all.push("categories");
+  all.push("settings");
+
+  let primary: Tab[];
+  switch (status) {
+    case "DRAFT":
+      primary = isVoting ? ["edit", "categories", "settings"] : ["edit", "settings"];
+      break;
+    case "PENDING_REVIEW":
+    case "APPROVED":
+      primary = isVoting ? ["overview", "edit", "categories"] : ["overview", "edit", "settings"];
+      break;
+    case "LIVE":
+    case "PUBLISHED":
+    case "PAUSED":
+      primary = isVoting ? ["overview", "categories", "settings"] : ["overview", "settings"];
+      break;
+    case "ENDED":
+    case "CANCELLED":
+      primary = ["overview", "settings"];
+      break;
+    default:
+      primary = isVoting ? ["overview", "edit", "categories"] : ["overview", "edit", "settings"];
+  }
+
+  const secondary = all.filter((t) => !primary.includes(t));
+  return { primary, secondary };
 }
 
 const statusConfig: Record<
@@ -143,17 +183,49 @@ export function AdminEventManager({
 }: AdminEventManagerProps) {
   const router = useRouter();
   const modal = useModal();
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "edit" | "categories" | "settings"
-  >("overview");
+
+  const defaultTab: Tab = event.status === "DRAFT" ? "edit" : "overview";
+  const [activeTab, setActiveTab] = useState<Tab>(defaultTab);
   const [currentStatus, setCurrentStatus] = useState(event.status);
-  const [commissionRate, setCommissionRate] = useState<string>(event.commissionRate?.toString() || "");
+  const [commissionRate, setCommissionRate] = useState<string>(
+    event.commissionRate?.toString() || ""
+  );
   const [isSavingCommission, setIsSavingCommission] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setIsMoreOpen(false);
+      }
+      if (mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) {
+        setIsMobileNavOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const { primary: primaryTabs, secondary: secondaryTabs } = getAvailableTabs(
+    currentStatus,
+    event.type
+  );
 
   const StatusIcon = statusConfig[currentStatus]?.icon || AlertCircle;
   const statusColor = statusConfig[currentStatus]?.color || "text-slate-700";
   const statusBg = statusConfig[currentStatus]?.bg || "bg-slate-100";
   const statusLabel = statusConfig[currentStatus]?.label || currentStatus;
+
+  const publicHref =
+    event.type === "TICKETING"
+      ? `/events/tickets/${event.eventCode || event.id}`
+      : `/events/${event.eventCode || event.id}`;
+
+  const ActiveTabIcon = TAB_META[activeTab].icon;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GH", {
@@ -166,7 +238,8 @@ export function AdminEventManager({
   const handleDelete = async () => {
     const confirmed = await modal.confirm({
       title: "Delete Event",
-      message: "Are you sure you want to delete this event? This action cannot be undone. All data, including voting records and revenue history, will be permanently removed.",
+      message:
+        "Are you sure you want to delete this event? This action cannot be undone. All data, including voting records and revenue history, will be permanently removed.",
       variant: "danger",
       confirmText: "Delete Event",
     });
@@ -174,11 +247,19 @@ export function AdminEventManager({
 
     try {
       await api.delete(`/events/${event.id}`);
-      await modal.alert({ title: "Event Deleted", message: "Event deleted successfully.", variant: "info" });
+      await modal.alert({
+        title: "Event Deleted",
+        message: "Event deleted successfully.",
+        variant: "info",
+      });
       router.push(backUrl);
     } catch (err: any) {
       console.error(err);
-      modal.alert({ title: "Delete Failed", message: err.message || "An error occurred", variant: "danger" });
+      modal.alert({
+        title: "Delete Failed",
+        message: err.message || "An error occurred",
+        variant: "danger",
+      });
     }
   };
 
@@ -186,7 +267,7 @@ export function AdminEventManager({
     setIsSavingCommission(true);
     try {
       await api.patch(`/events/${event.id}/commission`, {
-        commissionRate: commissionRate ? parseFloat(commissionRate) : 0
+        commissionRate: commissionRate ? parseFloat(commissionRate) : 0,
       });
       toast.success("Commission rate updated successfully");
       router.refresh();
@@ -203,6 +284,12 @@ export function AdminEventManager({
     toast.success("Nomination link copied to clipboard!");
   };
 
+  function selectTab(tab: Tab) {
+    setActiveTab(tab);
+    setIsMoreOpen(false);
+    setIsMobileNavOpen(false);
+  }
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
       {/* Header */}
@@ -213,65 +300,60 @@ export function AdminEventManager({
         >
           ← Back to Events
         </Link>
+
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-slate-900">
+          {/* Title + meta */}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <h1 className="text-3xl font-bold text-slate-900 truncate">
                 {event.title}
               </h1>
               <span
                 className={clsx(
-                  "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium",
+                  "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium shrink-0",
                   statusBg,
-                  statusColor,
+                  statusColor
                 )}
               >
                 <StatusIcon className="w-4 h-4" />
                 {statusLabel}
               </span>
+
+              {/* View public page — icon only */}
               <a
-                href={
-                  event.type === "TICKETING"
-                    ? `/events/tickets/${event.eventCode || event.id}`
-                    : `/events/${event.eventCode || event.id}`
-                }
+                href={publicHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-700 text-sm font-medium ml-2"
+                title="View public page"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors shrink-0"
               >
                 <ExternalLink className="w-4 h-4" />
-                View Public Page
               </a>
+
               {event.allowPublicNominations && (
                 <button
+                  type="button"
                   onClick={handleShareNomination}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg hover:bg-primary-100 text-xs font-bold transition-all border border-primary-100 shadow-sm ml-2"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg hover:bg-primary-100 text-xs font-bold transition-all border border-primary-100 shadow-sm shrink-0"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                   Share Form
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-4 text-slate-500 text-sm">
+
+            <div className="flex items-center gap-4 text-slate-500 text-sm flex-wrap">
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />{" "}
-                {(event.startDate
-                  ? new Date(event.startDate)
-                  : new Date()
-                ).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}{" "}
-                -{" "}
-                {(event.endDate
-                  ? new Date(event.endDate)
-                  : new Date()
-                ).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
+                {(event.startDate ? new Date(event.startDate) : new Date()).toLocaleDateString(
+                  "en-GB",
+                  { day: "numeric", month: "short", year: "numeric" }
+                )}{" "}
+                –{" "}
+                {(event.endDate ? new Date(event.endDate) : new Date()).toLocaleDateString(
+                  "en-GB",
+                  { day: "numeric", month: "short", year: "numeric" }
+                )}
               </span>
               <span className="flex items-center gap-1">
                 <MapPin className="w-4 h-4" /> {event.location || "Online"}
@@ -279,66 +361,131 @@ export function AdminEventManager({
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-4">
+          {/* Status actions */}
+          <div className="shrink-0">
             <AdminEventActions
               eventId={event.id}
               status={event.status}
               role={role}
               onStatusChange={setCurrentStatus}
             />
+          </div>
+        </div>
 
-            <div className="flex items-center bg-slate-100 p-1 rounded-lg">
-              <button
-                onClick={() => setActiveTab("overview")}
+        {/* ── Tab navigation ── */}
+        <div className="mt-5 border-b border-slate-200">
+          {/* Mobile: accordion-style selector */}
+          <div className="md:hidden relative" ref={mobileNavRef}>
+            <button
+              type="button"
+              onClick={() => setIsMobileNavOpen((v) => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700"
+            >
+              <span className="flex items-center gap-2">
+                <ActiveTabIcon className="w-4 h-4 text-primary-600" />
+                {TAB_META[activeTab].label}
+              </span>
+              <ChevronDown
                 className={clsx(
-                  "px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2",
-                  activeTab === "overview"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900",
+                  "w-4 h-4 text-slate-400 transition-transform duration-200",
+                  isMobileNavOpen && "rotate-180"
                 )}
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab("edit")}
-                className={clsx(
-                  "px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2",
-                  activeTab === "edit"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900",
-                )}
-              >
-                <Edit className="w-4 h-4" />
-                Edit Details
-              </button>
-              {(event.type === "VOTING" || event.type === "HYBRID") && (
+              />
+            </button>
+
+            {isMobileNavOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-20">
+                {[...primaryTabs, ...secondaryTabs].map((tab) => {
+                  const { label, icon: Icon } = TAB_META[tab];
+                  return (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => selectTab(tab)}
+                      className={clsx(
+                        "w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors",
+                        activeTab === tab
+                          ? "bg-primary-50 text-primary-700 font-semibold"
+                          : "text-slate-600 hover:bg-slate-50"
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop: pill tabs + More dropdown */}
+          <div className="hidden md:flex items-center gap-1 -mb-px">
+            {primaryTabs.map((tab) => {
+              const { label, icon: Icon } = TAB_META[tab];
+              return (
                 <button
-                  onClick={() => setActiveTab("categories")}
+                  key={tab}
+                  type="button"
+                  onClick={() => selectTab(tab)}
                   className={clsx(
-                    "px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2",
-                    activeTab === "categories"
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-600 hover:text-slate-900",
+                    "flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                    activeTab === tab
+                      ? "border-primary-600 text-primary-700"
+                      : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
                   )}
                 >
-                  <List className="w-4 h-4" />
-                  Categories
+                  <Icon className="w-4 h-4" />
+                  {label}
                 </button>
-              )}
-              <button
-                onClick={() => setActiveTab("settings")}
-                className={clsx(
-                  "px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2",
-                  activeTab === "settings"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900",
+              );
+            })}
+
+            {secondaryTabs.length > 0 && (
+              <div className="relative ml-1" ref={moreRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsMoreOpen((v) => !v)}
+                  className={clsx(
+                    "flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                    secondaryTabs.includes(activeTab)
+                      ? "border-primary-600 text-primary-700"
+                      : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+                  )}
+                >
+                  More
+                  <ChevronDown
+                    className={clsx(
+                      "w-3.5 h-3.5 transition-transform duration-150",
+                      isMoreOpen && "rotate-180"
+                    )}
+                  />
+                </button>
+
+                {isMoreOpen && (
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-20 min-w-40">
+                    {secondaryTabs.map((tab) => {
+                      const { label, icon: Icon } = TAB_META[tab];
+                      return (
+                        <button
+                          key={tab}
+                          type="button"
+                          onClick={() => selectTab(tab)}
+                          className={clsx(
+                            "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
+                            activeTab === tab
+                              ? "bg-primary-50 text-primary-700 font-semibold"
+                              : "text-slate-600 hover:bg-slate-50"
+                          )}
+                        >
+                          <Icon className="w-4 h-4" />
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-              >
-                <SettingsIcon className="w-4 h-4" />
-                Settings
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -479,7 +626,8 @@ export function AdminEventManager({
                           </div>
                           <div className="text-right">
                             <div className="font-bold text-slate-900">
-                              {(ticket.sold ?? ticket.soldCount ?? 0)} / {ticket.quantity || 0}
+                              {ticket.sold ?? ticket.soldCount ?? 0} /{" "}
+                              {ticket.quantity || 0}
                             </div>
                             <div className="text-xs text-slate-500">sold</div>
                           </div>
@@ -490,7 +638,9 @@ export function AdminEventManager({
                             style={{
                               width: `${Math.min(
                                 100,
-                                ((ticket.sold ?? ticket.soldCount ?? 0) / (ticket.quantity || 1)) * 100,
+                                ((ticket.sold ?? ticket.soldCount ?? 0) /
+                                  (ticket.quantity || 1)) *
+                                  100
                               )}%`,
                             }}
                           />
@@ -510,7 +660,7 @@ export function AdminEventManager({
                 Organizer
               </h3>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex-shrink-0 overflow-hidden relative">
+                <div className="w-12 h-12 rounded-full bg-slate-100 shrink-0 overflow-hidden relative">
                   {event.organizer.avatar ? (
                     <Image
                       src={event.organizer.avatar}
@@ -620,7 +770,8 @@ export function AdminEventManager({
                       Configure Nomination Form
                     </h4>
                     <p className="text-sm text-slate-500">
-                      Set up custom questions and manage common nomination settings.
+                      Set up custom questions and manage common nomination
+                      settings.
                     </p>
                   </div>
                   <Link
@@ -643,7 +794,7 @@ export function AdminEventManager({
                       Finance & Commission
                     </h3>
                   </div>
-                  
+
                   <div className="bg-primary-50/50 rounded-xl p-5 border border-primary-100/50">
                     <div className="flex flex-col sm:flex-row sm:items-end gap-4">
                       <div className="flex-1">
@@ -667,6 +818,7 @@ export function AdminEventManager({
                         </div>
                       </div>
                       <button
+                        type="button"
                         onClick={handleUpdateCommission}
                         disabled={isSavingCommission}
                         className="px-8 py-3.5 bg-primary-700 text-white rounded-xl font-bold hover:bg-primary-800 transition-all disabled:opacity-50 shadow-lg shadow-primary-100 shrink-0"
@@ -675,8 +827,8 @@ export function AdminEventManager({
                       </button>
                     </div>
                     <p className="text-xs text-slate-500 mt-3 ml-1">
-                      This custom rate overrides the global platform commission for this specific event. 
-                      Leave empty to revert to default.
+                      This custom rate overrides the global platform commission
+                      for this specific event. Leave empty to revert to default.
                     </p>
                   </div>
                 </div>
@@ -693,12 +845,12 @@ export function AdminEventManager({
                       Public Vote Counts
                     </h4>
                     <p className="text-sm text-slate-500">
-                      Show the number of votes per candidate on the public results
-                      page.
+                      Show the number of votes per candidate on the public
+                      results page.
                     </p>
                   </div>
                   <VotingToggle
-                    initialValue={event.showVoteCount ?? true} // Need to pass this prop from parent or assume default
+                    initialValue={event.showVoteCount ?? true}
                     eventId={event.id}
                   />
                 </div>
@@ -707,30 +859,31 @@ export function AdminEventManager({
           )}
 
           {event.status === "DRAFT" && (
-          <div className="bg-white rounded-xl border border-red-200 p-6">
-            <h3 className="text-lg font-semibold text-red-900 mb-2">
-              Danger Zone
-            </h3>
-            <p className="text-sm text-red-600 mb-6">
-              Deleting an event is irreversible. All data, including voting
-              records and revenue history, will be permanently removed.
-            </p>
-            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
-              <div>
-                <h4 className="font-medium text-red-900">Delete Event</h4>
-                <p className="text-sm text-red-600">
-                  Permanently remove this draft event
-                </p>
+            <div className="bg-white rounded-xl border border-red-200 p-6">
+              <h3 className="text-lg font-semibold text-red-900 mb-2">
+                Danger Zone
+              </h3>
+              <p className="text-sm text-red-600 mb-6">
+                Deleting an event is irreversible. All data, including voting
+                records and revenue history, will be permanently removed.
+              </p>
+              <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
+                <div>
+                  <h4 className="font-medium text-red-900">Delete Event</h4>
+                  <p className="text-sm text-red-600">
+                    Permanently remove this draft event
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="px-4 py-2 rounded-lg flex items-center gap-2 transition-colors bg-red-600 hover:bg-red-700 text-white shadow-sm cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete Event
+                </button>
               </div>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 rounded-lg flex items-center gap-2 transition-colors bg-red-600 hover:bg-red-700 text-white shadow-sm cursor-pointer"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete Event
-              </button>
             </div>
-          </div>
           )}
         </div>
       )}
@@ -759,8 +912,6 @@ function VotingToggle({
       setEnabled(newValue);
     } catch (e) {
       console.error(e);
-      // Using a simple toast equivalent — VotingToggle doesn't have modal context,
-      // so we'll rely on a basic console-based fallback or toast system
       console.error("Failed to update setting");
     } finally {
       setLoading(false);
@@ -769,18 +920,20 @@ function VotingToggle({
 
   return (
     <button
+      type="button"
+      aria-label={enabled ? "Disable public vote counts" : "Enable public vote counts"}
       onClick={toggle}
       disabled={loading}
       className={clsx(
-        "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2",
-        enabled ? "bg-indigo-600" : "bg-gray-200",
+        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2",
+        enabled ? "bg-indigo-600" : "bg-gray-200"
       )}
     >
       <span
         aria-hidden="true"
         className={clsx(
           "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-          enabled ? "translate-x-5" : "translate-x-0",
+          enabled ? "translate-x-5" : "translate-x-0"
         )}
       />
     </button>
@@ -792,11 +945,16 @@ function CategoryAccordion({ category }: { category: any }) {
   const totalCategoryVotes = category.totalVotes || 0;
 
   return (
-    <div className={clsx(
-      "border rounded-2xl overflow-hidden transition-all duration-300",
-      isExpanded ? "border-primary-200 ring-1 ring-primary-100 shadow-lg shadow-primary-50" : "border-slate-200 bg-white"
-    )}>
+    <div
+      className={clsx(
+        "border rounded-2xl overflow-hidden transition-all duration-300",
+        isExpanded
+          ? "border-primary-200 ring-1 ring-primary-100 shadow-lg shadow-primary-50"
+          : "border-slate-200 bg-white"
+      )}
+    >
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full text-left p-5 flex items-center justify-between hover:bg-slate-50 transition-colors"
       >
@@ -819,10 +977,12 @@ function CategoryAccordion({ category }: { category: any }) {
             </div>
           </div>
         </div>
-        <div className={clsx(
-          "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 transition-transform duration-300",
-          isExpanded && "rotate-180 bg-primary-100 text-primary-600"
-        )}>
+        <div
+          className={clsx(
+            "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 transition-transform duration-300",
+            isExpanded && "rotate-180 bg-primary-100 text-primary-600"
+          )}
+        >
           <ChevronDown className="w-4 h-4" />
         </div>
       </button>
@@ -831,10 +991,10 @@ function CategoryAccordion({ category }: { category: any }) {
         <div className="p-6 bg-white border-t border-slate-100 animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {category.candidates.map((candidate: any, idx: number) => (
-              <CandidateProfileCard 
-                key={candidate.id || idx} 
-                candidate={candidate} 
-                categoryMaxVotes={category.maxVotes || 0} 
+              <CandidateProfileCard
+                key={candidate.id || idx}
+                candidate={candidate}
+                categoryMaxVotes={category.maxVotes || 0}
               />
             ))}
           </div>
@@ -844,29 +1004,35 @@ function CategoryAccordion({ category }: { category: any }) {
   );
 }
 
-function CandidateProfileCard({ candidate, categoryMaxVotes }: { candidate: any, categoryMaxVotes: number }) {
+function CandidateProfileCard({
+  candidate,
+  categoryMaxVotes,
+}: {
+  candidate: any;
+  categoryMaxVotes: number;
+}) {
   const votes = candidate.votes || candidate.voteCount || 0;
   const progress = categoryMaxVotes > 0 ? (votes / categoryMaxVotes) * 100 : 0;
 
   return (
     <div className="group relative bg-slate-50/50 rounded-2xl p-4 border border-slate-100 hover:border-primary-200 hover:bg-white hover:shadow-xl hover:shadow-primary-50/50 transition-all duration-300">
       <div className="flex items-start gap-4">
-        <div className="relative w-16 h-16 flex-shrink-0">
+        <div className="relative w-16 h-16 shrink-0">
           {candidate.imageUrl ? (
             <div className="w-full h-full rounded-2xl overflow-hidden ring-2 ring-white ring-offset-2 ring-offset-slate-100 group-hover:ring-primary-100 transition-all">
-              <img 
-                src={candidate.imageUrl} 
-                alt={candidate.name} 
+              <img
+                src={candidate.imageUrl}
+                alt={candidate.name}
                 className="w-full h-full object-cover"
               />
             </div>
           ) : (
-            <div className="w-full h-full rounded-2xl bg-gradient-to-br from-primary-500 to-magenta-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-white">
+            <div className="w-full h-full rounded-2xl bg-linear-to-br from-primary-500 to-magenta-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-white">
               {candidate.name.substring(0, 1).toUpperCase()}
             </div>
           )}
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <h5 className="text-base font-bold text-slate-900 truncate group-hover:text-primary-600 transition-colors">
             {candidate.name}
@@ -896,8 +1062,8 @@ function CandidateProfileCard({ candidate, categoryMaxVotes }: { candidate: any,
           <span className="text-primary-600">{Math.round(progress)}%</span>
         </div>
         <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-primary-500 to-magenta-500 transition-all duration-1000 ease-out"
+          <div
+            className="h-full bg-linear-to-r from-primary-500 to-magenta-500 transition-all duration-1000 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>

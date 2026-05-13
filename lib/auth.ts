@@ -120,8 +120,9 @@ export const authOptions: NextAuthOptions = {
         token.avatar = user.avatar;
       }
 
-      if (trigger === "update" && session?.avatar) {
-        token.avatar = session.avatar;
+      if (trigger === "update") {
+        if (session?.avatar) token.avatar = session.avatar;
+        if (session?.status) token.status = session.status;
       }
 
       return token;

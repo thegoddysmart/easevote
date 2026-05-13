@@ -94,6 +94,7 @@ export function Header({
       <div className="flex items-center gap-2">
         <div className="relative">
           <button
+            type="button"
             onClick={() => {
               setIsNotificationsOpen(!isNotificationsOpen);
               setIsProfileOpen(false);
@@ -132,8 +133,15 @@ export function Header({
                     <p className="text-sm">No notifications yet</p>
                   </div>
                 ) : (
-                  notifications.map((notification) => (
+                  [...notifications]
+                    .sort(
+                      (a, b) =>
+                        new Date(a.time).getTime() -
+                        new Date(b.time).getTime()
+                    )
+                    .map((notification) => (
                     <button
+                      type="button"
                       key={notification.id}
                       onClick={() => markAsRead(notification.id)}
                       className={clsx(
@@ -190,7 +198,13 @@ export function Header({
                         <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                           Events
                         </p>
-                        {pendingEvents.map((event) => (
+                        {[...pendingEvents]
+                          .sort(
+                            (a, b) =>
+                              new Date(a.updatedAt).getTime() -
+                              new Date(b.updatedAt).getTime()
+                          )
+                          .map((event) => (
                           <Link
                             key={event.id}
                             href={`/dashboard/events/${event.id}`}
@@ -218,7 +232,13 @@ export function Header({
                         <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                           Organizers
                         </p>
-                        {pendingOrgs.map((org) => (
+                        {[...pendingOrgs]
+                          .sort(
+                            (a, b) =>
+                              new Date(a.createdAt).getTime() -
+                              new Date(b.createdAt).getTime()
+                          )
+                          .map((org) => (
                           <Link
                             key={org.id}
                             href={`/dashboard/organizers/${org.id}`}
@@ -266,6 +286,7 @@ export function Header({
 
         <div className="relative">
           <button
+            type="button"
             onClick={() => {
               setIsProfileOpen(!isProfileOpen);
               setIsNotificationsOpen(false);
@@ -324,6 +345,7 @@ export function Header({
               </div>
               <div className="border-t border-slate-100 py-1">
                 <button
+                  type="button"
                   onClick={handleSignOut}
                   className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >

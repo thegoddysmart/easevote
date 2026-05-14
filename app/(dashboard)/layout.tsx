@@ -24,9 +24,10 @@ export default function UnifiedDashboardLayout({
 
   // Both hooks are called unconditionally (rules of hooks).
   // The enabled flag makes each a no-op when it isn't the active role.
-  const { unreadCount } = useNotifications({ enabled: role === "ORGANIZER" });
+  const { unreadCount } = useNotifications({ enabled: role === "ORGANIZER", showToasts: false });
   const { pendingEventsCount, pendingOrganizersCount } = useAdminAlerts({
     enabled: role === "ADMIN" || role === "SUPER_ADMIN",
+    showToasts: false,
   });
 
   if (status === "loading") {

@@ -28,7 +28,7 @@ function showNotificationToast(notification: Notification) {
   }
 }
 
-export function useNotifications({ enabled = true }: { enabled?: boolean } = {}) {
+export function useNotifications({ enabled = true, showToasts = true }: { enabled?: boolean; showToasts?: boolean } = {}) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -63,9 +63,11 @@ export function useNotifications({ enabled = true }: { enabled?: boolean } = {})
 
         // Surface only the single most-recent unread notification on login —
         // showing all of them at once would be noisy
-        const mostRecentUnread = mapped.find((n) => !n.read);
-        if (mostRecentUnread) {
-          showNotificationToast(mostRecentUnread);
+        if (showToasts) {
+          const mostRecentUnread = mapped.find((n) => !n.read);
+          if (mostRecentUnread) {
+            showNotificationToast(mostRecentUnread);
+          }
         }
 
         isInitialFetchRef.current = false;
@@ -74,8 +76,7 @@ export function useNotifications({ enabled = true }: { enabled?: boolean } = {})
         const brandNew = mapped.filter((n) => !knownIdsRef.current.has(n.id));
         brandNew.forEach((n) => {
           knownIdsRef.current.add(n.id);
-          // Only toast if the backend created it as unread (i.e. it wasn't pre-read by another session)
-          if (!n.read) {
+          if (showToasts && !n.read) {
             showNotificationToast(n);
           }
         });

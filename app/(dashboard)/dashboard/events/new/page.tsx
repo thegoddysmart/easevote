@@ -460,6 +460,9 @@ export default function CreateEventPage() {
           minVotesPerPurchase: parseInt(formData.minVotesPerPurchase) || 1,
           maxVotesPerPurchase: formData.maxVotesPerPurchase ? parseInt(formData.maxVotesPerPurchase) : null,
           allowPublicNominations: formData.allowPublicNominations,
+          ...(formData.allowPublicNominations && nominationSettings.whatsappLink
+            ? { whatsappGroupLink: nominationSettings.whatsappLink }
+            : {}),
           categories: categories.map((cat) => ({
             name: cat.name,
             description: cat.description || "Category description",
@@ -510,13 +513,7 @@ export default function CreateEventPage() {
             })),
           });
 
-          // Mirror the link onto the event document so the public nomination
-          // success screen (which reads event.whatsappGroupLink) can show it.
-          if (nominationSettings.whatsappLink) {
-            await api.patch(`/events/${eventId}`, {
-              whatsappGroupLink: nominationSettings.whatsappLink,
-            });
-          }
+
         } catch (nomError) {
           console.error("Failed to save nomination settings:", nomError);
         }

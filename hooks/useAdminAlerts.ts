@@ -19,7 +19,7 @@ export interface PendingOrganizer {
   createdAt: string;
 }
 
-export function useAdminAlerts({ enabled = true }: { enabled?: boolean } = {}) {
+export function useAdminAlerts({ enabled = true, showToasts = true }: { enabled?: boolean; showToasts?: boolean } = {}) {
   const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>([]);
   const [pendingOrgs, setPendingOrgs] = useState<PendingOrganizer[]>([]);
 
@@ -83,16 +83,18 @@ export function useAdminAlerts({ enabled = true }: { enabled?: boolean } = {}) {
         const brandNew = current.filter((a) => !knownIdsRef.current.has(a.id));
         brandNew.forEach((a) => {
           knownIdsRef.current.add(a.id);
-          if (a.kind === "event") {
-            toast(`New event submitted for review — ${a.label}`, {
-              icon: "📋",
-              duration: 5000,
-            });
-          } else {
-            toast(`New organizer registration — ${a.label}`, {
-              icon: "👤",
-              duration: 5000,
-            });
+          if (showToasts) {
+            if (a.kind === "event") {
+              toast(`New event submitted for review — ${a.label}`, {
+                icon: "📋",
+                duration: 5000,
+              });
+            } else {
+              toast(`New organizer registration — ${a.label}`, {
+                icon: "👤",
+                duration: 5000,
+              });
+            }
           }
         });
       }

@@ -24,7 +24,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TicketCheckoutModal } from "@/components/features/checkout/TicketCheckoutModal";
 import { getEventStatus } from "@/lib/utils/event-status";
-import { formatEventDate } from "@/lib/utils/date-format";
+import { formatEventDate, formatEventDateTime } from "@/lib/utils/date-format";
 import Image from "next/image";
 import { EventShareButton } from "@/components/features/events/EventShareButton";
 
@@ -687,7 +687,7 @@ export default function EventDetailClient({
                  {event.nominationStartTime && (
                    <div className="inline-flex items-center gap-2 px-6 py-2 bg-slate-50 rounded-full border border-slate-100 text-sm font-bold text-slate-600">
                      <Calendar size={16} className="text-primary-600" />
-                     Opens: {new Date(event.nominationStartTime).toLocaleString("en-GB", { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                     Opens: {formatEventDateTime(event.nominationStartTime)}
                    </div>
                  )}
               </div>
@@ -739,8 +739,8 @@ export default function EventDetailClient({
                            <Calendar className="text-primary-600" size={24} />
                            {(() => {
                              const deadline = event.nominationEndDate || event.votingEndTime || event.votingEndDate || event.endDate;
-                             return deadline 
-                               ? new Date(deadline).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+                             return deadline
+                               ? formatEventDateTime(deadline)
                                : "Not Specified";
                            })()}
                         </div>

@@ -509,6 +509,14 @@ export default function CreateEventPage() {
               order: index,
             })),
           });
+
+          // Mirror the link onto the event document so the public nomination
+          // success screen (which reads event.whatsappGroupLink) can show it.
+          if (nominationSettings.whatsappLink) {
+            await api.patch(`/events/${eventId}`, {
+              whatsappGroupLink: nominationSettings.whatsappLink,
+            });
+          }
         } catch (nomError) {
           console.error("Failed to save nomination settings:", nomError);
         }

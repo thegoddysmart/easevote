@@ -78,6 +78,7 @@ export function CategoriesManager({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [eventTitle, setEventTitle] = useState("");
+  const [eventCode, setEventCode] = useState("");
 
   const [categories, setCategories] = useState<CategoryForm[]>([]);
   const [deletedCategoryIds, setDeletedCategoryIds] = useState<string[]>([]);
@@ -94,6 +95,7 @@ export function CategoriesManager({
       const data = await api.get(`/events/${eventId}`);
       const eventData = data.data || data.event || data;
       setEventTitle(eventData.title);
+      setEventCode(eventData.eventCode || "");
 
       if (eventData.categories) {
         setCategories(
@@ -163,7 +165,7 @@ export function CategoriesManager({
       title: "Delete Category",
       message: `Are you sure you want to delete the category "${categories[index].name || "Untitled"}"? This will also remove all its candidates from the selection.`,
       confirmText: "Delete",
-      variant: "danger"
+      variant: "danger",
     });
 
     if (!confirmed) return;
@@ -184,6 +186,13 @@ export function CategoriesManager({
   };
 
   const addCandidate = (categoryIndex: number) => {
+    const totalExisting = categories.reduce(
+      (sum, c) => sum + c.candidates.length,
+      0,
+    );
+    const nextSeq = totalExisting + 1;
+    const code = eventCode ? `${eventCode}${nextSeq}` : "";
+
     setCategories((prev) =>
       prev.map((c, i) =>
         i === categoryIndex
@@ -197,6 +206,7 @@ export function CategoriesManager({
                   email: "",
                   phone: "",
                   image: null,
+                  code,
                 },
               ],
             }
@@ -238,7 +248,7 @@ export function CategoriesManager({
       title: "Delete Candidate",
       message: `Are you sure you want to remove ${categories[catIdx].candidates[candIdx].name || "this candidate"}?`,
       confirmText: "Remove",
-      variant: "danger"
+      variant: "danger",
     });
 
     if (!confirmed) return;
@@ -278,7 +288,11 @@ export function CategoriesManager({
     if (!file) return;
 
     // Validate type and size per recommendation
-    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
+    if (
+      !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(
+        file.type,
+      )
+    ) {
       toast.error("Invalid format. Please use JPG, PNG, WebP or GIF.");
       return;
     }
@@ -346,7 +360,9 @@ export function CategoriesManager({
           if (!cand.name.trim())
             throw new Error(`All candidates in ${cat.name} must have a name`);
           if (!cand.phone?.trim())
-            throw new Error(`Candidate "${cand.name || 'Unknown'}" in ${cat.name} must have a phone number`);
+            throw new Error(
+              `Candidate "${cand.name || "Unknown"}" in ${cat.name} must have a phone number`,
+            );
         }
       }
 
@@ -378,7 +394,8 @@ export function CategoriesManager({
       router.refresh();
       fetchEvent();
     } catch (err: any) {
-      const msg = err.response?.data?.message || err.message || "Failed to save changes";
+      const msg =
+        err.response?.data?.message || err.message || "Failed to save changes";
       setError(msg);
       toast.error(msg);
     } finally {
@@ -543,13 +560,13 @@ export function CategoriesManager({
                           </div>
                           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
                             {candidate.code && (
-                            <input
-                              type="text"
-                              value={candidate.code}
-                              readOnly
-                              className="px-3 py-2 border border-slate-200 bg-slate-100 text-slate-500 rounded-lg focus:outline-none cursor-not-allowed uppercase font-mono"
-                              placeholder="Code"
-                            />
+                              <input
+                                type="text"
+                                value={candidate.code}
+                                readOnly
+                                className="px-3 py-2 border border-slate-200 bg-slate-100 text-slate-500 rounded-lg focus:outline-none cursor-not-allowed uppercase font-mono"
+                                placeholder="Code"
+                              />
                             )}
                             <input
                               type="text"

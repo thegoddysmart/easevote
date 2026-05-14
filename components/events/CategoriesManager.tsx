@@ -130,6 +130,16 @@ export function CategoriesManager({
     if (eventId) fetchEvent();
   }, [eventId]);
 
+  // Re-fetch when the tab regains focus so stale state doesn't overwrite
+  // nomination-approved candidates that appeared while the organizer was away.
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") fetchEvent();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
   const addCategory = () => {
     setCategories((prev) => [
       ...prev,
@@ -366,26 +376,70 @@ export function CategoriesManager({
         }
       }
 
-      // 1. Prepare the atomic payload
+      // 1. Fetch fresh backend state immediately before saving.
+      //    Any nomination-approved candidates added since this component last
+      //    loaded would be missing from local state and silently overwritten by
+      //    a naive atomic PUT. We preserve them here.
+      const freshData = await api.get(`/events/${eventId}`);
+      const freshEvent = freshData.data || freshData.event || freshData;
+      const backendCategories: any[] = freshEvent.categories || [];
+
+      const deletedCandidateIdSet = new Set(
+        deletedCandidateIds.map((d: { categoryId: string; candidateId: string }) => d.candidateId)
+      );
+
+      // 2. Build merged payload
       const syncPayload = {
-        categories: categories.map((cat) => ({
-          _id: cat.id, // Pass existing ID for matching
-          name: cat.name,
-          description: cat.description || null,
-          candidates: cat.candidates.map((cand) => ({
-            _id: cand.id, // Pass existing ID for matching
-            name: cand.name,
-            description: cand.bio || null,
-            email: cand.email || null,
-            phone: cand.phone || null,
-            imageUrl: cand.image || null,
-            imagePublicId: cand.imagePublicId || null,
-            code: cand.code, // Preserve code if it exists
-          })),
-        })),
+        categories: categories.map((cat) => {
+          const backendCat = backendCategories.find(
+            (bc: any) => (bc._id || bc.id)?.toString() === cat.id?.toString()
+          );
+
+          const localCandidateIds = new Set(
+            cat.candidates.map((c: CandidateForm) => c.id).filter(Boolean)
+          );
+
+          // Candidates that exist in the backend but aren't in local state and
+          // haven't been explicitly deleted — these were approved from nominations
+          // while the organizer had this page open.
+          const orphans: any[] = backendCat
+            ? backendCat.candidates.filter((bc: any) => {
+                const bcId = (bc._id || bc.id)?.toString();
+                return bcId && !localCandidateIds.has(bcId) && !deletedCandidateIdSet.has(bcId);
+              })
+            : [];
+
+          return {
+            _id: cat.id,
+            name: cat.name,
+            description: cat.description || null,
+            candidates: [
+              ...cat.candidates.map((cand: CandidateForm) => ({
+                _id: cand.id,
+                name: cand.name,
+                description: cand.bio || null,
+                email: cand.email || null,
+                phone: cand.phone || null,
+                imageUrl: cand.image || null,
+                imagePublicId: cand.imagePublicId || null,
+                code: cand.code,
+              })),
+              ...orphans.map((bc: any) => ({
+                _id: bc._id || bc.id,
+                name: bc.name,
+                description: bc.description || bc.bio || null,
+                email: bc.email || null,
+                phone: bc.phone || null,
+                imageUrl: bc.imageUrl || bc.image || null,
+                imagePublicId: bc.imagePublicId || null,
+                code: bc.code,
+              })),
+            ],
+          };
+        }),
       };
 
-      // 2. Perform atomic sync
+      // 3. Perform atomic sync
       await api.put(`/events/${eventId}`, syncPayload);
 
       toast.success("Changes saved successfully!");

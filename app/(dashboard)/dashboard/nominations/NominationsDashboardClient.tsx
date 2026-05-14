@@ -22,6 +22,7 @@ import { clsx } from "clsx";
 import { useModal } from "@/components/providers/ModalProvider";
 import EventFilterDropdown from "@/components/dashboard/EventFilterDropdown";
 import { api } from "@/lib/api-client";
+import { showDismissibleToast } from "@/lib/utils/toast-helpers";
 
 type Nomination = {
   id: string;
@@ -106,7 +107,20 @@ export default function NominationsDashboardClient({
       // Use authenticated API client for approve/reject
       const action = newStatus === "APPROVED" ? "approve" : "reject";
       const body = newStatus === "REJECTED" ? { reason: "Rejected by organizer" } : undefined;
-      await api.patch(`/nominations/${id}/${action}`, body);
+      const result = await api.patch(`/nominations/${id}/${action}`, body);
+
+      // Surface duplicate-phone deduplication so the organizer knows why no
+      // new candidate appeared even though the nomination was approved.
+      if (
+        isApprove &&
+        typeof result?.message === "string" &&
+        result.message.includes("already exists")
+      ) {
+        showDismissibleToast(
+          "Nomination approved — but a candidate with the same phone number already exists in this category, so no duplicate was created.",
+          { icon: "ℹ️" }
+        );
+      }
 
       {
         // Optimistic update

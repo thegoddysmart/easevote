@@ -42,7 +42,6 @@ type TicketTypeForm = {
 
 type CandidateForm = {
   id: string;
-  code: string;
   name: string;
   bio: string;
   email: string;
@@ -58,14 +57,6 @@ type CategoryForm = {
 };
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
-const generateCandidateCode = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < 3; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
-};
 
 export default function CreateEventPage() {
   const router = useRouter();
@@ -281,7 +272,6 @@ export default function CreateEventPage() {
               ...c.candidates,
               {
                 id: generateId(),
-                code: generateCandidateCode(),
                 name: "",
                 bio: "",
                 email: "",
@@ -469,8 +459,7 @@ export default function CreateEventPage() {
             candidates: cat.candidates.map((cand) => ({
               name: cand.name,
               description: cand.bio || "Candidate bio",
-              code: cand.code,
-              email: cand.email || `${cand.code.toLowerCase()}@easevote.com`,
+              email: cand.email || null,
               phone: cand.phone || "0000000000",
             })),
           })),
@@ -1436,15 +1425,6 @@ export default function CreateEventPage() {
                                           value={cand.name}
                                           onChange={(e) => updateCandidate(category.id, cand.id, "name", e.target.value)}
                                           className="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                                        />
-                                      </div>
-                                      <div>
-                                        <input
-                                          type="text"
-                                          placeholder="Voting Code (e.g., JDO)"
-                                          value={cand.code}
-                                          onChange={(e) => updateCandidate(category.id, cand.id, "code", e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5))}
-                                          className="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono uppercase bg-white"
                                         />
                                       </div>
                                     </div>

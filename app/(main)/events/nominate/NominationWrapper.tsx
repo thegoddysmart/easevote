@@ -38,8 +38,6 @@ export default function NominationWrapper({
 }: NominationWrapperProps) {
   const router = useRouter();
   const [step, setStep] = useState(1); // 1: Welcome, 2: Form
-  const nominationType = "SELF"; 
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [trackingCode, setTrackingCode] = useState("");
@@ -421,7 +419,7 @@ export default function NominationWrapper({
                         <textarea
                            {...register("bio", { required: true })}
                            rows={5}
-                           placeholder="Tell us about yourself and why you should be nominated..."
+                           placeholder="Describe the nominee's achievements and why they should be nominated..."
                            className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-base focus:ring-4 focus:ring-primary-50/50 focus:border-primary-600 outline-none transition-all resize-none font-medium"
                         />
                         {errors.bio && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest pl-1">Biography is required</p>}

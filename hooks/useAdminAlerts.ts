@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import toast from "react-hot-toast";
+import { showDismissibleToast } from "@/lib/utils/toast-helpers";
 import { api } from "@/lib/api-client";
 
 export interface PendingEvent {
@@ -85,15 +85,9 @@ export function useAdminAlerts({ enabled = true, showToasts = true }: { enabled?
           knownIdsRef.current.add(a.id);
           if (showToasts) {
             if (a.kind === "event") {
-              toast(`New event submitted for review — ${a.label}`, {
-                icon: "📋",
-                duration: 5000,
-              });
+              showDismissibleToast(`New event submitted for review — ${a.label}`, { icon: "📋" });
             } else {
-              toast(`New organizer registration — ${a.label}`, {
-                icon: "👤",
-                duration: 5000,
-              });
+              showDismissibleToast(`New organizer registration — ${a.label}`, { icon: "👤" });
             }
           }
         });

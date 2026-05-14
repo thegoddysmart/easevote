@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import toast from "react-hot-toast";
+import { showDismissibleToast, showDismissibleErrorToast } from "@/lib/utils/toast-helpers";
 import { api } from "@/lib/api-client";
 
 export interface Notification {
@@ -22,9 +22,9 @@ function showNotificationToast(notification: Notification) {
     .join(" — ");
 
   if (notification.type === "DANGER") {
-    toast.error(body, { duration: 5000 });
+    showDismissibleErrorToast(body);
   } else {
-    toast(body, { icon: "🔔", duration: 5000 });
+    showDismissibleToast(body, { icon: "🔔" });
   }
 }
 

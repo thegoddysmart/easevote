@@ -58,9 +58,9 @@ export default async function EventDetailPage({ params }: PageProps) {
   let isAuthorized = false;
   if (session) {
     const userRole = session.user?.role;
-    const organizerId = session.user?.organizerId;
+    const userId = session.user?.id;
     const eventOrganizerId = typeof event.organizerId === 'object' ? event.organizerId?._id : event.organizerId;
-    const isOwner = organizerId === eventOrganizerId;
+    const isOwner = !!userId && userId === eventOrganizerId;
     const isAdmin = userRole === "ADMIN" || userRole === "SUPER_ADMIN";
     isAuthorized = isOwner || isAdmin;
   }

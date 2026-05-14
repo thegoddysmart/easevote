@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import { formatEventDateTime } from "@/lib/utils/date-format";
 import { useRouter } from "next/navigation";
 import { getEventStatus } from "@/lib/utils/event-status";
 import { Button } from "@/components/ui/button";
@@ -132,9 +132,7 @@ export default function EventStatusNotification({
       if (votingStart && new Date(votingStart) > new Date()) {
         setModalContent({
           title: "Voting Coming Soon ⏳",
-          description: `Voting for ${
-            event.title
-          } is scheduled to start on ${format(new Date(votingStart), "PPP")}. Get ready!`,
+          description: `Voting for ${event.title} is scheduled to start on ${formatEventDateTime(votingStart)}. Get ready!`,
           icon: (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -161,10 +159,7 @@ export default function EventStatusNotification({
       } else if (nominationStart && new Date(nominationStart) > new Date()) {
         setModalContent({
           title: "Nominations Opening Soon 🔜",
-          description: `Nominations for ${event.title} will open on ${format(
-            new Date(nominationStart),
-            "PPP"
-          )}.`,
+          description: `Nominations for ${event.title} will open on ${formatEventDateTime(nominationStart)}.`,
           icon: (
             <svg
               xmlns="http://www.w3.org/2000/svg"

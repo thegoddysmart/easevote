@@ -86,13 +86,13 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   if (phase === "VOTING") {
     const gmtDate = new Date(event.endDate);
-    timelineLabel = `Voting ends ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
+    timelineLabel = `Voting ends ${gmtDate.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true })}`;
     timelineEnd = gmtDate;
   } else if (phase === "ENDED") {
     timelineLabel = "Event Ended";
   } else {
     const gmtDate = new Date(event.startDate);
-    timelineLabel = `Starts ${gmtDate.toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`;
+    timelineLabel = `Starts ${gmtDate.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true })}`;
     timelineEnd = gmtDate;
   }
 

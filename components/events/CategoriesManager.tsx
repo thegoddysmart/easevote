@@ -196,13 +196,6 @@ export function CategoriesManager({
   };
 
   const addCandidate = (categoryIndex: number) => {
-    const totalExisting = categories.reduce(
-      (sum, c) => sum + c.candidates.length,
-      0,
-    );
-    const nextSeq = totalExisting + 1;
-    const code = eventCode ? `${eventCode}${nextSeq}` : "";
-
     setCategories((prev) =>
       prev.map((c, i) =>
         i === categoryIndex
@@ -216,7 +209,7 @@ export function CategoriesManager({
                   email: "",
                   phone: "",
                   image: null,
-                  code,
+                  code: "",
                 },
               ],
             }
@@ -613,7 +606,7 @@ export function CategoriesManager({
                             {candIndex + 1}
                           </div>
                           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {candidate.code && (
+                            {Boolean(candidate.code) && (
                               <input
                                 type="text"
                                 value={candidate.code}

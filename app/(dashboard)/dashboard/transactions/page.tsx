@@ -87,24 +87,69 @@ export default async function AdminTransactionsPage({
   const rawTransactions = transactionsData.data || transactionsData.purchases || (Array.isArray(transactionsData) ? transactionsData : []);
   const pagination = transactionsData.pagination || { totalPages: 1, currentPage: 1, totalResults: rawTransactions.length };
 
-  const transactions = rawTransactions.map((tx: any) => ({
-    id: tx._id,
-    reference: tx.paymentReference,
-    type: tx.type,
-    amount: tx.amount,
-    currency: tx.currency || "GHS",
-    status: tx.status === "PAID" ? "SUCCESS" : tx.status,
-    payer: tx.customerName || tx.customerEmail || "Anonymous",
-    customerEmail: tx.customerEmail || "",
-    customerPhone: tx.customerPhone || "",
-    source: tx.source || "web",
-    event: tx.eventId?.title || "Unknown Event",
-    eventType: tx.eventId?.type || "",
-    date: tx.paidAt || tx.createdAt,
-    voteCount: tx.voteCount || 0,
-    ticketQuantity: tx.ticketQuantity || 0,
-    ticketNumbers: (tx.ticketNumbers as string[]) || [],
-  }));
+  // Resolve candidate and category names for VOTE purchases.
+  // candidateId and categoryId are embedded subdocument IDs inside the Event
+  // document — the backend does not populate them, so we fetch each unique
+  // event once and build a cross-reference map client-side.
+  type EventLookup = { categories: Record<string, string>; candidates: Record<string, string> };
+  const eventLookup: Record<string, EventLookup> = {};
+
+  const voteEventIds = [
+    ...new Set(
+      rawTransactions
+        .filter((tx: any) => tx.type === "VOTE" && tx.eventId)
+        .map((tx: any) => (tx.eventId._id || tx.eventId).toString())
+    ),
+  ];
+
+  await Promise.allSettled(
+    voteEventIds.map(async (eid: string) => {
+      try {
+        const res = await apiClient.get(`/events/${eid}`);
+        const ev = res.data || res.event || res;
+        const categories: Record<string, string> = {};
+        const candidates: Record<string, string> = {};
+        for (const cat of ev.categories || []) {
+          const catId = (cat._id || cat.id)?.toString();
+          if (catId) categories[catId] = cat.name;
+          for (const cand of cat.candidates || []) {
+            const candId = (cand._id || cand.id)?.toString();
+            if (candId) candidates[candId] = cand.name;
+          }
+        }
+        eventLookup[eid] = { categories, candidates };
+      } catch {
+        // event deleted or inaccessible — names stay blank
+      }
+    })
+  );
+
+  const transactions = rawTransactions.map((tx: any) => {
+    const eid = (tx.eventId?._id || tx.eventId)?.toString() ?? "";
+    const lookup = eventLookup[eid];
+    const candId = tx.candidateId?.toString();
+    const catId  = tx.categoryId?.toString();
+    return {
+      id: tx._id,
+      reference: tx.paymentReference,
+      type: tx.type,
+      amount: tx.amount,
+      currency: tx.currency || "GHS",
+      status: tx.status === "PAID" ? "SUCCESS" : tx.status,
+      payer: tx.customerName || tx.customerEmail || "Anonymous",
+      customerEmail: tx.customerEmail || "",
+      customerPhone: tx.customerPhone || "",
+      source: tx.source || "web",
+      event: tx.eventId?.title || "Unknown Event",
+      eventType: tx.eventId?.type || "",
+      date: tx.paidAt || tx.createdAt,
+      voteCount: tx.voteCount || 0,
+      ticketQuantity: tx.ticketQuantity || 0,
+      ticketNumbers: (tx.ticketNumbers as string[]) || [],
+      candidateName: (candId && lookup?.candidates[candId]) || "",
+      categoryName:  (catId  && lookup?.categories[catId])  || "",
+    };
+  });
 
   // Helper for compact GHS formatting
   const fmtGHS = (amount: number) => {

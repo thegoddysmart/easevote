@@ -30,6 +30,8 @@ type Transaction = {
   voteCount?: number;
   ticketQuantity?: number;
   ticketNumbers?: string[];
+  candidateName: string;
+  categoryName: string;
 };
 
 type Pagination = {
@@ -123,13 +125,16 @@ export default function TransactionsTable({
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const filteredTransactions = searchQuery 
+  const filteredTransactions = searchQuery
     ? transactions.filter((tx) => {
         const query = searchQuery.toLowerCase();
         return (
           tx.reference.toLowerCase().includes(query) ||
           tx.payer.toLowerCase().includes(query) ||
-          tx.event.toLowerCase().includes(query)
+          tx.customerPhone.toLowerCase().includes(query) ||
+          tx.event.toLowerCase().includes(query) ||
+          tx.candidateName.toLowerCase().includes(query) ||
+          tx.categoryName.toLowerCase().includes(query)
         );
       })
     : transactions;
@@ -224,6 +229,25 @@ export default function TransactionsTable({
           {tx.source === "ussd" ? "USSD" : "Web"}
         </span>
       ),
+    },
+    {
+      key: "voted_for",
+      header: "Voted For",
+      render: (tx: Transaction) => {
+        if (tx.type !== "VOTE") return <span className="text-slate-300 text-xs">—</span>;
+        return (
+          <div className="space-y-0.5">
+            {tx.candidateName ? (
+              <div className="text-sm font-medium text-slate-900">{tx.candidateName}</div>
+            ) : (
+              <div className="text-xs text-slate-400 italic">Unknown candidate</div>
+            )}
+            {tx.categoryName && (
+              <div className="text-xs text-slate-400">{tx.categoryName}</div>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "event",

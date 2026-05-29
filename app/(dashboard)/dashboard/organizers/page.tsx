@@ -14,6 +14,7 @@ export default async function AdminOrganizersPage() {
 
   const organizers = rawUsers
     .filter((u: any) => u.role === "ORGANIZER")
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .map((user: any) => ({
       id: user._id,
       name: user.businessName || user.fullName,

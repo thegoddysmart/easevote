@@ -13,7 +13,7 @@ import {
   Phone,
 } from "lucide-react";
 import { clsx } from "clsx";
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect, useTransition } from "react";
 import EventFilterDropdown from "@/components/dashboard/EventFilterDropdown";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
@@ -111,6 +111,20 @@ export default function TransactionsTable({
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
+  // Local state for filters to allow instant, non-blocking visual updates
+  const [localEventId, setLocalEventId] = useState(currentFilters.eventId);
+  const [localStatus, setLocalStatus] = useState(currentFilters.status);
+  const [isPending, startTransition] = useTransition();
+
+  // Sync state when props update (e.g. server completes transition)
+  useEffect(() => {
+    setLocalEventId(currentFilters.eventId);
+  }, [currentFilters.eventId]);
+
+  useEffect(() => {
+    setLocalStatus(currentFilters.status);
+  }, [currentFilters.status]);
+
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -120,6 +134,13 @@ export default function TransactionsTable({
   };
 
   const handleParamChange = (name: string, value: string) => {
+    // Update local visual state instantly
+    if (name === "eventId") {
+      setLocalEventId(value);
+    } else if (name === "status") {
+      setLocalStatus(value);
+    }
+
     const params = new URLSearchParams(searchParams.toString());
     if (value && value !== "ALL") {
       params.set(name, value);
@@ -128,13 +149,18 @@ export default function TransactionsTable({
     }
     // Reset page on filter change
     if (name !== "page") params.set("page", "1");
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    });
   };
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(page));
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    });
   };
 
   const filteredTransactions = searchQuery
@@ -173,7 +199,7 @@ export default function TransactionsTable({
 
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <EventFilterDropdown
-            value={currentFilters.eventId}
+            value={localEventId}
             onChange={(val) => handleParamChange("eventId", val)}
             eventsList={eventsList}
             placeholder="All Events"
@@ -181,7 +207,7 @@ export default function TransactionsTable({
 
           <select
             title="Filter by status"
-            value={currentFilters.status}
+            value={localStatus}
             onChange={(e) => handleParamChange("status", e.target.value)}
             className="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
           >
@@ -194,7 +220,17 @@ export default function TransactionsTable({
       </div>
 
       {/* Custom Transaction Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden relative">
+        {/* Loading Transition Overlay */}
+        {isPending && (
+          <div className="absolute inset-0 bg-slate-50/50 backdrop-blur-[1px] z-10 flex items-center justify-center transition-all duration-300">
+            <div className="flex flex-col items-center gap-2">
+              <RotateCw className="w-8 h-8 text-indigo-600 animate-spin" />
+              <span className="text-xs font-semibold text-slate-500 tracking-wide">Updating transactions...</span>
+            </div>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>

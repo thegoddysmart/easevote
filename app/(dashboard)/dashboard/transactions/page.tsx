@@ -95,10 +95,10 @@ export default async function AdminTransactionsPage({
   const eventLookup: Record<string, EventLookup> = {};
 
   const voteEventIds: string[] = [
-    ...new Set(
-      rawTransactions
+    ...new Set<string>(
+      (rawTransactions as any[])
         .filter((tx: any) => tx.type === "VOTE" && tx.eventId)
-        .map((tx: any) => (tx.eventId._id || tx.eventId).toString())
+        .map((tx: any): string => (tx.eventId._id || tx.eventId).toString())
     ),
   ];
 

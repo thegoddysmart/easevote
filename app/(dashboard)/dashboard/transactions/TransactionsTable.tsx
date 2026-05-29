@@ -104,7 +104,7 @@ export default function TransactionsTable({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleParamChange = (name: string, value: string) => {
@@ -158,7 +158,9 @@ export default function TransactionsTable({
             <div className="text-xs text-slate-400">{tx.customerEmail}</div>
           )}
           {tx.customerPhone && (
-            <div className="text-xs text-slate-500 font-mono">{tx.customerPhone}</div>
+            <div className="text-xs text-slate-500 font-mono">
+              {tx.customerPhone}
+            </div>
           )}
         </div>
       ),
@@ -201,18 +203,23 @@ export default function TransactionsTable({
             {tx.type === "VOTE"
               ? `${tx.voteCount || 0} Votes`
               : tx.type === "TICKET"
-              ? `${tx.ticketQuantity || 0} Tickets`
-              : "-"}
+                ? `${tx.ticketQuantity || 0} Tickets`
+                : "-"}
           </span>
-          {tx.type === "TICKET" && tx.ticketNumbers && tx.ticketNumbers.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {tx.ticketNumbers.map((num) => (
-                <span key={num} className="text-[10px] font-mono text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded">
-                  {num}
-                </span>
-              ))}
-            </div>
-          )}
+          {tx.type === "TICKET" &&
+            tx.ticketNumbers &&
+            tx.ticketNumbers.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {tx.ticketNumbers.map((num) => (
+                  <span
+                    key={num}
+                    className="text-[10px] font-mono text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded"
+                  >
+                    {num}
+                  </span>
+                ))}
+              </div>
+            )}
         </div>
       ),
     },
@@ -220,12 +227,14 @@ export default function TransactionsTable({
       key: "source",
       header: "Channel",
       render: (tx: Transaction) => (
-        <span className={clsx(
-          "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide",
-          tx.source === "ussd"
-            ? "bg-purple-50 text-purple-700 border border-purple-100"
-            : "bg-blue-50 text-blue-700 border border-blue-100"
-        )}>
+        <span
+          className={clsx(
+            "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide",
+            tx.source === "ussd"
+              ? "bg-purple-50 text-purple-700 border border-purple-100"
+              : "bg-blue-50 text-blue-700 border border-blue-100",
+          )}
+        >
           {tx.source === "ussd" ? "USSD" : "Web"}
         </span>
       ),
@@ -234,13 +243,18 @@ export default function TransactionsTable({
       key: "voted_for",
       header: "Voted For",
       render: (tx: Transaction) => {
-        if (tx.type !== "VOTE") return <span className="text-slate-300 text-xs">—</span>;
+        if (tx.type !== "VOTE")
+          return <span className="text-slate-300 text-xs">—</span>;
         return (
           <div className="space-y-0.5">
             {tx.candidateName ? (
-              <div className="text-sm font-medium text-slate-900">{tx.candidateName}</div>
+              <div className="text-sm font-medium text-slate-900">
+                {tx.candidateName}
+              </div>
             ) : (
-              <div className="text-xs text-slate-400 italic">Unknown candidate</div>
+              <div className="text-xs text-slate-400 italic">
+                Unknown candidate
+              </div>
             )}
             {tx.categoryName && (
               <div className="text-xs text-slate-400">{tx.categoryName}</div>
@@ -278,7 +292,7 @@ export default function TransactionsTable({
             className={clsx(
               "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium",
               config.bg,
-              config.color
+              config.color,
             )}
           >
             <Icon className="w-3.5 h-3.5" />
@@ -314,7 +328,7 @@ export default function TransactionsTable({
             className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           />
         </div>
-        
+
         <div className="flex flex-col md:flex-row gap-4 items-center">
           <EventFilterDropdown
             value={currentFilters.eventId}
@@ -347,7 +361,16 @@ export default function TransactionsTable({
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-200">
           <div className="text-sm text-slate-500 font-medium">
-            Showing <span className="text-slate-900">{(pagination.currentPage - 1) * 20 + 1}</span> to <span className="text-slate-900">{Math.min(pagination.currentPage * 20, pagination.totalResults)}</span> of <span className="text-slate-900">{pagination.totalResults}</span> transactions
+            Showing{" "}
+            <span className="text-slate-900">
+              {(pagination.currentPage - 1) * 20 + 1}
+            </span>{" "}
+            to{" "}
+            <span className="text-slate-900">
+              {Math.min(pagination.currentPage * 20, pagination.totalResults)}
+            </span>{" "}
+            of <span className="text-slate-900">{pagination.totalResults}</span>{" "}
+            transactions
           </div>
           <div className="flex gap-2">
             <button

@@ -78,6 +78,8 @@ export default async function AdminTransactionsPage({
       netRevenue: rawStats.netRevenue || rawStats.netCommission || 0,
       successRate: rawStats.successRate || 0,
       pendingCount: rawStats.pendingCount || 0,
+      totalVotes: 0,
+      totalTickets: 0,
     };
 
     transactionsData = transactionsRes;
@@ -216,33 +218,63 @@ export default async function AdminTransactionsPage({
             </div>
         </div>
 
-        {/* ENGAGEMENT */}
-        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-             <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
-                <Vote size={120} />
-            </div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Total Engagement</p>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
-                {fmtCount(stats.totalVotes)}
-            </h2>
-            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
-                <BarChart3 size={12} /> TOTAL VOTES CAST
-            </div>
-        </div>
+        {/* ENGAGEMENT / SUCCESS RATE */}
+        {isOrganizer ? (
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+               <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                  <Vote size={120} />
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Total Engagement</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                  {fmtCount(stats.totalVotes)}
+              </h2>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                  <BarChart3 size={12} /> TOTAL VOTES CAST
+              </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+              <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                  <TrendingUp size={120} />
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Success Rate</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                  {Number(stats.successRate).toFixed(1)}%
+              </h2>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                  <BarChart3 size={12} /> PAYMENT SUCCESS RATE
+              </div>
+          </div>
+        )}
 
-        {/* UNITS SOLD */}
-        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-             <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
-                <Users size={120} />
-            </div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Units Sold</p>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
-                {fmtCount(stats.totalTickets)}
-            </h2>
-            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
-                <Calendar size={12} /> TOTAL TICKETS
-            </div>
-        </div>
+        {/* UNITS SOLD / PENDING TRANSACTIONS */}
+        {isOrganizer ? (
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+               <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                  <Users size={120} />
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Units Sold</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                  {fmtCount(stats.totalTickets)}
+              </h2>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                  <Calendar size={12} /> TOTAL TICKETS
+              </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+              <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                  <AlertOctagon size={120} />
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pending Transactions</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                  {fmtCount(stats.pendingCount)}
+              </h2>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                  <Activity size={12} /> AWAITING COMPLETION
+              </div>
+          </div>
+        )}
       </div>
 
       {/* Transactions Table */}

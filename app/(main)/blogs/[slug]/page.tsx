@@ -15,9 +15,10 @@ import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default async function SingleBlogPage({ params }: { params: { slug: string } }) {
+export default async function SingleBlogPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const apiClient = createServerApiClient();
-  const res = await apiClient.get(`/blogs/${params.slug}`).catch(() => null);
+  const res = await apiClient.get(`/blogs/${slug}`).catch(() => null);
   const blog = res?.data || res;
 
   if (!blog) {

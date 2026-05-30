@@ -50,7 +50,7 @@ export default function AdminsTable({ admins }: { admins: any[] }) {
           <div>
             <Link
               href={`/dashboard/admins/${admin.id}`}
-              className="font-medium text-slate-900 hover:text-indigo-600 hover:underline"
+              className="font-medium text-slate-900 hover:text-primary-600 transition-colors duration-150"
             >
               {admin.name}
             </Link>
@@ -67,7 +67,7 @@ export default function AdminsTable({ admins }: { admins: any[] }) {
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
           admin.role === "SUPER_ADMIN" 
             ? "bg-amber-100 text-amber-700" 
-            : "bg-indigo-100 text-indigo-700"
+            : "bg-primary-100 text-primary-700"
         }`}>
           <Shield className="w-3 h-3" />
           {admin.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}
@@ -118,7 +118,7 @@ export default function AdminsTable({ admins }: { admins: any[] }) {
         <div className="flex items-center gap-1">
           <Link
             href={`/dashboard/admins/${admin.id}`}
-            className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+            className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1"
             title="View Details"
           >
             <Eye className="w-4 h-4" />

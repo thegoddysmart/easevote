@@ -90,7 +90,7 @@ export default function CreateAdminButton() {
                       name="fullName"
                       required
                       placeholder="e.g. John Doe"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus-visible:ring-2 focus-visible:ring-secondary-600 transition-all"
                     />
                   </div>
 
@@ -105,7 +105,7 @@ export default function CreateAdminButton() {
                         type="email"
                         required
                         placeholder="admin@easevote.com"
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus-visible:ring-2 focus-visible:ring-secondary-600 transition-all"
                       />
                     </div>
                   </div>
@@ -120,7 +120,7 @@ export default function CreateAdminButton() {
                         type="tel"
                         required
                         placeholder="024 456 7890"
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus-visible:ring-2 focus-visible:ring-secondary-600 transition-all font-medium"
                       />
                     </div>
                   </div>
@@ -129,7 +129,7 @@ export default function CreateAdminButton() {
                     <button
                       type="submit"
                       disabled={isPending}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+                      className="w-full bg-primary-700 hover:bg-primary-800 text-white py-3 rounded-xl font-bold transition-all duration-150 flex items-center justify-center gap-2 shadow-lg shadow-primary-700/20 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1"
                     >
                       {isPending ? (
                         <>

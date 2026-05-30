@@ -169,7 +169,7 @@ export default function OrganizerActions({
         <button
           onClick={handleRestore}
           disabled={isPending}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors text-sm font-medium"
+          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1 transition-all duration-150 text-sm font-medium"
         >
           <RotateCcw className="w-4 h-4" />
           {isPending ? "Restoring..." : "Restore Account"}
@@ -205,7 +205,7 @@ export default function OrganizerActions({
           <button
             onClick={handleSyncStats}
             disabled={isPending}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg hover:bg-indigo-100 disabled:opacity-50 transition-all text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-700 border border-primary-100 rounded-lg hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1 transition-all duration-150 text-sm font-medium"
           >
             <RefreshCw className={isPending ? "w-4 h-4 animate-spin" : "w-4 h-4"} />
             {isPending ? "Syncing..." : "Sync Stats"}

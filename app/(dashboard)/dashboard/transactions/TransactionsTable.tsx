@@ -193,7 +193,7 @@ export default function TransactionsTable({
             placeholder="Search reference, payer, event, candidate…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-secondary-600 focus:border-transparent"
           />
         </div>
 
@@ -209,7 +209,7 @@ export default function TransactionsTable({
             title="Filter by status"
             value={localStatus}
             onChange={(e) => handleParamChange("status", e.target.value)}
-            className="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+            className="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-secondary-600 bg-white"
           >
             <option value="ALL">All Statuses</option>
             <option value="SUCCESS">Success</option>
@@ -307,7 +307,7 @@ export default function TransactionsTable({
                         <span className={clsx(
                           "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap",
                           tx.type === "VOTE"
-                            ? "bg-indigo-50 text-indigo-700 border border-indigo-100"
+                            ? "bg-primary-50 text-primary-700 border border-primary-100"
                             : tx.type === "TICKET"
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
                               : "bg-slate-50 text-slate-700 border border-slate-100"
@@ -387,7 +387,7 @@ export default function TransactionsTable({
 
                     {/* Expandable detail row */}
                     {isOpen && (
-                      <tr className="bg-indigo-50/20 border-b border-indigo-100/30">
+                      <tr className="bg-primary-50/20 border-b border-primary-100/30">
                         <td />
                         <td colSpan={8} className="px-6 py-4">
                           <div className="flex flex-wrap gap-x-8 gap-y-3 text-xs text-slate-600">
@@ -463,7 +463,7 @@ export default function TransactionsTable({
               type="button"
               onClick={() => handlePageChange(pagination.currentPage - 1)}
               disabled={pagination.currentPage === 1}
-              className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1 transition-all duration-150"
             >
               Previous
             </button>
@@ -474,7 +474,7 @@ export default function TransactionsTable({
               type="button"
               onClick={() => handlePageChange(pagination.currentPage + 1)}
               disabled={pagination.currentPage === pagination.totalPages}
-              className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1 transition-all duration-150"
             >
               Next
             </button>

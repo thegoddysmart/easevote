@@ -38,7 +38,7 @@ export default function BlogList({ blogs }: BlogListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="bg-gray-50 min-h-screen pt-24 pb-24">
       {blogs.map((blog, idx) => (
         <Link
           href={`/blogs/${blog.slug}`}

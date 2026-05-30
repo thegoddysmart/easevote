@@ -17,15 +17,28 @@ const variantClasses: Record<string, string> = {
   default:        "bg-neutral-900 text-white hover:bg-neutral-800 px-4 py-2",
 };
 
+const sizeClasses: Record<string, string> = {
+  sm:      "px-3 py-1.5 text-xs",
+  default: "px-4 py-2 text-sm",
+  lg:      "px-6 py-3 text-base",
+  icon:    "p-2",
+};
+
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: keyof typeof variantClasses;
+  size?: keyof typeof sizeClasses;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", ...props }, ref) => (
+  ({ className, variant = "default", size, ...props }, ref) => (
     <button
       ref={ref}
-      className={cn(BASE, variantClasses[variant] ?? variantClasses.default, className)}
+      className={cn(
+        BASE,
+        variantClasses[variant] ?? variantClasses.default,
+        size && sizeClasses[size],
+        className
+      )}
       {...props}
     />
   )

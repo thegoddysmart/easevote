@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { Zap } from "lucide-react";
@@ -26,7 +26,7 @@ export const SectionHeader: React.FC = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.2 }}
-        className={`${russoOne.className} tracking-tight text-brand-deep text-3xl capitalize leading-none text-[35px] sm:text-[45px] lg:text-[50px] xl:text-[60px]`}
+        className={`${russoOne.className} tracking-tight text-primary-600 text-3xl capitalize leading-none text-[35px] sm:text-[45px] lg:text-[50px] xl:text-[60px]`}
       >
         Our Partners
       </motion.h2>

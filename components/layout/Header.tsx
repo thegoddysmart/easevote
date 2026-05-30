@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import { Menu, X, ChevronDown, User } from "lucide-react";
@@ -140,7 +140,7 @@ const Header = () => {
           <div className="flex items-center lg:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-brand-deep hover:text-secondary-600 hover:bg-gray-100 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-primary-600 hover:text-secondary-600 hover:bg-gray-100 focus:outline-none"
             >
               {isOpen ? (
                 <X className="h-8 w-8" />
@@ -161,7 +161,7 @@ const Header = () => {
                 <div
                   className={`flex justify-between items-center w-full px-3 py-2 rounded-md text-base font-medium hover:text-secondary-600 hover:bg-gray-50 ${
                     !link.subLinks && isActive(link.href)
-                      ? "text-brand-deep bg-gray-50"
+                      ? "text-primary-600 bg-gray-50"
                       : "text-text-main"
                   }`}
                 >
@@ -193,9 +193,9 @@ const Header = () => {
                       <Link
                         key={sub.label}
                         href={sub.href}
-                        className={`block px-3 py-2 text-sm hover:text-brand-deep ${
+                        className={`block px-3 py-2 text-sm hover:text-primary-600 ${
                           isActive(sub.href)
-                            ? "text-brand-deep font-semibold"
+                            ? "text-primary-600 font-semibold"
                             : "text-gray-600"
                         }`}
                         onClick={() => setIsOpen(false)}
@@ -240,7 +240,7 @@ const Header = () => {
               ) : (
                 <Link
                   href="/sign-in"
-                  className="text-brand-deep font-medium block px-3"
+                  className="text-primary-600 font-medium block px-3"
                   onClick={() => setIsOpen(false)}
                 >
                   Login / User Profile

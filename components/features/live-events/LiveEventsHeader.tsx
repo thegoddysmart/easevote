@@ -1,4 +1,4 @@
-﻿import { russoOne } from "../../ui/fonts";
+import { russoOne } from "../../ui/fonts";
 
 export default function LiveEventsHeader() {
   return (
@@ -11,7 +11,7 @@ export default function LiveEventsHeader() {
       </div>
 
       <h2
-        className={`${russoOne.className} tracking-tight text-brand-deep text-[35px] sm:text-[45px] lg:text-[60px]`}
+        className={`${russoOne.className} tracking-tight text-primary-600 text-[35px] sm:text-[45px] lg:text-[60px]`}
       >
         Voting Events
       </h2>

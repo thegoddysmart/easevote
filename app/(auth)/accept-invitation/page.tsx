@@ -156,7 +156,7 @@ function SetupPasswordForm() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter strong password"
                       required
-                      className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                      className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus-visible:ring-2 focus-visible:ring-secondary-600 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                     />
                     <button
                       type="button"
@@ -234,7 +234,7 @@ function SetupPasswordForm() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Re-enter password"
                       required
-                      className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
+                      className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus-visible:ring-2 focus-visible:ring-secondary-600 focus:border-transparent transition-all bg-gray-50 focus:bg-white"
                     />
                     <button
                       type="button"
@@ -249,7 +249,7 @@ function SetupPasswordForm() {
                 <button
                   type="submit"
                   disabled={isPending || !token}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-indigo-900/20 transition-all hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  className="w-full bg-primary-700 hover:bg-primary-800 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary-900/20 transition-all duration-150 hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-2"
                 >
                   {isPending ? (
                     <>

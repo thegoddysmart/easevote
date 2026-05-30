@@ -5,11 +5,7 @@
 
 @theme {
   /* ========================================
-    BRAND COLORS (Primary Palette)
-    ======================================== */
-
-  /* ========================================
-    PRIMARY COLOR SCALE (Deep Magenta)
+    BRAND PRIMARY COLOR SCALE (Deep Magenta)
     ======================================== */
   --color-primary-50: #faf5fa;
   --color-primary-100: #f5ebf4;
@@ -24,7 +20,7 @@
   --color-primary-950: #1f001d;
 
   /* ========================================
-    SECONDARY COLOR SCALE (Bright Fuchsia)
+    BRAND SECONDARY COLOR SCALE (Bright Fuchsia)
     ======================================== */
   --color-primary-50: #fef5fa;
   --color-primary-100: #fdeaf5;

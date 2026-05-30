@@ -403,7 +403,7 @@ export function AdminEventManager({
                 target="_blank"
                 rel="noopener noreferrer"
                 title="View public page"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors shrink-0"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1 shrink-0"
               >
                 <ExternalLink className="w-4 h-4" />
               </a>
@@ -649,7 +649,7 @@ export function AdminEventManager({
 
               <div className="bg-white p-6 rounded-xl border border-slate-200">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                  <div className="p-2 bg-primary-100 text-primary-600 rounded-lg">
                     <Users className="w-5 h-5" />
                   </div>
                   <span className="text-sm font-medium text-slate-500">
@@ -747,7 +747,7 @@ export function AdminEventManager({
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold bg-indigo-50 text-indigo-600">
+                    <div className="w-full h-full flex items-center justify-center font-bold bg-primary-50 text-primary-700">
                       {(event.organizer?.name || "Unknown")
                         .substring(0, 2)
                         .toUpperCase()}
@@ -767,7 +767,7 @@ export function AdminEventManager({
               <div className="space-y-3 pt-4 border-t border-slate-100">
                 <a
                   href={`mailto:${event.organizer.email}`}
-                  className="flex items-center gap-2 text-sm text-slate-600 hover:text-indigo-600"
+                  className="flex items-center gap-2 text-sm text-slate-600 hover:text-primary-600"
                 >
                   <Mail className="w-4 h-4" />
                   {event.organizer.email}
@@ -775,7 +775,7 @@ export function AdminEventManager({
                 {event.organizer.phone && (
                   <a
                     href={`tel:${event.organizer.phone}`}
-                    className="flex items-center gap-2 text-sm text-slate-600 hover:text-indigo-600"
+                    className="flex items-center gap-2 text-sm text-slate-600 hover:text-primary-600"
                   >
                     <Phone className="w-4 h-4" />
                     {event.organizer.phone}
@@ -1205,8 +1205,8 @@ function VotingToggle({
       onClick={toggle}
       disabled={loading}
       className={clsx(
-        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2",
-        enabled ? "bg-indigo-600" : "bg-gray-200"
+        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-2",
+        enabled ? "bg-primary-700" : "bg-neutral-300"
       )}
     >
       <span

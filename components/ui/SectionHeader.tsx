@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { Zap } from "lucide-react";
@@ -13,7 +13,7 @@ export const SectionHeader: React.FC = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.1 }}
-        className="text-brand-bright font-bold uppercase text-sm tracking-wide mb-[15px] flex items-center justify-center gap-2"
+        className="text-secondary-600 font-bold uppercase text-sm tracking-wide mb-[15px] flex items-center justify-center gap-2"
       >
         <span className="text-red-600 bg-red-100 p-1 rounded-full">
           <Zap size={16} fill="currentColor" />
@@ -33,3 +33,4 @@ export const SectionHeader: React.FC = () => {
     </div>
   );
 };
+

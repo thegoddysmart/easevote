@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import { Smartphone, Share2, Wallet } from "lucide-react";
 import { russoOne } from "../ui/fonts";
@@ -129,7 +129,7 @@ export default function HowItWorks() {
                 onClick={() => setActiveStep(index)}
                 className={`w-full text-left p-6 rounded-2xl transition-all duration-300 flex items-start gap-4 border-2 ${
                   activeStep === index
-                    ? "border-brand-bright bg-brand-bright/1 shadow-lg scale-105"
+                    ? "border-secondary-600 bg-secondary-600/1 shadow-lg scale-105"
                     : "border-transparent hover:bg-gray-50"
                 }`}
               >
@@ -156,3 +156,4 @@ export default function HowItWorks() {
     </section>
   );
 }
+

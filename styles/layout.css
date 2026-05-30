@@ -1,8 +1,8 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 @theme {
   --color-brand-deep: #5b0058;
-  --color-brand-bright: #d3067d;
+  --color-secondary-600: #d3067d;
   --color-text-main: #1a1a1a;
   --color-text-muted: #4a4a4a;
 
@@ -47,3 +47,4 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+

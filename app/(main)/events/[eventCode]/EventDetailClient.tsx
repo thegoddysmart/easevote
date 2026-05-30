@@ -504,7 +504,7 @@ export default function EventDetailClient({
                             available
                           </p>
                         </div>
-                        <span className="bg-brand-bright text-white px-3 py-1 rounded-full text-sm font-bold">
+                        <span className="bg-secondary-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                           GHS {ticket.price}.00
                         </span>
                       </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -133,7 +133,7 @@ export default function LiveEvents({ events }: { events: any[] }) {
         <div className="mt-12 text-center">
           <Link
             href="/events/voting"
-            className="inline-block border-b border-primary-600/30 text-primary-600 hover:text-brand-bright hover:border-brand-bright pb-1 transition-all"
+            className="inline-block border-b border-primary-600/30 text-primary-600 hover:text-secondary-600 hover:border-secondary-600 pb-1 transition-all"
           >
             View All Events
           </Link>
@@ -142,3 +142,4 @@ export default function LiveEvents({ events }: { events: any[] }) {
     </section>
   );
 }
+

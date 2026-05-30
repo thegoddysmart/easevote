@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { getEventStatus } from "@/lib/utils/event-status";
 import { formatEventDate } from "@/lib/utils/date-format";
@@ -47,11 +47,11 @@ export default function EventCard({ event }: { event: any }) {
       <div className="p-6 relative flex-1 flex flex-col">
         <div className="flex items-center gap-1.5 mb-2">
           {event.type === "TICKETING" ? (
-            <Ticket size={12} className="text-brand-bright" />
+            <Ticket size={12} className="text-secondary-600" />
           ) : (
-            <Trophy size={12} className="text-brand-bright" />
+            <Trophy size={12} className="text-secondary-600" />
           )}
-          <p className="text-[10px] font-bold text-brand-bright uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-secondary-600 uppercase tracking-widest">
             {event.categories && event.categories.length > 0
               ? event.categories[0].name
               : event.type || event.category}
@@ -83,3 +83,4 @@ export default function EventCard({ event }: { event: any }) {
     </div>
   );
 }
+

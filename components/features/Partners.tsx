@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { SectionHeader } from "../ui/SectionHeader";
@@ -50,7 +50,7 @@ export default function Partners() {
             <TiltCard
               key={partner.id}
               className="w-[225px] h-[150px] sm:w-[295px] sm:h-[180px] md:w-[295px] md:h-[180px] bg-white"
-              borderColor="var(--color-brand-bright)"
+              borderColor="var(--color-secondary-600)"
             >
               <div className="relative w-full h-1/2 p-6">
                 <Image
@@ -101,3 +101,4 @@ export default function Partners() {
     </section>
   );
 }
+

@@ -30,7 +30,8 @@ const Hero = ({ banners }: HeroProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
 
-  const displayBanners = banners && banners.length > 0 ? banners : FALLBACK_SLIDES;
+  const displayBanners =
+    banners && banners.length > 0 ? banners : FALLBACK_SLIDES;
 
   // Responsive logic for carousel items
   useEffect(() => {
@@ -88,7 +89,7 @@ const Hero = ({ banners }: HeroProps) => {
             >
               Vote Smart, <br />
               <span>Vote Secure!</span> <br />
-              <span className="text-brand-bright">Vote Easy!</span>
+              <span className="text-secondary-600">Vote Easy!</span>
             </h1>
             <p className="text-lg lg:text-xl text-text-muted">
               Transform Your Events with Effortless E-Voting. Make Every Vote
@@ -97,7 +98,7 @@ const Hero = ({ banners }: HeroProps) => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link
                 href="/events/voting"
-                className="bg-brand-bright text-white! px-8 py-3 rounded-lg font-bold text-lg hover:bg-opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 inline-block text-center"
+                className="bg-secondary-600 text-white! px-8 py-3 rounded-lg font-bold text-lg hover:bg-opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 inline-block text-center"
               >
                 Vote Now
               </Link>
@@ -112,7 +113,7 @@ const Hero = ({ banners }: HeroProps) => {
 
           <div className="lg:w-1/2 relative hidden lg:block">
             {/* Abstract Decorative Element */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-bright/10 rounded-full blur-3xl -z-10"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary-600/10 rounded-full blur-3xl -z-10"></div>
             <Image
               src="/images/hero/hero-1.webp"
               alt="Ghana Event"
@@ -140,7 +141,9 @@ const Hero = ({ banners }: HeroProps) => {
                   key={banner._id || idx}
                   className="flex-shrink-0 relative cursor-pointer"
                   style={{ width: `calc(${100 / itemsPerView}% - 16px)` }} // Adjust for gap
-                  onClick={() => banner.linkUrl && (window.location.href = banner.linkUrl)}
+                  onClick={() =>
+                    banner.linkUrl && (window.location.href = banner.linkUrl)
+                  }
                 >
                   <div className="w-full h-64 relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-shadow">
                     <Image
@@ -151,7 +154,7 @@ const Hero = ({ banners }: HeroProps) => {
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-deep/80 to-transparent rounded-xl flex items-end p-4">
+                  <div className="absolute inset-0 bg-gradient-to-t from-secondary-600/80 to-transparent rounded-xl flex items-end p-4">
                     <span className="text-white font-bold text-sm">
                       {banner.title || "EaseVote Ghana"}
                     </span>
@@ -172,7 +175,7 @@ const Hero = ({ banners }: HeroProps) => {
                   onClick={() => goToSlide(idx * itemsPerView)}
                   className={`w-3 h-3 rounded-full transition-colors ${
                     Math.floor(currentIndex / itemsPerView) === idx
-                      ? "bg-brand-bright"
+                      ? "bg-secondary-600"
                       : "bg-gray-300"
                   }`}
                 />
@@ -181,13 +184,13 @@ const Hero = ({ banners }: HeroProps) => {
             <div className="flex gap-2">
               <button
                 onClick={prevSlide}
-                className="p-2 rounded-full border border-gray-300 hover:bg-brand-bright hover:text-white transition-colors text-brand-deep"
+                className="p-2 rounded-full border border-gray-300 hover:bg-secondary-600 hover:text-white transition-colors text-secondary-600"
               >
                 <ChevronLeft size={20} />
               </button>
               <button
                 onClick={nextSlide}
-                className="p-2 rounded-full border border-gray-300 hover:bg-brand-bright hover:text-white transition-colors text-brand-deep"
+                className="p-2 rounded-full border border-gray-300 hover:bg-secondary-600 hover:text-white transition-colors text-secondary-600"
               >
                 <ChevronRight size={20} />
               </button>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import {
@@ -86,7 +86,7 @@ export default function TicketingBrowseClient({
               placeholder="Search events, venues..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-primary-600 bg-primary-900 text-white placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-brand-bright transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-primary-600 bg-primary-900 text-white placeholder-primary-400 focus:outline-none focus:ring-2 focus:ring-secondary-600 transition-all"
             />
           </div>
 
@@ -95,7 +95,7 @@ export default function TicketingBrowseClient({
               title="Category"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-4 py-3 rounded-xl border border-primary-600 bg-primary-900 text-white font-medium focus:outline-none focus:border-brand-bright cursor-pointer"
+              className="px-4 py-3 rounded-xl border border-primary-600 bg-primary-900 text-white font-medium focus:outline-none focus:border-secondary-600 cursor-pointer"
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
@@ -109,7 +109,7 @@ export default function TicketingBrowseClient({
               onClick={() => setViewMode("grid")}
               className={`p-3 rounded-xl transition-colors ${
                 viewMode === "grid"
-                  ? "bg-brand-bright text-white"
+                  ? "bg-secondary-600 text-white"
                   : "text-primary-400 hover:text-white"
               }`}
             >
@@ -119,7 +119,7 @@ export default function TicketingBrowseClient({
               onClick={() => setViewMode("list")}
               className={`p-3 rounded-xl transition-colors ${
                 viewMode === "list"
-                  ? "bg-brand-bright text-white"
+                  ? "bg-secondary-600 text-white"
                   : "text-primary-400 hover:text-white"
               }`}
             >
@@ -162,7 +162,7 @@ export default function TicketingBrowseClient({
                       {getEventStatus(ticket as any).label}
                     </span>
                   </div>
-                  <div className="absolute top-4 right-4 bg-brand-bright text-white text-sm font-bold px-3 py-1 rounded-md">
+                  <div className="absolute top-4 right-4 bg-secondary-600 text-white text-sm font-bold px-3 py-1 rounded-md">
                     GHS {ticket.price}
                   </div>
                 </div>
@@ -201,7 +201,7 @@ export default function TicketingBrowseClient({
             <p className="text-primary-200 text-xl font-medium">No tickets found</p>
             <button
               onClick={() => {setSearchQuery(""); setCategoryFilter("All");}}
-              className="mt-4 text-brand-bright font-bold hover:underline"
+              className="mt-4 text-secondary-600 font-bold hover:underline"
             >
               Clear filters
             </button>
@@ -211,3 +211,4 @@ export default function TicketingBrowseClient({
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -76,7 +76,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <span className="text-brand-bright font-bold tracking-widest text-sm uppercase">
+          <span className="text-secondary-600 font-bold tracking-widest text-sm uppercase">
             Upcoming Experiences
           </span>
           <h2
@@ -140,7 +140,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
                 </div>
 
                 {ticket.ticketTypes && ticket.ticketTypes.length > 0 && (
-                  <div className="absolute top-4 right-4 bg-brand-bright text-white text-sm font-bold pl-3 px-3 py-1 rounded-md font-bold text-sm">
+                  <div className="absolute top-4 right-4 bg-secondary-600 text-white text-sm font-bold pl-3 px-3 py-1 rounded-md font-bold text-sm">
                     GHS {ticket.ticketTypes[0].price}.00
                   </div>
                 )}
@@ -219,7 +219,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
         <div className="mt-12 text-center">
           <Link
             href="/events/ticketing"
-            className="inline-block border-b border-white/30 text-white hover:text-brand-bright hover:border-brand-bright pb-1 transition-all"
+            className="inline-block border-b border-white/30 text-white hover:text-secondary-600 hover:border-secondary-600 pb-1 transition-all"
           >
             View All Events
           </Link>
@@ -228,3 +228,4 @@ export default function LiveTickets({ events }: { events: any[] }) {
     </section>
   );
 }
+

@@ -73,14 +73,14 @@ export default function Offers() {
           {/* For Organizers Card */}
           <div className="bg-linear-to-b from-primary-50 to-white p-8 rounded-3xl border border-primary-100 shadow-sm flex flex-col">
             <div className="flex items-center space-x-4 mb-6">
-              <div className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-primary-500/30">
+              <div className="w-12 h-12 bg-secondary-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-secondary-500/30">
                 <Briefcase size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-primary-700!">
+              <h3 className="text-2xl font-bold text-secondary-700!">
                 For Organizers
               </h3>
             </div>
-            <p className="text-sm font-semibold text-primary-600 mb-6 uppercase tracking-wider">
+            <p className="text-sm font-semibold text-secondary-600 mb-6 uppercase tracking-wider">
               Event Managers
             </p>
 

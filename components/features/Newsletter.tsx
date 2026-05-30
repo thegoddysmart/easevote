@@ -1,4 +1,4 @@
-﻿import { MessageCircle, ArrowRight, Mail } from "lucide-react";
+import { MessageCircle, ArrowRight, Mail } from "lucide-react";
 import { russoOne } from "../ui/fonts";
 
 export default function Newsletter() {
@@ -44,7 +44,7 @@ export default function Newsletter() {
                   className="w-full pl-12 pr-6 py-4 rounded-full bg-white text-secondary-600 placeholder-primary-900/40 font-medium focus:outline-none focus:ring-4 focus:ring-primary-900/20 shadow-sm"
                 />
               </div>
-              <button className="w-full sm:w-auto bg-brand-deep hover:bg-primary-800 text-white px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 group">
+              <button className="w-full sm:w-auto bg-primary-600 hover:bg-primary-800 text-white px-8 py-4 rounded-full font-bold flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 group">
                 Subscribe
                 <ArrowRight
                   size={20}

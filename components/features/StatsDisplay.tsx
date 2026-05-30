@@ -23,7 +23,7 @@ export default function StatsDisplay({ stats }: { stats: StatItem[] }) {
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-12">
           <h2
-            className={`${russoOne.className} tracking-tight text-brand-deep text-3xl capitalize leading-none text-[35px] sm:text-[45px] lg:text-[50px] xl:text-[60px]`}
+            className={`${russoOne.className} tracking-tight text-primary-600 text-3xl capitalize leading-none text-[35px] sm:text-[45px] lg:text-[50px] xl:text-[60px]`}
           >
             Platform Impact
           </h2>

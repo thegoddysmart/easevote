@@ -74,7 +74,7 @@ const StatCard: React.FC<StatItem> = ({
       </div>
 
       {variant === "primary" && (
-        <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-brand-deep/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-primary-600/10 rounded-full blur-3xl"></div>
       )}
 
       {hasDecor && (

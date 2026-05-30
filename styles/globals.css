@@ -4,9 +4,6 @@
   /* ========================================
     BRAND COLORS (Primary Palette)
     ======================================== */
-  --color-brand-deep: #5b0058;
-  --color-brand-bright: #d3067d;
-  --color-brand-white: #ffffff;
 
   /* ========================================
     PRIMARY COLOR SCALE (Deep Magenta)
@@ -153,8 +150,9 @@
     TYPOGRAPHY
      ======================================== */
   /* Font Families */
-  --font-body: "Neuwelt", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --font-body:
+    "Neuwelt", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Helvetica Neue", Arial, sans-serif;
   --font-heading: "Russo One", "Bebas Neue", "Nexa", Arial, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", "Courier New", monospace;
 
@@ -252,13 +250,14 @@
     SHADOWS
      ======================================== */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-sm:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-base:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-md:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-lg:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
@@ -418,12 +417,14 @@
     0%,
     100% {
       transform: scale(1);
-      box-shadow: 0 0 25px rgba(236, 72, 153, 0.7),
+      box-shadow:
+        0 0 25px rgba(236, 72, 153, 0.7),
         0 0 45px rgba(124, 58, 237, 0.5);
     }
     50% {
       transform: scale(1.06);
-      box-shadow: 0 0 45px rgba(236, 72, 153, 1),
+      box-shadow:
+        0 0 45px rgba(236, 72, 153, 1),
         0 0 80px rgba(124, 58, 237, 0.8);
     }
   }
@@ -506,6 +507,20 @@ a:hover {
 /* Reset <a> color ONLY inside the header */
 .header a {
   color: inherit !important;
+}
+
+/* Cursor & active press state for all interactive elements */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+summary,
+label[for],
+select:not(:disabled) {
+  cursor: pointer;
+}
+
+button:not(:disabled):active,
+[role="button"]:not(:disabled):active {
+  transform: scale(0.97);
 }
 
 /* Focus styles */

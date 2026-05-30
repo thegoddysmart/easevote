@@ -63,11 +63,12 @@ export default function TicketingBrowseClient({
       {/* Header */}
       <div className="border-b border-primary-600 pb-8 pt-6 bg-primary-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-white! mb-4">
             Event Tickets & Concerts
           </h1>
           <p className="text-primary-200">
-            Secure your spot at the best events. Fast, easy, and reliable ticketing.
+            Secure your spot at the best events. Fast, easy, and reliable
+            ticketing.
           </p>
         </div>
       </div>
@@ -91,14 +92,16 @@ export default function TicketingBrowseClient({
           </div>
 
           <div className="flex gap-3 w-full lg:w-auto overflow-x-auto pb-1 lg:pb-0">
-             <select
+            <select
               title="Category"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="px-4 py-3 rounded-xl border border-primary-600 bg-primary-900 text-white font-medium focus:outline-none focus:border-secondary-600 cursor-pointer"
             >
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat === "All" ? "All Categories" : cat}
+                </option>
               ))}
             </select>
           </div>
@@ -144,17 +147,22 @@ export default function TicketingBrowseClient({
                   viewMode === "list" ? "flex-row h-64" : "flex-col"
                 }`}
                 style={{
-                  clipPath: viewMode === "grid" ? "polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 95%, 10px 90%, 0 85%, 10px 80%, 0 75%, 10px 70%, 0 65%, 10px 60%, 0 55%, 10px 50%, 0 45%, 10px 40%, 0 35%, 10px 30%, 0 25%, 10px 20%, 0 15%, 10px 10%, 0 5%)" : "none"
+                  clipPath:
+                    viewMode === "grid"
+                      ? "polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 95%, 10px 90%, 0 85%, 10px 80%, 0 75%, 10px 70%, 0 65%, 10px 60%, 0 55%, 10px 50%, 0 45%, 10px 40%, 0 35%, 10px 30%, 0 25%, 10px 20%, 0 15%, 10px 10%, 0 5%)"
+                      : "none",
                 }}
               >
-                <div className={`relative bg-gray-800 ${viewMode === "list" ? "w-72" : "h-48"}`}>
+                <div
+                  className={`relative bg-gray-800 ${viewMode === "list" ? "w-72" : "h-48"}`}
+                >
                   <img
                     src={ticket.image}
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                     alt={ticket.title}
                   />
                   <div className="absolute top-4 left-4">
-                     <span
+                    <span
                       className={`px-3 py-1 rounded-full text-xs font-bold uppercase shadow-sm text-white ${
                         getEventStatus(ticket as any).color
                       } ${getEventStatus(ticket as any).isActive ? "animate-pulse" : ""}`}
@@ -168,8 +176,10 @@ export default function TicketingBrowseClient({
                 </div>
 
                 <div className="relative bg-white text-slate-900 p-6 flex-1 flex flex-col justify-between">
-                   {viewMode === "grid" && <div className="absolute -top-2 left-0 w-full h-4 bg-slate-900 ticket-stub-mask rotate-180 z-10"></div>}
-                  
+                  {viewMode === "grid" && (
+                    <div className="absolute -top-2 left-0 w-full h-4 bg-slate-900 ticket-stub-mask rotate-180 z-10"></div>
+                  )}
+
                   <div>
                     <h3 className="text-xl font-bold mb-3">{ticket.title}</h3>
 
@@ -198,9 +208,14 @@ export default function TicketingBrowseClient({
         ) : (
           <div className="text-center py-24 bg-primary-800 rounded-3xl border border-dashed border-primary-600">
             <Ticket className="w-16 h-16 text-primary-600 mx-auto mb-4" />
-            <p className="text-primary-200 text-xl font-medium">No tickets found</p>
+            <p className="text-primary-200 text-xl font-medium">
+              No tickets found
+            </p>
             <button
-              onClick={() => {setSearchQuery(""); setCategoryFilter("All");}}
+              onClick={() => {
+                setSearchQuery("");
+                setCategoryFilter("All");
+              }}
               className="mt-4 text-secondary-600 font-bold hover:underline"
             >
               Clear filters
@@ -211,4 +226,3 @@ export default function TicketingBrowseClient({
     </div>
   );
 }
-

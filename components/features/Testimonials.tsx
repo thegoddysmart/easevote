@@ -11,9 +11,9 @@ export default function Testimonials() {
             <div className="absolute -inset-2 bg-gradient-to-r from-primary-600 to-primary-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative bg-black rounded-xl overflow-hidden aspect-video shadow-2xl">
               <img
-                src="https://picsum.photos/seed/studio/800/450?grayscale"
-                alt="Studio"
-                className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
+                src="/images/hero/hero-1.webp"
+                alt="Featured Event"
+                className="w-full h-full object-cover opacity-40 group-hover:opacity-20 transition-opacity filter grayscale"
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -45,13 +45,13 @@ export default function Testimonials() {
                 name: "Kojo Manuel",
                 role: "Event Host",
                 text: "The real-time dashboard is a game changer. I could announce results live on stage without delays.",
-                img: "https://picsum.photos/seed/kojo/100/100",
+                img: "/images/hero/slide-1.webp",
               },
               {
                 name: "Sarah Antwi",
                 role: "SRC President",
                 text: "Voting was smooth for all 15,000 students. The USSD integration saved us.",
-                img: "https://picsum.photos/seed/sarah/100/100",
+                img: "/images/hero/slide-2.webp",
               },
             ].map((review, i) => (
               <div
@@ -68,10 +68,10 @@ export default function Testimonials() {
                     className="w-10 h-10 rounded-full border-2 border-primary-500"
                   />
                   <div>
-                    <h4 className="font-bold text-sm text-primary-100!">
+                    <h3 className="font-bold text-sm text-primary-100!">
                       {review.name}
-                    </h4>
-                    <p className="text-xs text-gray-500">{review.role}</p>
+                    </h3>
+                    <p className="text-xs text-slate-400">{review.role}</p>
                   </div>
                 </div>
               </div>

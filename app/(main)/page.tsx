@@ -16,7 +16,7 @@ const Newsletter = dynamic(() => import("@/components/features/Newsletter"));
 export const metadata: Metadata = {
   title: "EaseVote Ghana | Home",
   description:
-    "The easiest way to vote for your favorite contestants and buy event tickets in Ghana. Secure, fast, and reliable.",
+    "The easiest way to vote for your favorite contestants and buy event tickets in Ghana. Safe, fast, and 100% reliable.",
   alternates: {
     canonical: "https://easevotegh.com",
   },

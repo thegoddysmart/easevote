@@ -144,6 +144,7 @@ export function createServerApiClient(token?: string) {
   return {
     async request<T = any>(path: string, options?: RequestInit): Promise<T> {
       const res = await fetch(`${SERVER_API_BASE}${path}`, {
+        cache: "no-store", // default
         ...options,
         headers: {
           "Content-Type": "application/json",
@@ -151,7 +152,6 @@ export function createServerApiClient(token?: string) {
           ...(token && { Authorization: `Bearer ${token}` }),
           ...options?.headers,
         },
-        cache: "no-store",
       });
 
       const data = await res
@@ -168,33 +168,36 @@ export function createServerApiClient(token?: string) {
       return data;
     },
 
-    get<T = any>(path: string) {
-      return this.request<T>(path);
+    get<T = any>(path: string, options?: RequestInit) {
+      return this.request<T>(path, { method: "GET", ...options });
     },
 
-    post<T = any>(path: string, body?: any) {
+    post<T = any>(path: string, body?: any, options?: RequestInit) {
       return this.request<T>(path, {
         method: "POST",
         body: body ? JSON.stringify(body) : undefined,
+        ...options,
       });
     },
 
-    put<T = any>(path: string, body?: any) {
+    put<T = any>(path: string, body?: any, options?: RequestInit) {
       return this.request<T>(path, {
         method: "PUT",
         body: body ? JSON.stringify(body) : undefined,
+        ...options,
       });
     },
 
-    patch<T = any>(path: string, body?: any) {
+    patch<T = any>(path: string, body?: any, options?: RequestInit) {
       return this.request<T>(path, {
         method: "PATCH",
         body: body ? JSON.stringify(body) : undefined,
+        ...options,
       });
     },
 
-    delete<T = any>(path: string) {
-      return this.request<T>(path, { method: "DELETE" });
+    delete<T = any>(path: string, options?: RequestInit) {
+      return this.request<T>(path, { method: "DELETE", ...options });
     },
   };
 }

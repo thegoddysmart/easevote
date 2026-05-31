@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   Search,
   Filter,
@@ -156,10 +157,12 @@ export default function TicketingBrowseClient({
                 <div
                   className={`relative bg-gray-800 ${viewMode === "list" ? "w-72" : "h-48"}`}
                 >
-                  <img
+                  <Image
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     src={ticket.image}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                     alt={ticket.title}
+                    className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                   />
                   <div className="absolute top-4 left-4">
                     <span

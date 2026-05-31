@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Calendar,
@@ -118,13 +119,12 @@ export default function LiveTickets({ events }: { events: any[] }) {
                   const finalSrc = validUrl || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop";
 
                   return (
-                    <img
+                    <Image
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
                       src={finalSrc}
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                       alt={ticket.title}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop";
-                      }}
+                      className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                     />
                   );
                 })()}

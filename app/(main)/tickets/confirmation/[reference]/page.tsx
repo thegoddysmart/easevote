@@ -1,4 +1,5 @@
 import { createServerApiClient } from "@/lib/api-client";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   CheckCircle,
@@ -153,7 +154,9 @@ export default async function TicketConfirmationPage({
                 {/* Right Side: QR Code */}
                 <div className="bg-gray-50 p-8 flex flex-col items-center justify-center min-w-[200px]">
                   <div className="bg-white p-3 rounded-2xl shadow-sm mb-4">
-                    <img
+                    <Image
+                      width={128}
+                      height={128}
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
                         JSON.stringify({ t: ticket.ticketCode, e: event.id })
                       )}`}

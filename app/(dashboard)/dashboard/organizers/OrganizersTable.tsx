@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { DataTable } from "@/components/dashboard";
 import {
   CheckCircle,
@@ -70,7 +71,9 @@ export default function OrganizersTable({
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 bg-indigo-100 text-indigo-700 rounded-lg flex items-center justify-center text-sm font-bold overflow-hidden">
             {org.avatar?.startsWith("http") ? (
-              <img
+              <Image
+                width={40}
+                height={40}
                 src={org.avatar}
                 alt={org.name}
                 className="h-full w-full object-cover"

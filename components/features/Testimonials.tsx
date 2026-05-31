@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Play } from "lucide-react";
 
 export default function Testimonials() {
@@ -10,10 +11,13 @@ export default function Testimonials() {
           <div className="relative group cursor-pointer">
             <div className="absolute -inset-2 bg-gradient-to-r from-primary-600 to-primary-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative bg-black rounded-xl overflow-hidden aspect-video shadow-2xl">
-              <img
+              <Image
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 src="/images/hero/hero-1.webp"
                 alt="Featured Event"
-                className="w-full h-full object-cover opacity-40 group-hover:opacity-20 transition-opacity filter grayscale"
+                className="object-cover opacity-40 group-hover:opacity-20 transition-opacity filter grayscale"
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -62,10 +66,12 @@ export default function Testimonials() {
                   &ldquo;{review.text}&rdquo;
                 </p>
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
+                    width={40}
+                    height={40}
                     src={review.img}
                     alt={review.name}
-                    className="w-10 h-10 rounded-full border-2 border-primary-500"
+                    className="w-10 h-10 rounded-full border-2 border-primary-500 object-cover"
                   />
                   <div>
                     <h3 className="font-bold text-sm text-primary-100!">

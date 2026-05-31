@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { api } from "@/lib/api-client";
 import { useModal } from "@/components/providers/ModalProvider";
 import { DataTable } from "@/components/dashboard";
@@ -38,7 +39,9 @@ export default function AdminsTable({ admins }: { admins: any[] }) {
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-500 overflow-hidden">
             {admin.avatar?.startsWith("http") ? (
-              <img
+              <Image
+                width={40}
+                height={40}
                 src={admin.avatar}
                 alt={admin.name}
                 className="h-full w-full object-cover"

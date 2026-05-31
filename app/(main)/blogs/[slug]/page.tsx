@@ -1,5 +1,6 @@
 import { createServerApiClient } from "@/lib/api-client";
 import { Calendar, Clock, ArrowLeft, User as UserIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ShareButtons from "./ShareButtons";
@@ -24,13 +25,16 @@ export default async function SingleBlogPage({
     <article className="min-h-screen bg-white pb-32">
       {/* HEADER / COVER IMAGE AREA */}
       <header className="relative w-full h-[60vh] min-h-[400px] overflow-hidden bg-slate-950">
-        <img
+        <Image
+          fill
+          priority
+          sizes="100vw"
           src={
             blog.coverImage ||
             "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&q=80&w=2938"
           }
           alt={blog.title}
-          className="w-full h-full object-cover opacity-60"
+          className="object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
 
@@ -122,7 +126,7 @@ export default async function SingleBlogPage({
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 overflow-hidden border border-slate-100">
                   {blog.author?.avatar ? (
-                    <img src={blog.author.avatar} alt="" />
+                    <Image src={blog.author.avatar} alt="" width={64} height={64} className="w-full h-full object-cover" />
                   ) : (
                     <UserIcon size={24} />
                   )}

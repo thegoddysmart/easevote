@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { CheckCircle, Download, Calendar, MapPin } from "lucide-react";
 import { TicketingEvent } from "@/types";
 import { EventShareButton } from "@/components/features/events/EventShareButton";
@@ -30,13 +31,12 @@ export const TicketConfirmation: React.FC<TicketConfirmationProps> = ({
       <div className="bg-white w-full max-w-sm rounded-3xl overflow-hidden relative shadow-2xl animate-in slide-in-from-bottom-8 duration-700">
         {/* Top Section (Event Image) */}
         <div className="h-48 bg-slate-800 relative">
-          <img
+          <Image
+            fill
+            sizes="384px"
             src={event.image || "/placeholder-event.jpg"}
-            className="w-full h-full object-cover opacity-80"
             alt={event.title}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/placeholder-event.jpg";
-            }}
+            className="object-cover opacity-80"
           />
           <div className="absolute top-4 left-4 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
             VIP Access
@@ -91,7 +91,9 @@ export const TicketConfirmation: React.FC<TicketConfirmationProps> = ({
         <div className="p-8 bg-gray-50 flex flex-col items-center">
           <div className="w-32 h-32 bg-white p-2 rounded-xl mb-4">
             {/* Placeholder QR */}
-            <img
+            <Image
+              width={120}
+              height={120}
               src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${transactionId}`}
               alt="QR Code"
               className="w-full h-full"

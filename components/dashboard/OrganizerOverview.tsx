@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { computeEventStats } from "@/lib/event-stats";
 import { Activity, ArrowRight, BarChart3, Calendar, DollarSign, TrendingUp, Users, Vote, Zap } from "lucide-react";
@@ -128,10 +129,12 @@ export function OrganizerOverview({ data }: OrganizerOverviewProps) {
                                 return (
                                     <div key={event._id} className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center gap-6 hover:shadow-md transition-shadow group">
                                         <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-inner bg-slate-100 flex-shrink-0">
-                                            <img
+                                            <Image
+                                                width={64}
+                                                height={64}
                                                 src={event.imageUrl || event.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.title || "E")}&background=f8fafc&color=0f172a&size=128`}
-                                                className="w-full h-full object-cover"
                                                 alt={event.title}
+                                                className="w-full h-full object-cover"
                                             />
                                         </div>
                                         <div className="flex-1 min-w-0">

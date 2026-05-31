@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createServerApiClient } from "@/lib/api-client";
@@ -131,7 +132,9 @@ export default async function UserAnalyticsPage() {
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center overflow-hidden text-xs font-bold text-white shadow-lg shadow-slate-200">
                     {user.avatar ? (
-                      <img
+                      <Image
+                        width={40}
+                        height={40}
                         src={user.avatar}
                         alt={user.name}
                         className="w-full h-full object-cover"

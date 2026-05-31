@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { User, Lock, Mail, Phone, Camera, Loader2, Save, CheckCircle2, ArrowLeft } from "lucide-react";
@@ -221,7 +222,9 @@ function AdminAccountContent({ user }: AdminAccountClientProps) {
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
                     {profileData.avatar ? (
-                      <img
+                      <Image
+                        width={96}
+                        height={96}
                         src={profileData.avatar}
                         alt="Profile"
                         className="w-full h-full object-cover"

@@ -119,7 +119,6 @@ const Hero = ({ banners }: HeroProps) => {
               className="rounded-2xl shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500 border-4 border-white"
               width={600}
               height={480}
-              priority
             />
           </div>
         </div>
@@ -138,8 +137,7 @@ const Hero = ({ banners }: HeroProps) => {
               {displayBanners.map((banner: any, idx) => (
                 <div
                   key={banner._id || idx}
-                  className="flex-shrink-0 relative cursor-pointer"
-                  style={{ width: `calc(${100 / itemsPerView}% - 16px)` }} // Adjust for gap
+                  className="flex-shrink-0 relative cursor-pointer w-[calc(100%-16px)] md:w-[calc(50%-16px)] lg:w-[calc(33.333%-16px)]"
                   onClick={() =>
                     banner.linkUrl && (window.location.href = banner.linkUrl)
                   }
@@ -151,7 +149,7 @@ const Hero = ({ banners }: HeroProps) => {
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      priority={idx < itemsPerView}
+                      priority={idx === 0}
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-secondary-600/80 to-transparent rounded-xl flex items-end p-4">

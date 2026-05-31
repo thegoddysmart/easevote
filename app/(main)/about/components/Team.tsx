@@ -5,7 +5,7 @@ export default function Team() {
     {
       name: "Philip T. Agbesi",
       role: "General Manager",
-      img: "/images/team/philip.jpg",
+      img: "/images/team/philip.webp",
     },
     {
       name: "Lydia Korley",

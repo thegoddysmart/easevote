@@ -1,10 +1,12 @@
-﻿"use client";
+"use client";
 
 import { getEventStatus } from "@/lib/utils/event-status";
 import { formatEventDate } from "@/lib/utils/date-format";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Ticket, Trophy } from "lucide-react";
+
+import { getCloudinaryOptimizedUrl } from "@/lib/utils/image-loader";
 
 export default function EventCard({ event }: { event: any }) {
   const statusInfo = getEventStatus(event);
@@ -14,11 +16,14 @@ export default function EventCard({ event }: { event: any }) {
     ? (event.ticketTypes?.[0]?.price ? `GHS ${event.ticketTypes[0].price}.00` : "TBA")
     : (event.costPerVote || event.votePrice ? `GHS ${event.costPerVote || event.votePrice}/vote` : "GHS 1.00/vote");
 
+  const rawImageSrc = event.imageUrl || event.coverImage || event.image || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop";
+  const optimizedImageSrc = getCloudinaryOptimizedUrl(rawImageSrc, 475, 267);
+
   return (
     <div className="snap-center shrink-0 w-[85vw] md:w-auto group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all hover:-translate-y-2 border border-gray-100 flex flex-col h-full">
       <div className="relative h-64 overflow-hidden">
         <Image
-          src={event.imageUrl || event.coverImage || event.image || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop"}
+          src={optimizedImageSrc}
           alt={event.title}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"

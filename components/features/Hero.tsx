@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { russoOne } from "../ui/fonts";
 
 const FALLBACK_SLIDES = [
   { imageUrl: "/images/hero/slide-1.webp", title: "EaseVote Ghana" },
@@ -85,7 +84,7 @@ const Hero = ({ banners }: HeroProps) => {
         <div className="flex flex-col lg:flex-row items-center justify-between mb-16 gap-10">
           <div className="lg:w-1/2 space-y-6 text-center lg:text-left animate-fade-in">
             <h1
-              className={`${russoOne.className} text-4xl lg:text-6xl font-heading leading-tight`}
+              className="text-4xl lg:text-6xl font-heading leading-tight"
             >
               Vote Smart, <br />
               <span>Vote Secure!</span> <br />
@@ -119,7 +118,7 @@ const Hero = ({ banners }: HeroProps) => {
               alt="Ghana Event"
               className="rounded-2xl shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500 border-4 border-white"
               width={600}
-              height={400}
+              height={480}
               priority
             />
           </div>
@@ -152,6 +151,7 @@ const Hero = ({ banners }: HeroProps) => {
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      priority={idx < itemsPerView}
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-secondary-600/80 to-transparent rounded-xl flex items-end p-4">
@@ -173,6 +173,7 @@ const Hero = ({ banners }: HeroProps) => {
                 <button
                   key={idx}
                   onClick={() => goToSlide(idx * itemsPerView)}
+                  aria-label={`Go to slide group ${idx + 1}`}
                   className={`w-3 h-3 rounded-full transition-colors ${
                     Math.floor(currentIndex / itemsPerView) === idx
                       ? "bg-secondary-600"
@@ -184,12 +185,14 @@ const Hero = ({ banners }: HeroProps) => {
             <div className="flex gap-2">
               <button
                 onClick={prevSlide}
+                aria-label="Previous slide"
                 className="p-2 rounded-full border border-gray-300 hover:bg-secondary-600 hover:text-white transition-colors text-secondary-600"
               >
                 <ChevronLeft size={20} />
               </button>
               <button
                 onClick={nextSlide}
+                aria-label="Next slide"
                 className="p-2 rounded-full border border-gray-300 hover:bg-secondary-600 hover:text-white transition-colors text-secondary-600"
               >
                 <ChevronRight size={20} />

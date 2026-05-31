@@ -1,5 +1,4 @@
 import { MessageCircle, ArrowRight, Mail } from "lucide-react";
-import { russoOne } from "../ui/fonts";
 
 export default function Newsletter() {
   return (
@@ -18,7 +17,7 @@ export default function Newsletter() {
 
           <div className="relative z-10 max-w-3xl mx-auto space-y-8">
             <h2
-              className={`${russoOne.className} tracking-tight text-3xl text-primary-200! capitalize leading-none text-[35px] sm:text-[45px] lg:text-[50px] xl:text-[60px]`}
+              className="tracking-tight text-3xl text-primary-200! capitalize leading-none text-[35px] sm:text-[45px] lg:text-[50px] xl:text-[60px]"
             >
               Don&apos;t miss the next <br />
               <span className="text-primary-900 bg-white/20 px-8 rounded-full inline-block mt-2">

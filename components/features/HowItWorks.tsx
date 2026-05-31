@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Smartphone, Share2, Wallet } from "lucide-react";
-import { russoOne } from "../ui/fonts";
 
 export default function HowItWorks() {
   const [activeStep, setActiveStep] = useState(0);
@@ -85,7 +84,7 @@ export default function HowItWorks() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2
-            className={`${russoOne.className} tracking-tight text-primary-600 text-3xl capitalize leading-none text-[35px] sm:text-[45px] lg:text-[50px] xl:text-[60px]`}
+            className="tracking-tight text-primary-600 text-3xl capitalize leading-none text-[35px] sm:text-[45px] lg:text-[50px] xl:text-[60px]"
           >
             How It Works
           </h2>

@@ -140,6 +140,7 @@ const Header = () => {
           <div className="flex items-center lg:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
+              aria-label={isOpen ? "Close main menu" : "Open main menu"}
               className="inline-flex items-center justify-center p-2 rounded-md text-primary-600 hover:text-secondary-600 hover:bg-gray-100 focus:outline-none"
             >
               {isOpen ? (

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { russoOne } from "../ui/fonts";
 import SearchBar from "../ui/SearchBar";
 import { getEventStatus } from "@/lib/utils/event-status";
 import { formatEventDate } from "@/lib/utils/date-format";
@@ -80,7 +79,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
             Upcoming Experiences
           </span>
           <h2
-            className={`${russoOne.className} text-4xl md:text-5xl text-white font-display mt-2 mb-6`}
+            className="font-heading text-4xl md:text-5xl text-white font-display mt-2 mb-6"
             style={{ color: "inherit" }}
           >
             Event Tickets & Concerts

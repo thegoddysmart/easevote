@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { russoOne } from "./fonts";
 
 const Logo = ({ textColor = "text-primary-700" }) => {
   return (
@@ -14,7 +13,7 @@ const Logo = ({ textColor = "text-primary-700" }) => {
         />
       </div>
       <span
-        className={`${russoOne.className} tracking-tight ${textColor} text-3xl`}
+        className={`font-heading tracking-tight ${textColor} text-3xl`}
       >
         EaseVote
       </span>

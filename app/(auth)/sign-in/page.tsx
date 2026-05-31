@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -94,9 +95,11 @@ export default function SignInPage() {
                 <div className="flex -space-x-2">
                   ``
                   {[1, 2, 3].map((i) => (
-                    <img
+                    <Image
                       key={i}
                       src={`https://picsum.photos/seed/organizer${i}/100/100`}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full border-2"
                       alt="Organizer"
                     />

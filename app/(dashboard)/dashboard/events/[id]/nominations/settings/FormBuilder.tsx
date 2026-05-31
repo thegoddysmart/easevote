@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api-client";
@@ -472,7 +473,7 @@ export default function FormBuilder({
               {/* Form Footer Branding */}
               <div className="pt-16 pb-4 flex flex-col items-center gap-3 border-t border-slate-50 mt-10">
                 <div className="flex items-center gap-2 transition-all duration-500 cursor-default group/logo">
-                  <img src="/easevote.svg" alt="Easevote Logo" className="w-6 h-6 object-contain group-hover/logo:scale-110 transition-transform" />
+                  <Image src="/easevote.svg" alt="Easevote Logo" width={24} height={24} className="object-contain group-hover/logo:scale-110 transition-transform" />
                   <span className="text-xs font-bold text-slate-900 tracking-tight">EASEVOTE</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
@@ -697,7 +698,7 @@ export default function FormBuilder({
                   {/* Preview Branding Footer */}
                   <div className="pt-20 pb-10 flex flex-col items-center gap-3 border-t border-slate-50 mt-16">
                     <div className="flex items-center gap-2 opacity-40">
-                      <img src="/easevote.svg" alt="Easevote Logo" className="w-6 h-6 object-contain" />
+                      <Image src="/easevote.svg" alt="Easevote Logo" width={24} height={24} className="object-contain" />
                       <span className="text-xs font-bold text-slate-900 tracking-tight">EASEVOTE</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">

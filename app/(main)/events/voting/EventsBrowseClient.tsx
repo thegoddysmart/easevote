@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Search,
   Filter,
@@ -181,10 +182,12 @@ export default function EventsBrowseClient({
                   className="group bg-white rounded-[2rem] border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-row min-h-[14rem] items-stretch"
                 >
                   <div className="w-48 sm:w-64 relative shrink-0 bg-gray-100 overflow-hidden">
-                    <img
+                    <Image
+                      fill
+                      sizes="(max-width: 640px) 192px, 256px"
                       src={event.image}
                       alt={event.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
                     <div className="absolute top-3 left-3 flex gap-2">

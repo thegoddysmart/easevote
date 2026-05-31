@@ -1,4 +1,5 @@
 import { Play } from "lucide-react";
+import Image from "next/image";
 import { VideoGuide } from "@/types";
 
 const videoGuides: VideoGuide[] = [
@@ -32,10 +33,12 @@ export default function VideoGuides() {
         {videoGuides.map((video) => (
           <div key={video.id} className="group cursor-pointer">
             <div className="relative rounded-xl overflow-hidden aspect-video mb-3 shadow-md">
-              <img
+              <Image
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                 src={video.thumbnail}
                 alt={video.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                 <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center text-primary-600 shadow-lg group-hover:scale-110 transition-transform">

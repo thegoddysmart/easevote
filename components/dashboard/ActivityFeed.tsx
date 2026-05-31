@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { clsx } from "clsx";
 import { type LucideIcon } from "lucide-react";
 
@@ -82,7 +83,9 @@ export function ActivityFeed({
                 ) : activity.user ? (
                   <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-medium text-sm">
                     {activity.user.avatar ? (
-                      <img
+                      <Image
+                        width={32}
+                        height={32}
                         src={activity.user.avatar}
                         alt={activity.user.name}
                         className="w-8 h-8 rounded-full object-cover"

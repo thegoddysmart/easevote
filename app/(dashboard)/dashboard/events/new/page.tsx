@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -1158,11 +1159,12 @@ export default function CreateEventPage() {
 
                 {formData.coverImage && (
                   <div className="relative w-full h-48 bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                    <img
+                    <Image
+                      fill
+                      sizes="100vw"
                       src={formData.coverImage}
                       alt="Preview"
-                      className="w-full h-full object-cover"
-                      onError={(e) => (e.currentTarget.style.display = "none")}
+                      className="object-cover"
                     />
                   </div>
                 )}

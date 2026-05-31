@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { X, Minus, Plus, CreditCard, CheckCircle } from "lucide-react";
 import { Event, Candidate } from "@/types";
 
@@ -65,7 +66,9 @@ export const VotingModal: React.FC<VotingModalProps> = ({
             <>
               {/* Candidate Info */}
               <div className="flex items-center gap-4">
-                <img
+                <Image
+                  width={64}
+                  height={64}
                   src={candidate.image}
                   alt={candidate.name}
                   className="w-16 h-16 rounded-full object-cover border"

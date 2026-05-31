@@ -1,5 +1,6 @@
 import { BlogPost } from "@/types";
 import { Clock } from "lucide-react";
+import Image from "next/image";
 
 interface PostCardProps {
   post: BlogPost;
@@ -12,7 +13,7 @@ export const PostCard = ({ post, onRead }: PostCardProps) => (
     className="bg-white rounded-4xl p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col"
   >
     <div className="relative h-56 rounded-3xl overflow-hidden mb-5">
-      <img src={post.image} className="w-full h-full object-cover" />
+      <Image fill sizes="(max-width: 768px) 100vw, 33vw" src={post.image} alt={post.title} className="object-cover" />
       <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 text-xs font-bold rounded-full">
         {post.category}
       </span>
@@ -28,7 +29,7 @@ export const PostCard = ({ post, onRead }: PostCardProps) => (
       <p className="text-sm text-slate-500 line-clamp-2 mb-6">{post.excerpt}</p>
 
       <div className="flex items-center gap-3 mt-auto pt-4 border-t border-gray-200">
-        <img src={post.author.avatar} className="w-8 h-8 rounded-full" />
+        <Image src={post.author.avatar} alt={post.author.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
         <span className="text-sm font-medium">{post.author.name}</span>
       </div>
     </div>

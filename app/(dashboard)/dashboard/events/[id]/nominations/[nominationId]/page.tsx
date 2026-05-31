@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createServerApiClient } from "@/lib/api-client";
@@ -99,7 +100,9 @@ export default async function NominationDetailPage({
             <div className="flex flex-col sm:flex-row gap-6">
               <div className="shrink-0">
                 {nomination.nomineePhotoUrl ? (
-                  <img
+                  <Image
+                    width={128}
+                    height={128}
                     src={nomination.nomineePhotoUrl}
                     alt={nomination.nomineeName}
                     className="w-32 h-32 rounded-xl object-cover border border-gray-200 shadow-sm"

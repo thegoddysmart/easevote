@@ -1300,7 +1300,9 @@ function CandidateProfileCard({
         <div className="relative w-16 h-16 shrink-0">
           {candidate.imageUrl ? (
             <div className="w-full h-full rounded-2xl overflow-hidden ring-2 ring-white ring-offset-2 ring-offset-slate-100 group-hover:ring-primary-100 transition-all">
-              <img
+              <Image
+                width={64}
+                height={64}
                 src={candidate.imageUrl}
                 alt={candidate.name}
                 className="w-full h-full object-cover"

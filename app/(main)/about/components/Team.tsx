@@ -10,7 +10,7 @@ export default function Team() {
     {
       name: "Lydia Korley",
       role: "Admin/HR",
-      img: "https://picsum.photos/id/1027/300/400",
+      img: "/images/team/lydia.webp",
     },
   ];
 

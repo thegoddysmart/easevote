@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   ArrowLeft,
   Calendar,
@@ -86,10 +87,13 @@ export default async function TicketEventDetailPage({
       <div className="bg-white min-h-screen pb-24">
         {/* Cinematic Hero */}
         <div className="relative h-[40vh] bg-slate-900">
-          <img
+          <Image
+            fill
+            priority
+            sizes="100vw"
             src={pageEvent.image}
             alt={pageEvent.title}
-            className="w-full h-full object-cover opacity-60"
+            className="object-cover opacity-60"
           />
           <div className="absolute inset-0 bg-linear-to-t from-primary-900 via-transparent to-transparent"></div>
           <div className="absolute inset-0 bg-linear-to-t from-primary-900 via-transparent to-transparent"></div>

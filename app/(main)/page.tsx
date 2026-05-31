@@ -32,10 +32,10 @@ export default async function Home() {
   let banners: any[] = [];
 
   try {
-    const bannerRes = await apiClient.get<any[]>("/cms/banners").catch(() => []);
+    const bannerRes = await apiClient.get<any[]>("/cms/banners", { next: { revalidate: 600 } }).catch(() => []);
     banners = Array.isArray(bannerRes) ? bannerRes : (bannerRes as any).data || [];
 
-    const res = await apiClient.get<any>("/events?limit=100").catch(() => null);
+    const res = await apiClient.get<any>("/events?limit=100", { next: { revalidate: 60 } }).catch(() => null);
     if (res) {
       const allEvents = res.data || res.events || (Array.isArray(res) ? res : []);
       

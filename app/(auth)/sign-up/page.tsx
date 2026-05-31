@@ -129,7 +129,7 @@ export default function SignUpPage() {
             </div>
             <h2 className="text-5xl font-display font-bold leading-tight text-white!">
               Host World-Class{" "}
-              <span className="text-primary-500">Events</span>.
+              <span className="text-secondary-500">Events</span>.
             </h2>
             <p className="text-lg text-primary-100/80 leading-relaxed">
               Launch your awards scheme or school election in minutes. Get
@@ -140,7 +140,7 @@ export default function SignUpPage() {
             <div className="relative mt-12 perspective-1000">
               <div className="w-full bg-linear-to-br from-white/20 to-white/5 backdrop-blur-lg border border-white/20 rounded-3xl p-6 shadow-2xl transform rotate-y-12 rotate-x-6 hover:rotate-0 transition-all duration-500">
                 <div className="flex justify-between items-start mb-8">
-                  <div className="w-12 h-12 rounded-full bg-primary-600"></div>
+                  <div className="w-12 h-12 rounded-full bg-secondary-600"></div>
                   <div className="h-4 w-20 bg-white/20 rounded-full"></div>
                 </div>
                 <div className="space-y-3">

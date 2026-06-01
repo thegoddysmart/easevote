@@ -53,8 +53,8 @@ export default function EventFilterDropdown({
         onClick={() => setIsOpen(!isOpen)}
         className={clsx(
           "flex items-center justify-between w-full md:w-[280px] px-4 py-2 border rounded-lg text-sm transition-all",
-          "bg-white border-slate-200 text-slate-700 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20",
-          isOpen && "border-indigo-500 ring-2 ring-indigo-500/20"
+          "bg-white border-slate-200 text-slate-700 hover:border-primary-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600/30",
+          isOpen && "border-primary-500 ring-2 ring-secondary-600/20"
         )}
       >
         <span className="truncate mr-2 font-medium">
@@ -81,7 +81,7 @@ export default function EventFilterDropdown({
                 placeholder="Find an event..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-1.5 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 text-slate-700"
+                className="w-full pl-9 pr-8 py-1.5 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus-visible:ring-secondary-600/30 text-slate-700"
               />
               {searchTerm && (
                 <button
@@ -108,7 +108,7 @@ export default function EventFilterDropdown({
               className={clsx(
                 "flex items-center justify-between w-full px-4 py-2 text-sm text-left transition-colors",
                 value === "ALL" || !value
-                  ? "bg-indigo-50 text-indigo-700 font-semibold"
+                  ? "bg-primary-50 text-primary-700 font-semibold"
                   : "text-slate-600 hover:bg-slate-50"
               )}
             >
@@ -131,7 +131,7 @@ export default function EventFilterDropdown({
                   className={clsx(
                     "flex items-center justify-between w-full px-4 py-2.5 text-sm text-left transition-colors border-t border-slate-50",
                     value === event.id
-                      ? "bg-indigo-50 text-indigo-700 font-semibold"
+                      ? "bg-primary-50 text-primary-700 font-semibold"
                       : "text-slate-700 hover:bg-slate-50"
                   )}
                 >

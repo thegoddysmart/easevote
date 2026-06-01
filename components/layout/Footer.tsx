@@ -34,10 +34,10 @@ export default function Footer({ onOpenLegal }: FooterProps) {
 
           {/* Product Links */}
           <div className="md:pl-8">
-            <h4 className="font-display font-bold text-white! text-lg mb-6 tracking-wide">
+            <h3 className="font-display font-bold text-white! text-lg mb-6 tracking-wide">
               Quick Links
-            </h4>
-            <ul className="space-y-4 text-primary-200/70 text-sm font-medium">
+            </h3>
+            <ul className="space-y-4 text-primary-100 text-sm font-medium">
               <li>
                 <Link
                   href="/"
@@ -91,9 +91,9 @@ export default function Footer({ onOpenLegal }: FooterProps) {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-white! mb-4 uppercase text-sm tracking-wider">
+            <h3 className="font-bold text-white! mb-4 uppercase text-sm tracking-wider">
               Contact Info
-            </h4>
+            </h3>
             <ul className="space-y-3 text-sm">
               <li>Easevote Gh, Accra - Ghana</li>
               <li>
@@ -107,8 +107,8 @@ export default function Footer({ onOpenLegal }: FooterProps) {
                 0554440813 / 0559540992
               </li>
               <li>info@easevotegh.com</li>
-              <li className="pt-2">Mon – Friday (8AM – 5PM)</li>
-              <li className="text-brand-bright font-bold">
+              <li className="pt-2">Mon - Friday (8AM – 5PM)</li>
+              <li className="text-secondary-600 font-bold">
                 24/7 Technical Support
               </li>
             </ul>
@@ -116,9 +116,9 @@ export default function Footer({ onOpenLegal }: FooterProps) {
 
           {/* Payment Badges */}
           <div>
-            <h4 className="font-display font-bold text-white! text-lg mb-6 tracking-wide">
+            <h3 className="font-display font-bold text-white! text-lg mb-6 tracking-wide">
               We Accept
-            </h4>
+            </h3>
             <div className="flex flex-wrap gap-2 mb-6">
               <div className="px-2 py-1 bg-yellow-400 text-black font-bold rounded text-xs flex items-center">
                 MTN
@@ -132,11 +132,11 @@ export default function Footer({ onOpenLegal }: FooterProps) {
               <div className="px-2 py-1 bg-gray-100 text-blue-800 font-bold rounded text-xs flex items-center">
                 VISA
               </div>
-              <div className="px-2 py-1 bg-gray-100 text-red-600 font-bold rounded text-xs flex items-center">
+              <div className="px-2 py-1 bg-white text-red-700 font-bold rounded text-xs flex items-center border border-slate-100">
                 MasterCard
               </div>
             </div>
-            <div className="mt-6 flex items-center gap-2 text-xs text-primary-200/50">
+            <div className="mt-6 flex items-center gap-2 text-xs text-primary-100">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
               System Operational
             </div>
@@ -144,7 +144,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
         </div>
 
         {/* Footer Bottom */}
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-primary-200/40">
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-primary-200/80">
           <p>&copy; 2026 Easevote Ghana. All rights reserved.</p>
           {/* Legal Links */}
           <div className="flex space-x-6 mt-4 md:mt-0">

@@ -1,5 +1,6 @@
 import { BlogPost } from "@/types";
 import { Clock, ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 interface FeaturedPostProps {
   post: BlogPost;
@@ -11,11 +12,13 @@ export const FeaturedPost = ({ post, onRead }: FeaturedPostProps) => (
     onClick={() => onRead(post)}
     className="group relative bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 cursor-pointer grid grid-cols-1 md:grid-cols-2"
   >
-    <div className="h-64 md:h-auto overflow-hidden">
-      <img
+    <div className="relative h-64 md:h-auto overflow-hidden">
+      <Image
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
         src={post.image}
         alt={post.title}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        className="object-cover transition-transform duration-700 group-hover:scale-105"
       />
     </div>
 
@@ -37,7 +40,7 @@ export const FeaturedPost = ({ post, onRead }: FeaturedPostProps) => (
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src={post.author.avatar} className="w-10 h-10 rounded-full" />
+          <Image src={post.author.avatar} alt={post.author.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
           <div>
             <p className="text-sm font-bold">{post.author.name}</p>
             <p className="text-xs text-slate-500">{post.date}</p>

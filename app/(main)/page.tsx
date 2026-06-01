@@ -16,7 +16,7 @@ const Newsletter = dynamic(() => import("@/components/features/Newsletter"));
 export const metadata: Metadata = {
   title: "EaseVote Ghana | Home",
   description:
-    "The easiest way to vote for your favorite contestants and buy event tickets in Ghana. Secure, fast, and reliable.",
+    "The easiest way to vote for your favorite contestants and buy event tickets in Ghana. Safe, fast, and 100% reliable.",
   alternates: {
     canonical: "https://easevotegh.com",
   },
@@ -32,10 +32,10 @@ export default async function Home() {
   let banners: any[] = [];
 
   try {
-    const bannerRes = await apiClient.get<any[]>("/cms/banners").catch(() => []);
+    const bannerRes = await apiClient.get<any[]>("/cms/banners", { next: { revalidate: 600 } }).catch(() => []);
     banners = Array.isArray(bannerRes) ? bannerRes : (bannerRes as any).data || [];
 
-    const res = await apiClient.get<any>("/events?limit=100").catch(() => null);
+    const res = await apiClient.get<any>("/events?limit=100", { next: { revalidate: 60 } }).catch(() => null);
     if (res) {
       const allEvents = res.data || res.events || (Array.isArray(res) ? res : []);
       
@@ -51,8 +51,8 @@ export default async function Home() {
       );
     }
     
-  } catch (err) {
-    console.error("Failed to fetch public events frontpage data:", err);
+  } catch {
+    // Frontpage events failed — renders with empty state
   }
 
   return (

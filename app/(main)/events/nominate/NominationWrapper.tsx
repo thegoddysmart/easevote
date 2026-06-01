@@ -157,9 +157,9 @@ export default function NominationWrapper({
 
           {/* Nominee Summary Card */}
           <div className="bg-slate-50 rounded-[2.5rem] p-8 mb-10 border border-slate-100 flex flex-col items-center">
-             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl mb-4 bg-slate-200">
+             <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl mb-4 bg-slate-200">
                 {submittedNominee?.photoUrl && (
-                  <img src={submittedNominee.photoUrl} alt={submittedNominee.fullName} className="w-full h-full object-cover" />
+                  <Image fill sizes="96px" src={submittedNominee.photoUrl} alt={submittedNominee.fullName} className="object-cover" />
                 )}
              </div>
              <h3 className="text-2xl font-black text-slate-900 mb-1">{submittedNominee?.fullName}</h3>
@@ -273,7 +273,7 @@ export default function NominationWrapper({
 
             {/* Bottom Branding */}
             <div className="absolute bottom-10 left-0 right-0 z-10 flex justify-center opacity-40 grayscale">
-               <img src="/easevote.svg" alt="Easevote" className="h-8" />
+               <Image src="/easevote.svg" alt="Easevote" width={80} height={32} className="h-8 w-auto" />
             </div>
           </motion.div>
         ) : (
@@ -520,7 +520,7 @@ export default function NominationWrapper({
                       {/* OFFICIAL BRANDING FOOTER (MATCHES PREVIEW) */}
                       <div className="pt-20 pb-6 flex flex-col items-center gap-3 border-t border-slate-50 mt-16">
                         <div className="flex items-center gap-2 opacity-40">
-                          <img src="/easevote.svg" alt="Easevote Logo" className="w-6 h-6 object-contain" />
+                          <Image src="/easevote.svg" alt="Easevote Logo" width={24} height={24} className="object-contain" />
                           <span className="text-xs font-bold text-slate-900 tracking-tight">EASEVOTE</span>
                         </div>
                         <div className="flex flex-col items-center gap-1">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { api } from "@/lib/api-client";
 import { useModal } from "@/components/providers/ModalProvider";
@@ -370,7 +371,9 @@ export default function EventsTable({ events, showFilters = ["type", "status"], 
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-xs font-bold ring-2 ring-white overflow-hidden">
             {event.organizer.avatar?.startsWith("http") ? (
-              <img
+              <Image
+                width={32}
+                height={32}
                 src={event.organizer.avatar}
                 alt={event.organizer.name}
                 className="h-full w-full rounded-full object-cover"

@@ -10,8 +10,20 @@ import {
 import Link from "next/link";
 import { clsx } from "clsx";
 import { format } from "date-fns";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "News & Blogs | EaseVote Ghana",
+  description: "Stay up to date with the latest news, platform updates, and event stories from EaseVote — Ghana's trusted voting and ticketing platform.",
+  alternates: { canonical: "/blogs" },
+  openGraph: {
+    title: "News & Blogs | EaseVote Ghana",
+    description: "The latest stories, updates, and editorials from EaseVote.",
+    url: "/blogs",
+  },
+};
 
 export default async function BlogsIndexPage() {
   const apiClient = createServerApiClient();

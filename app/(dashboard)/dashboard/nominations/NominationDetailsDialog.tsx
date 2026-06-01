@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -96,7 +97,9 @@ export default function NominationDetailsDialog({
               <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm shrink-0 overflow-hidden p-1">
                  <div className="w-full h-full rounded-[0.8rem] overflow-hidden bg-white flex items-center justify-center border border-slate-50">
                 {nomination.photoUrl ? (
-                  <img
+                  <Image
+                    width={96}
+                    height={96}
                     src={nomination.photoUrl}
                     alt={nomination.nomineeName}
                     className="w-full h-full object-cover"

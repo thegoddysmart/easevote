@@ -258,7 +258,7 @@ export function CategoriesManager({
 
     // Cleanup orphaned image if it exists
     if (candidate.imagePublicId) {
-      api.deleteImage(candidate.imagePublicId).catch(console.error);
+      api.deleteImage(candidate.imagePublicId).catch(() => {});
     }
 
     const categoryId = categories[catIdx].id;
@@ -316,7 +316,7 @@ export function CategoriesManager({
     try {
       // 1. If candidate already has an image, delete the old one first
       if (candidate.imagePublicId) {
-        await api.deleteImage(candidate.imagePublicId).catch(console.error);
+        await api.deleteImage(candidate.imagePublicId).catch(() => {});
       }
 
       // 2. Upload new image
@@ -381,7 +381,20 @@ export function CategoriesManager({
         deletedCandidateIds.map((d: { categoryId: string; candidateId: string }) => d.candidateId)
       );
 
-      // 2. Build merged payload
+      // 2. Compute the highest existing code suffix so fallback codes for any
+      //    legacy candidates (created without a code during an earlier broken state)
+      //    never collide with existing ones.
+      let nextFallback = 1;
+      backendCategories.forEach((bc: any) => {
+        (bc.candidates || []).forEach((cand: any) => {
+          if (cand.code && eventCode && cand.code.startsWith(eventCode)) {
+            const n = parseInt(cand.code.slice(eventCode.length), 10);
+            if (!isNaN(n) && n >= nextFallback) nextFallback = n + 1;
+          }
+        });
+      });
+
+      // 3. Build merged payload
       const syncPayload = {
         categories: categories.map((cat) => {
           const backendCat = backendCategories.find(
@@ -415,7 +428,7 @@ export function CategoriesManager({
                 phone: cand.phone || null,
                 imageUrl: cand.image || null,
                 imagePublicId: cand.imagePublicId || null,
-                code: cand.code,
+                code: cand.code || `${eventCode}${nextFallback++}`,
               })),
               ...orphans.map((bc: any) => ({
                 _id: bc._id || bc.id,
@@ -425,7 +438,7 @@ export function CategoriesManager({
                 phone: bc.phone || null,
                 imageUrl: bc.imageUrl || bc.image || null,
                 imagePublicId: bc.imagePublicId || null,
-                code: bc.code,
+                code: bc.code || `${eventCode}${nextFallback++}`,
               })),
             ],
           };
@@ -589,7 +602,9 @@ export function CategoriesManager({
                       <button
                         type="button"
                         onClick={() => addCandidate(catIndex)}
-                        className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                        disabled={!eventCode}
+                        className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                        title={!eventCode ? "Loading event code…" : undefined}
                       >
                         <Plus className="h-4 w-4" />
                         Add Candidate
@@ -606,15 +621,13 @@ export function CategoriesManager({
                             {candIndex + 1}
                           </div>
                           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {Boolean(candidate.code) && (
-                              <input
-                                type="text"
-                                value={candidate.code}
-                                readOnly
-                                className="px-3 py-2 border border-slate-200 bg-slate-100 text-slate-500 rounded-lg focus:outline-none cursor-not-allowed uppercase font-mono"
-                                placeholder="Code"
-                              />
-                            )}
+                            <input
+                              type="text"
+                              value={candidate.code ?? ""}
+                              readOnly
+                              className="px-3 py-2 border border-slate-200 bg-slate-100 text-slate-500 rounded-lg focus:outline-none cursor-not-allowed uppercase font-mono"
+                              placeholder="Auto-generated"
+                            />
                             <input
                               type="text"
                               value={candidate.name}

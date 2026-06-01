@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { TicketingEvent } from "@/types";
 import {
   Minus,
@@ -79,8 +80,6 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
         quantity: cart[selectedTierId],
       };
 
-      console.log("[TicketSelectionClient] Initializing ticket purchase:", payload);
-
       const res = await api.post("/purchases/tickets/initialize", payload);
       
       // Handle both standard envelope {success, data} and direct responses {purchase, paymentUrl, ...}
@@ -113,7 +112,6 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
         throw new Error(resultData.message || res.message || "Failed to initiate purchase");
       }
     } catch (err: any) {
-      console.error("Ticket purchase error:", err);
       toast.error(err.message || "An unexpected error occurred");
     } finally {
       setIsProcessing(false);
@@ -149,13 +147,12 @@ export const TicketSelectionClient: React.FC<TicketSelectionProps> = ({
           {/* Left: Event Recap & Selection */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex gap-4">
-              <img
+              <Image
+                width={80}
+                height={80}
                 src={event.image || "/placeholder-event.jpg"}
                 alt="Event"
                 className="w-20 h-20 rounded-lg object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/placeholder-event.jpg";
-                }}
               />
               <div>
                 <h3 className="font-bold text-slate-900 text-lg">

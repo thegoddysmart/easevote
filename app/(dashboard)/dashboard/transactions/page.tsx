@@ -63,28 +63,22 @@ export default async function AdminTransactionsPage(props: {
     eventsList = (eventsRes.data || eventsRes || []).map((e: any) => ({ id: e._id, title: e.title }));
   } else {
     // Admin-specific data
-    const [statsRes, platformRes, transactionsRes, eventsRes] = await Promise.all([
+    const [statsRes, transactionsRes, eventsRes] = await Promise.all([
       apiClient.get("/admin/stats/revenue").catch(() => ({
         data: { totalVolume: 0, netRevenue: 0, successRate: 0, pendingCount: 0 },
-      })),
-      apiClient.get("/admin/stats/platform").catch(() => ({
-        data: { overview: {} },
       })),
       apiClient.get(`/admin/transactions?${queryStr}`).catch(() => ({ data: [], pagination: {} })),
       apiClient.get("/events/admin/all?limit=500").catch(() => ({ data: [] })),
     ]);
 
     const rawStats = statsRes.data || statsRes || {};
-    const pulseData = platformRes.data || platformRes || {};
-    const overview = pulseData.overview || {};
-
     stats = {
       totalVolume: rawStats.totalVolume || rawStats.totalRevenue || 0,
       netRevenue: rawStats.netRevenue || rawStats.netCommission || 0,
-      totalVotes: overview.totalVotesCast || rawStats.totalVotes || 0,
-      totalTickets: overview.ticketsSold || rawStats.totalTickets || 0,
       successRate: rawStats.successRate || 0,
       pendingCount: rawStats.pendingCount || 0,
+      totalVotes: 0,
+      totalTickets: 0,
     };
 
     transactionsData = transactionsRes;
@@ -92,27 +86,83 @@ export default async function AdminTransactionsPage(props: {
   }
 
   const rawTransactions = transactionsData.data || transactionsData.purchases || (Array.isArray(transactionsData) ? transactionsData : []);
-  const rawPagination = transactionsData.pagination || {};
-  const pagination = {
-    totalPages: rawPagination.totalPages || 1,
-    currentPage: rawPagination.currentPage || 1,
-    totalResults: rawPagination.totalItems ?? rawPagination.totalResults ?? rawTransactions.length,
-  };
+  const pagination = transactionsData.pagination || { totalPages: 1, currentPage: 1, totalResults: rawTransactions.length };
 
-  const transactions = rawTransactions.map((tx: any) => ({
-    id: tx._id,
-    reference: tx.paymentReference,
-    type: tx.type,
-    amount: tx.amount,
-    status: tx.status === "PAID" ? "SUCCESS" : tx.status,
-    payer: tx.customerName || tx.customerEmail || "Anonymous",
-    phone: tx.customerPhone || "N/A",
-    event: tx.eventId?.title || "Unknown Event",
-    date: tx.paidAt || tx.createdAt,
-    // New fields for the "Units" column
-    voteCount: tx.voteCount || 0,
-    ticketQuantity: tx.ticketQuantity || 0
-  }));
+  // Resolve candidate and category names for VOTE purchases,
+  // and ticket type names for TICKET purchases.
+  // candidateId, categoryId, and ticketTypeId are subdocument IDs inside the Event
+  // document — the backend does not populate them, so we fetch each unique
+  // event once and build a cross-reference map client-side.
+  type EventLookup = {
+    categories: Record<string, string>;
+    candidates: Record<string, string>;
+    ticketTypes: Record<string, string>;
+  };
+  const eventLookup: Record<string, EventLookup> = {};
+
+  const uniqueEventIds: string[] = [
+    ...new Set<string>(
+      (rawTransactions as any[])
+        .filter((tx: any) => tx.eventId)
+        .map((tx: any): string => (tx.eventId._id || tx.eventId).toString())
+    ),
+  ];
+
+  await Promise.allSettled(
+    uniqueEventIds.map(async (eid: string) => {
+      try {
+        const res = await apiClient.get(`/events/${eid}`);
+        const ev = res.data || res.event || res;
+        const categories: Record<string, string> = {};
+        const candidates: Record<string, string> = {};
+        const ticketTypes: Record<string, string> = {};
+        for (const cat of ev.categories || []) {
+          const catId = (cat._id || cat.id)?.toString();
+          if (catId) categories[catId] = cat.name;
+          for (const cand of cat.candidates || []) {
+            const candId = (cand._id || cand.id)?.toString();
+            if (candId) candidates[candId] = cand.name;
+          }
+        }
+        for (const tt of ev.ticketTypes || []) {
+          const ttId = (tt._id || tt.id)?.toString();
+          if (ttId) ticketTypes[ttId] = tt.name;
+        }
+        eventLookup[eid] = { categories, candidates, ticketTypes };
+      } catch {
+        // event deleted or inaccessible — names stay blank
+      }
+    })
+  );
+
+  const transactions = rawTransactions.map((tx: any) => {
+    const eid = (tx.eventId?._id || tx.eventId)?.toString() ?? "";
+    const lookup = eventLookup[eid];
+    const candId = tx.candidateId?.toString();
+    const catId  = tx.categoryId?.toString();
+    const ttId   = tx.ticketTypeId?.toString();
+    return {
+      id: tx._id,
+      reference: tx.paymentReference,
+      type: tx.type,
+      amount: tx.amount,
+      currency: tx.currency || "GHS",
+      status: tx.status === "PAID" ? "SUCCESS" : tx.status,
+      payer: tx.customerName || tx.customerEmail || "Anonymous",
+      customerEmail: tx.customerEmail || "",
+      customerPhone: tx.customerPhone || "",
+      source: tx.source || "web",
+      event: tx.eventId?.title || "Unknown Event",
+      eventType: tx.eventId?.type || "",
+      date: tx.paidAt || tx.createdAt,
+      voteCount: tx.voteCount || 0,
+      ticketQuantity: tx.ticketQuantity || 0,
+      ticketNumbers: (tx.ticketNumbers as string[]) || [],
+      candidateName: (candId && lookup?.candidates[candId]) || "",
+      categoryName:  (catId  && lookup?.categories[catId])  || "",
+      ticketTypeName: (ttId  && lookup?.ticketTypes[ttId])  || "",
+    };
+  });
 
   // Helper for compact GHS formatting
   const fmtGHS = (amount: number) => {
@@ -122,11 +172,10 @@ export default async function AdminTransactionsPage(props: {
   };
 
   // Helper for compact count formatting
-  const fmtCount = (count: number = 0) => {
-    const validCount = Number(count) || 0;
-    if (validCount >= 1_000_000) return `${parseFloat((validCount / 1_000_000).toFixed(2))}M`;
-    if (validCount >= 1_000) return `${parseFloat((validCount / 1_000).toFixed(2))}K`;
-    return validCount.toLocaleString();
+  const fmtCount = (count: number) => {
+    if (count >= 1_000_000) return `${parseFloat((count / 1_000_000).toFixed(2))}M`;
+    if (count >= 1_000) return `${parseFloat((count / 1_000).toFixed(2))}K`;
+    return count.toLocaleString();
   };
 
   return (
@@ -168,33 +217,63 @@ export default async function AdminTransactionsPage(props: {
             </div>
         </div>
 
-        {/* ENGAGEMENT */}
-        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-             <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
-                <Vote size={120} />
-            </div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Total Engagement</p>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
-                {fmtCount(stats.totalVotes)}
-            </h2>
-            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
-                <BarChart3 size={12} /> TOTAL VOTES CAST
-            </div>
-        </div>
+        {/* ENGAGEMENT / SUCCESS RATE */}
+        {isOrganizer ? (
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+               <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                  <Vote size={120} />
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Total Engagement</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                  {fmtCount(stats.totalVotes)}
+              </h2>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                  <BarChart3 size={12} /> TOTAL VOTES CAST
+              </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+              <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                  <TrendingUp size={120} />
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Success Rate</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                  {Number(stats.successRate).toFixed(1)}%
+              </h2>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                  <BarChart3 size={12} /> PAYMENT SUCCESS RATE
+              </div>
+          </div>
+        )}
 
-        {/* UNITS SOLD */}
-        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
-             <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
-                <Users size={120} />
-            </div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Units Sold</p>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
-                {fmtCount(stats.totalTickets)}
-            </h2>
-            <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
-                <Calendar size={12} /> TOTAL TICKETS
-            </div>
-        </div>
+        {/* UNITS SOLD / PENDING TRANSACTIONS */}
+        {isOrganizer ? (
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+               <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                  <Users size={120} />
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Units Sold</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                  {fmtCount(stats.totalTickets)}
+              </h2>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                  <Calendar size={12} /> TOTAL TICKETS
+              </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden group">
+              <div className="absolute -top-4 -right-4 text-slate-50 opacity-10 group-hover:scale-110 transition-transform">
+                  <AlertOctagon size={120} />
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Pending Transactions</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4">
+                  {fmtCount(stats.pendingCount)}
+              </h2>
+              <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] bg-slate-50 w-fit px-3 py-1.5 rounded-full border border-slate-100">
+                  <Activity size={12} /> AWAITING COMPLETION
+              </div>
+          </div>
+        )}
       </div>
 
       {/* Transactions Table */}

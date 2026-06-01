@@ -1,7 +1,19 @@
 import { createServerApiClient } from "@/lib/api-client";
+import { Metadata } from "next";
 import EventsBrowseClient from "./EventsBrowseClient";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Vote Now — Browse Live Events | EaseVote Ghana",
+  description: "Cast your votes for nominees across Ghana's top award shows and competitions. Fast, secure, and transparent e-voting powered by EaseVote.",
+  alternates: { canonical: "/events/voting" },
+  openGraph: {
+    title: "Vote Now — Browse Live Events | EaseVote Ghana",
+    description: "Cast your votes for nominees across Ghana's top events.",
+    url: "/events/voting",
+  },
+};
 
 export default async function VotingEventsPage() {
   const apiClient = createServerApiClient();
@@ -17,8 +29,8 @@ export default async function VotingEventsPage() {
         allEvents = events.filter((e: any) => e.type === "VOTING" || e.type === "HYBRID");
       }
     }
-  } catch (error) {
-    console.error("Failed to fetch voting events:", error);
+  } catch {
+    // Voting events fetch failed — renders empty state
   }
 
   const clientEvents = allEvents.map((event: any) => ({
@@ -31,11 +43,12 @@ export default async function VotingEventsPage() {
     status: event.status,
     location: event.location || "Online",
     votePrice: event.costPerVote || event.votePrice || 0,
-    // Essential dates for status utility
-    votingStartsAt: event.votingStartsAt || event.votingStartTime,
-    votingEndsAt: event.votingEndsAt || event.votingEndTime,
-    nominationStartsAt: event.nominationStartsAt || event.nominationStartTime,
-    nominationEndsAt: event.nominationEndsAt || event.nominationEndTime,
+    allowPublicNominations: !!event.allowPublicNominations,
+    // Explicit properties for direct getEventStatus support
+    votingStartTime: event.votingStartsAt || event.votingStartTime,
+    votingEndTime: event.votingEndsAt || event.votingEndTime,
+    nominationStartTime: event.nominationStartsAt || event.nominationStartTime,
+    nominationEndTime: event.nominationEndsAt || event.nominationEndTime,
     startDate: event.startDate,
     endDate: event.endDate,
   }));

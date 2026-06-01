@@ -31,8 +31,6 @@ async function handler(
   const { path } = await params;
   const pathStr = (path || []).join("/");
 
-  // LOUD LOGGING for debugging connectivity
-  console.log(`\n🚀 [Proxy] ${req.method} request received for: /${pathStr}`);
   const backendUrl = `${BACKEND_URL}/${pathStr}`;
 
   // Forward query params if any
@@ -66,10 +64,6 @@ async function handler(
   }
 
   try {
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`[Proxy] Forwarding ${req.method} to ${targetUrl}`);
-    }
-
     const backendRes = await fetch(targetUrl, {
       method: req.method,
       headers,
@@ -77,25 +71,27 @@ async function handler(
       cache: "no-store",
     });
 
-    const contentType = backendRes.headers.get("content-type") ?? "";
-    let data: any;
-    if (contentType.includes("application/json")) {
-      data = await backendRes.json().catch(() => ({
-        success: false,
-        message: "Backend returned an unparseable response",
-      }));
-    } else {
-      const text = await backendRes.text().catch(() => "");
-      data = { success: false, message: text || `HTTP ${backendRes.status}` };
-    }
+    // Forward response headers
+    const resHeaders = new Headers();
+    backendRes.headers.forEach((value, key) => {
+      const lowerKey = key.toLowerCase();
+      if (
+        lowerKey !== "transfer-encoding" &&
+        lowerKey !== "connection" &&
+        lowerKey !== "keep-alive"
+      ) {
+        resHeaders.set(key, value);
+      }
+    });
 
-    if (!backendRes.ok) {
-      console.error(`[Proxy] Backend returned ${backendRes.status}:`, data);
-    }
+    // Read the raw body as an ArrayBuffer to preserve binary/plain formats (e.g. CSVs)
+    const bodyBuffer = await backendRes.arrayBuffer();
 
-    return NextResponse.json(data, { status: backendRes.status });
-  } catch (err) {
-    console.error(`[Proxy] Error forwarding to ${targetUrl}:`, err);
+    return new NextResponse(bodyBuffer, {
+      status: backendRes.status,
+      headers: resHeaders,
+    });
+  } catch {
     return NextResponse.json(
       {
         success: false,

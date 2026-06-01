@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createServerApiClient } from "@/lib/api-client";
@@ -103,7 +104,7 @@ export default async function AdminBlogsPage() {
                                       <div className="flex items-center gap-4">
                                           <div className="h-12 w-16 bg-slate-100 rounded-lg flex-shrink-0 relative overflow-hidden">
                                               {blog.coverImage ? (
-                                                  <img src={blog.coverImage} alt="" className="w-full h-full object-cover" />
+                                                  <Image fill sizes="64px" src={blog.coverImage} alt="" className="object-cover" />
                                               ) : (
                                                   <FileText className="absolute inset-0 m-auto text-slate-300" size={20} />
                                               )}

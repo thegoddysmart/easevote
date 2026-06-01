@@ -16,10 +16,11 @@ export default async function AdminManagementPage() {
   const users = Array.isArray(rawUsers) ? rawUsers : rawUsers?.data || [];
 
   const admins = users
-    .filter((u: any) => 
-      (u.role === "ADMIN" || u.role === "SUPER_ADMIN") && 
+    .filter((u: any) =>
+      (u.role === "ADMIN" || u.role === "SUPER_ADMIN") &&
       u._id !== session?.user?.id
     )
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .map((admin: any) => ({
       ...admin,
       id: admin._id,

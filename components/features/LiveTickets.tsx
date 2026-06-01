@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Calendar,
@@ -9,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { russoOne } from "../ui/fonts";
 import SearchBar from "../ui/SearchBar";
 import { getEventStatus } from "@/lib/utils/event-status";
 import { formatEventDate } from "@/lib/utils/date-format";
@@ -76,11 +76,11 @@ export default function LiveTickets({ events }: { events: any[] }) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-16">
-          <span className="text-brand-bright font-bold tracking-widest text-sm uppercase">
+          <span className="text-secondary-600 font-bold tracking-widest text-sm uppercase">
             Upcoming Experiences
           </span>
           <h2
-            className={`${russoOne.className} text-4xl md:text-5xl text-white font-display mt-2 mb-6`}
+            className="font-heading text-4xl md:text-5xl text-white font-display mt-2 mb-6"
             style={{ color: "inherit" }}
           >
             Event Tickets & Concerts
@@ -119,13 +119,12 @@ export default function LiveTickets({ events }: { events: any[] }) {
                   const finalSrc = validUrl || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop";
 
                   return (
-                    <img
+                    <Image
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
                       src={finalSrc}
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                       alt={ticket.title}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop";
-                      }}
+                      className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                     />
                   );
                 })()}
@@ -140,7 +139,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
                 </div>
 
                 {ticket.ticketTypes && ticket.ticketTypes.length > 0 && (
-                  <div className="absolute top-4 right-4 bg-brand-bright text-white text-sm font-bold pl-3 px-3 py-1 rounded-md font-bold text-sm">
+                  <div className="absolute top-4 right-4 bg-secondary-600 text-white text-sm font-bold pl-3 px-3 py-1 rounded-md font-bold text-sm">
                     GHS {ticket.ticketTypes[0].price}.00
                   </div>
                 )}
@@ -219,7 +218,7 @@ export default function LiveTickets({ events }: { events: any[] }) {
         <div className="mt-12 text-center">
           <Link
             href="/events/ticketing"
-            className="inline-block border-b border-white/30 text-white hover:text-brand-bright hover:border-brand-bright pb-1 transition-all"
+            className="inline-block border-b border-white/30 text-white hover:text-secondary-600 hover:border-secondary-600 pb-1 transition-all"
           >
             View All Events
           </Link>
@@ -228,3 +227,4 @@ export default function LiveTickets({ events }: { events: any[] }) {
     </section>
   );
 }
+

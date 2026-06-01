@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -82,7 +83,7 @@ export default function SignInPage() {
             </div>
             <h2 className="text-5xl font-display font-bold leading-tight text-white!">
               Welcome back to your <br />{" "}
-              <span className="text-primary-500">Command Center</span>.
+              <span className="text-secondary-500">Command Center</span>.
             </h2>
             <p className="text-lg text-primary-100/80 leading-relaxed">
               Log in to manage your events, monitor real-time voting revenue,
@@ -92,11 +93,14 @@ export default function SignInPage() {
             <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 mt-12">
               <div className="flex items-center gap-4 mb-4">
                 <div className="flex -space-x-2">
+                  ``
                   {[1, 2, 3].map((i) => (
-                    <img
+                    <Image
                       key={i}
                       src={`https://picsum.photos/seed/organizer${i}/100/100`}
-                      className="w-10 h-10 rounded-full border-2 border-primary-900"
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full border-2"
                       alt="Organizer"
                     />
                   ))}

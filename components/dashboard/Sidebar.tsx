@@ -95,7 +95,7 @@ export function Sidebar({
                       <Link
                         href={item.href}
                         className={clsx(
-                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors flex-1",
+                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1",
                           isActive || childActive
                             ? "bg-primary-700 text-white!"
                             : "text-slate-300! hover:bg-primary-800 hover:text-white"
@@ -117,7 +117,7 @@ export function Sidebar({
                       {hasChildren && !isCollapsed && (
                         <button
                           onClick={() => toggleExpand(item.href)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-primary-800 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-primary-800 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1"
                         >
                           <ChevronDown
                             className={clsx(
@@ -141,7 +141,7 @@ export function Sidebar({
                               <Link
                                 href={child.href}
                                 className={clsx(
-                                  "block px-3 py-2 text-sm rounded-lg transition-colors",
+                                  "block px-3 py-2 text-sm rounded-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1",
                                   isChildItemActive
                                     ? "text-white! font-medium bg-primary-800"
                                     : "text-slate-400! hover:text-white hover:bg-primary-800"
@@ -164,7 +164,7 @@ export function Sidebar({
 
       <button
         onClick={onToggle}
-        className="flex items-center justify-center h-12 border-t border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+        className="flex items-center justify-center h-12 border-t border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-inset"
       >
         {isCollapsed ? (
           <ChevronRight className="h-5 w-5" />

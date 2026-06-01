@@ -31,7 +31,6 @@ export default function RestoreButton({ eventId }: RestoreButtonProps) {
           router.refresh();
         }
       } catch (error: any) {
-        console.error("Failed to restore event:", error);
         modal.alert({
           title: "Restore Failed",
           message: error.message || "Failed to restore event. Please try again.",
@@ -48,7 +47,7 @@ export default function RestoreButton({ eventId }: RestoreButtonProps) {
       className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors text-sm font-medium ${
         isPending
           ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-          : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+          : "bg-primary-50 text-primary-700 hover:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-offset-1"
       }`}
       title="Restore this event to active state"
     >

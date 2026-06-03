@@ -57,8 +57,8 @@ export default function BlogEditor({ blog }: { blog?: any }) {
       form.append("folder", "blogs");
 
       const res = await api.uploadFormData("/upload/image", form);
-      const newUrl = res.url || res.imageUrl;
-      setFormData({ ...formData, coverImage: newUrl });
+      const newUrl = res.url || res.imageUrl || res.data?.url || res.data?.imageUrl || "";
+      setFormData(prev => ({ ...prev, coverImage: newUrl }));
       toast.success("Cover image uploaded");
     } catch (err) {
       toast.error("Failed to upload image");

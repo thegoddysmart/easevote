@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminTransactionsPage(props: {
-  searchParams: Promise<{ page?: string; eventId?: string; status?: string }>;
+  searchParams: Promise<{ page?: string; eventId?: string; status?: string; type?: string; gateway?: string; channel?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
@@ -32,9 +32,12 @@ export default async function AdminTransactionsPage(props: {
   const page = parseInt(searchParams.page || "1");
   const eventId = searchParams.eventId || "";
   const status = searchParams.status || "ALL";
+  const type = searchParams.type || "ALL";
+  const gateway = searchParams.gateway || "ALL";
+  const channel = searchParams.channel || "ALL";
 
   // Build query string for API
-  const queryStr = `page=${page}&limit=20${eventId ? `&eventId=${eventId}` : ""}${status !== "ALL" ? `&status=${status}` : ""}`;
+  const queryStr = `page=${page}&limit=20${eventId ? `&eventId=${eventId}` : ""}${status !== "ALL" ? `&status=${status}` : ""}${type !== "ALL" ? `&type=${type}` : ""}${gateway !== "ALL" ? `&gateway=${gateway}` : ""}${channel !== "ALL" ? `&channel=${channel}` : ""}`;
 
   let stats, transactionsData, eventsList = [];
 
@@ -111,7 +114,9 @@ export default async function AdminTransactionsPage(props: {
     date: tx.paidAt || tx.createdAt,
     // New fields for the "Units" column
     voteCount: tx.voteCount || 0,
-    ticketQuantity: tx.ticketQuantity || 0
+    ticketQuantity: tx.ticketQuantity || 0,
+    gateway: tx.provider || tx.paymentProvider || tx.gateway || tx.paymentGateway || "N/A",
+    channel: (tx.channel || tx.paymentChannel || tx.source || "WEB").toUpperCase()
   }));
 
   // Helper for compact GHS formatting
@@ -205,11 +210,11 @@ export default async function AdminTransactionsPage(props: {
           </h2>
         </div>
         <TransactionsTable 
-          key={`tx-table-${eventId}-${status}-${page}`}
+          key={`tx-table-${eventId}-${status}-${type}-${gateway}-${channel}-${page}`}
           transactions={transactions} 
           pagination={pagination} 
           eventsList={eventsList}
-          currentFilters={{ eventId, status }}
+          currentFilters={{ eventId, status, type, gateway, channel }}
         />
       </div>
     </div>

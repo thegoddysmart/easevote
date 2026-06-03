@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   X,
-  Shield,
   FileText,
   Cookie,
   ChevronDown,
@@ -73,12 +72,10 @@ export default function TrustCenter({
               </div>
               <div>
                 <h4 className="font-display font-bold text-slate-900">
-                  We bake cookies to count your vote.
+                  EaseVote Cookie Policy
                 </h4>
                 <p className="text-sm text-slate-600 max-w-2xl">
-                  To ensure your vote is secure and you don&apos;t get logged
-                  out while buying tickets, we use essential cookies. We
-                  don&apos;t spy on you.
+                  To ensure secure voting and reliable ticket purchases, EaseVote uses essential cookies to authenticate your session and improve platform performance. We are committed to protecting your privacy.
                 </p>
               </div>
             </div>
@@ -114,7 +111,6 @@ export default function TrustCenter({
             {/* Header */}
             <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10">
               <div className="flex items-center gap-2">
-                <Shield className="text-green-500" size={20} />
                 <h2 className="text-xl font-display font-bold text-slate-900">
                   Transparency at EaseVote
                 </h2>
@@ -170,7 +166,7 @@ export default function TrustCenter({
                     {activeContent.humanSummary.map((item, i) => (
                       <div key={i} className="flex gap-3">
                         <CheckCircle
-                          className="text-green-500 shrink-0 mt-1"
+                          className="text-primary-700 shrink-0 mt-1"
                           size={18}
                         />
                         <div>

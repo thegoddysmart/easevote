@@ -114,7 +114,7 @@ export default async function RevenuePage() {
             dataKey="revenue"
             xAxisKey="date"
             height={400}
-            colors={["#0f172a"]} 
+            colors={["#5b0058"]} 
           />
         </div>
         <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm">
@@ -129,7 +129,7 @@ export default async function RevenuePage() {
                         dataKey="value"
                         xAxisKey="name"
                         height={250}
-                        colors={["#0f172a", "#c026d3"]}
+                        colors={["#5b0058", "#c026d3"]}
                     />
                 </div>
            </div>
@@ -138,7 +138,7 @@ export default async function RevenuePage() {
              {(stats.byType || []).map((item: any, i: number) => (
                 <div key={i} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${i === 0 ? "bg-slate-900" : "bg-primary-600"}`}></div>
+                        <div className={`w-2 h-2 rounded-full ${i === 0 ? "bg-primary-700" : "bg-primary-600"}`}></div>
                         <span className="text-xs font-medium text-slate-600">{item.name}</span>
                     </div>
                     <span className="text-xs font-bold text-slate-900">{formatCurrency(item.value)}</span>

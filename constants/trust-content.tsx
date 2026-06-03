@@ -20,16 +20,16 @@ export const trustContent: Record<
   TrustSection
 > = {
   terms: {
-    title: "The Rules of Engagement",
-    icon: <FileText size={32} className="text-primary-500" />,
+    title: "Terms of Service",
+    icon: <FileText size={32} className="text-primary-700" />,
     humanSummary: [
       {
-        title: "Voting is Final",
-        desc: "Once you cast a vote, it cannot be refunded or changed. Double-check before you click!",
+        title: "Voting Finality",
+        desc: "All votes cast on the platform are final and non-refundable. Please review your selection before confirming.",
       },
       {
-        title: "We provide the Tech",
-        desc: "EaseVote powers the platform. The Event Organizer is responsible for the actual event, prizes, and cancellations.",
+        title: "Platform Role",
+        desc: "EaseVote provides the technological infrastructure. The respective Event Organizer remains responsible for event execution and prizes.",
       },
       {
         title: "Instant Payments",
@@ -49,20 +49,20 @@ In no event shall EaseVote be liable for any damages (including, without limitat
   },
 
   privacy: {
-    title: "Your Data is Safe",
-    icon: <Lock size={32} className="text-blue-500" />,
+    title: "Privacy Policy",
+    icon: <Lock size={32} className="text-primary-700" />,
     humanSummary: [
       {
-        title: "Your Number",
-        desc: "We only collect your phone number to process MoMo payments and verify you are a real human voter.",
+        title: "Data Collection",
+        desc: "We collect only necessary information, such as your phone number, to securely process payments and verify voter authenticity.",
       },
       {
-        title: "No Selling",
-        desc: "We absolutely do not sell your personal data to third parties.",
+        title: "Data Protection",
+        desc: "Your personal information is securely stored. We strictly do not sell or distribute your data to third-party marketers.",
       },
       {
-        title: "Organizer Access",
-        desc: "Event Organizers get your name for guest lists, but we protect your financial details.",
+        title: "Organizer Visibility",
+        desc: "Event Organizers receive basic attendee information for guest management. Your sensitive financial details are never shared.",
       },
     ],
     legalText: `1. DATA COLLECTION
@@ -79,20 +79,20 @@ We do not share your personal information with third parties except as described
   },
 
   cookies: {
-    title: "Tech that makes it work",
-    icon: <Cookie size={32} className="text-yellow-500" />,
+    title: "Cookie Policy",
+    icon: <Cookie size={32} className="text-primary-700" />,
     humanSummary: [
       {
         title: "Strictly Necessary",
-        desc: "These keep you logged in so you don't lose your ticket in the cart.",
+        desc: "Essential cookies required for authentication, maintaining session integrity, and secure ticket processing.",
       },
       {
-        title: "Performance",
-        desc: "These help us see if the site is slow during big voting events (like the Miss Malaika Finale).",
+        title: "Performance & Analytics",
+        desc: "Cookies utilized to monitor platform load and optimize performance during high-traffic voting events.",
       },
       {
-        title: "Marketing (Optional)",
-        desc: "These help us show you other events you might like based on your history.",
+        title: "Functional",
+        desc: "Cookies used to remember your preferences and provide a tailored platform experience.",
       },
     ],
     legalText: `1. WHAT ARE COOKIES

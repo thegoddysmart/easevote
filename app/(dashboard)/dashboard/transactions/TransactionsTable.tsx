@@ -25,6 +25,23 @@ type Transaction = {
   date: Date;
   voteCount?: number;
   ticketQuantity?: number;
+  gateway?: string;
+  channel?: string;
+};
+
+const formatCompactCurrency = (num: number) => {
+  if (num >= 1000000) return parseFloat((num / 1000000).toFixed(2)) + "M";
+  if (num >= 1000) return parseFloat((num / 1000).toFixed(2)) + "k";
+  return new Intl.NumberFormat("en-GH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(num);
+};
+
+const formatCompactNumber = (num: number) => {
+  if (num >= 1000000) return parseFloat((num / 1000000).toFixed(1)) + "M";
+  if (num >= 1000) return parseFloat((num / 1000).toFixed(1)) + "k";
+  return num.toString();
 };
 
 type Pagination = {
@@ -92,7 +109,7 @@ export default function TransactionsTable({
   transactions: Transaction[];
   pagination: Pagination;
   eventsList: { id: string; title: string }[];
-  currentFilters: { eventId: string; status: string };
+  currentFilters: { eventId: string; status: string; type?: string; gateway?: string; channel?: string };
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -174,10 +191,7 @@ export default function TransactionsTable({
       header: "Amount (GHS)",
       render: (tx: Transaction) => (
         <span className="text-sm font-medium text-slate-900">
-          {new Intl.NumberFormat("en-GH", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(tx.amount)}
+          {formatCompactCurrency(tx.amount)}
         </span>
       ),
       sortable: true,
@@ -185,15 +199,19 @@ export default function TransactionsTable({
     {
       key: "units",
       header: "Units",
-      render: (tx: Transaction) => (
-        <span className="text-xs font-bold text-slate-600 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
-          {tx.type === "VOTE" 
-            ? tx.voteCount || 0 
-            : tx.type === "TICKET" 
-              ? tx.ticketQuantity || 0 
-              : "-"}
-        </span>
-      ),
+      render: (tx: Transaction) => {
+        const value = tx.type === "VOTE" 
+          ? tx.voteCount || 0 
+          : tx.type === "TICKET" 
+            ? tx.ticketQuantity || 0 
+            : null;
+            
+        return (
+          <span className="text-xs font-bold text-slate-600 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+            {value !== null ? formatCompactNumber(value) : "-"}
+          </span>
+        );
+      },
     },
     {
       key: "event",
@@ -204,6 +222,21 @@ export default function TransactionsTable({
           title={tx.event}
         >
           {tx.event}
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      key: "gateway",
+      header: "Gateway",
+      render: (tx: Transaction) => (
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest w-fit">
+            {tx.gateway || "N/A"}
+          </span>
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest w-fit">
+            {tx.channel || "WEB"}
+          </span>
         </div>
       ),
       sortable: true,
@@ -274,6 +307,37 @@ export default function TransactionsTable({
             eventsList={eventsList}
             placeholder="All Events"
           />
+
+          <select
+            value={currentFilters.type || "ALL"}
+            onChange={(e) => handleParamChange("type", e.target.value)}
+            className="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+          >
+            <option value="ALL">All Types</option>
+            <option value="VOTE">Vote</option>
+            <option value="TICKET">Ticket</option>
+          </select>
+
+          <select
+            value={currentFilters.gateway || "ALL"}
+            onChange={(e) => handleParamChange("gateway", e.target.value)}
+            className="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+          >
+            <option value="ALL">All Gateways</option>
+            <option value="PAYSTACK">Paystack</option>
+            <option value="NALO">Nalo</option>
+            <option value="APPSMOBILE">AppsMobile</option>
+          </select>
+
+          <select
+            value={currentFilters.channel || "ALL"}
+            onChange={(e) => handleParamChange("channel", e.target.value)}
+            className="px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+          >
+            <option value="ALL">All Channels</option>
+            <option value="WEB">Web</option>
+            <option value="USSD">USSD</option>
+          </select>
 
           <select
             value={currentFilters.status}

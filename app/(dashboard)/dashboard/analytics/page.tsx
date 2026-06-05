@@ -10,7 +10,9 @@ import {
   ArrowUpRight,
   Zap,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  Ticket,
+  Vote
 } from "lucide-react";
 import Link from "next/link";
 import { clsx } from "clsx";
@@ -40,32 +42,32 @@ export default async function AnalyticsOverviewPage() {
 
   const kpis = [
     {
-        title: "Total Platform Users",
-        value: stats.overview.totalUsers.toLocaleString(),
+        title: "Total Organizers",
+        value: (stats.overview.registeredOrganizers || 0).toLocaleString(),
         icon: <Users className="h-5 w-5" />,
         link: "/dashboard/analytics/users",
-        color: "bg-blue-50 text-blue-600"
+        color: "bg-purple-50 text-purple-600"
     },
     {
-        title: "Live Events",
-        value: stats.overview.activeEvents.toLocaleString(),
+        title: "Total Live Events",
+        value: (stats.overview.activeEvents || 0).toLocaleString(),
         icon: <Zap className="h-5 w-5" />,
         link: "/dashboard/events",
         color: "bg-amber-50 text-amber-600"
     },
     {
-        title: "Successful Sales",
-        value: stats.overview.successfulSales.toLocaleString(),
-        icon: <CreditCard className="h-5 w-5" />,
-        link: "/dashboard/transactions",
-        color: "bg-emerald-50 text-emerald-600"
+        title: "Total Tickets Sold",
+        value: (stats.overview.ticketsSold || 0).toLocaleString(),
+        icon: <Ticket className="h-5 w-5" />,
+        link: "/dashboard/transactions?type=TICKET",
+        color: "bg-blue-50 text-blue-600"
     },
     {
-        title: "Gross Volume",
-        value: new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS", maximumFractionDigits: 0 }).format(stats.overview.totalVolume),
-        icon: <TrendingUp className="h-5 w-5" />,
-        link: "/dashboard/revenue",
-        color: "bg-primary-50 text-primary-600"
+        title: "Total Votes Cast",
+        value: (stats.overview.totalVotesCast || 0).toLocaleString(),
+        icon: <Vote className="h-5 w-5" />,
+        link: "/dashboard/transactions?type=VOTE",
+        color: "bg-emerald-50 text-emerald-600"
     }
   ];
 
@@ -115,18 +117,9 @@ export default async function AnalyticsOverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* RECENT AUDIT FEED */}
-        <div className="lg:col-span-2">
-            <ActivityFeed 
-                title="System Activity Heartbeat" 
-                activities={formattedActivities} 
-                maxItems={10} 
-            />
-        </div>
-
         {/* QUICK STATUS PANEL */}
-        <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative overflow-hidden group">
+        <div className="lg:col-span-3 space-y-6">
+            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative overflow-hidden group w-full lg:max-w-md">
                 <div className="relative z-10">
                     <ShieldCheck className="h-10 w-10 text-slate-900 mb-6" />
                     <h3 className="text-xl font-bold mb-2 text-slate-900">Security Status</h3>
@@ -137,23 +130,6 @@ export default async function AnalyticsOverviewPage() {
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         Active Protection
                     </div>
-                </div>
-            </div>
-
-            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6 border-b border-slate-50 pb-4">Internal Links</h3>
-                <div className="space-y-4">
-                    {[
-                        { name: "User Growth", href: "/dashboard/analytics/users" },
-                        { name: "System Logs", href: "/dashboard/analytics/system" },
-                        { name: "Revenue Performance", href: "/dashboard/revenue" },
-                        { name: "Infrastructure Control", href: "/dashboard/finance/settings" }
-                    ].map((link, i) => (
-                        <Link key={i} href={link.href} className="flex items-center justify-between group">
-                            <span className="text-sm font-bold text-slate-500 group-hover:text-slate-900 transition-colors">{link.name}</span>
-                            <ArrowUpRight size={14} className="text-slate-200 group-hover:text-slate-900 transition-all" />
-                        </Link>
-                    ))}
                 </div>
             </div>
         </div>

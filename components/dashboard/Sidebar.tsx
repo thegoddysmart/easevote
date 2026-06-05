@@ -47,15 +47,15 @@ export function Sidebar({
         isCollapsed ? "w-16" : "w-64"
       )}
     >
-      <div className="flex h-16 items-center justify-between border-b border-slate-700 px-4">
+      <div className="flex h-16 items-center justify-between border-b border-slate-700 px-4 relative">
         {!isCollapsed && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-hidden">
             {logo || (
-              <Image src="/easevote.svg" alt="EaseVote" width={32} height={32} className="rounded-lg" />
+              <Image src="/easevote.svg" alt="EaseVote" width={32} height={32} className="rounded-lg shrink-0" />
             )}
-            <div className="flex flex-col">
+            <div className="flex flex-col truncate">
               <span className="font-semibold text-sm">EaseVote</span>
-              <span className="text-xs text-slate-400">{portalName}</span>
+              <span className="text-xs text-slate-400 truncate">{portalName}</span>
             </div>
           </div>
         )}
@@ -64,6 +64,16 @@ export function Sidebar({
             <Image src="/easevote.svg" alt="EaseVote" width={32} height={32} className="rounded-lg" />
           </div>
         )}
+        <button
+          onClick={onToggle}
+          className="absolute -right-3.5 top-1/2 -translate-y-1/2 flex items-center justify-center h-7 w-7 rounded-full bg-primary-700! border border-primary-600 text-white hover:bg-primary-800 transition-all shadow-md shadow-primary-900/50 z-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600"
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-4 w-4 ml-0.5 stroke-[3px]" />
+          ) : (
+            <ChevronLeft className="h-4 w-4 mr-0.5 stroke-[3px]" />
+          )}
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4">
@@ -162,16 +172,6 @@ export function Sidebar({
         ))}
       </nav>
 
-      <button
-        onClick={onToggle}
-        className="flex items-center justify-center h-12 border-t border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-600 focus-visible:ring-inset"
-      >
-        {isCollapsed ? (
-          <ChevronRight className="h-5 w-5" />
-        ) : (
-          <ChevronLeft className="h-5 w-5" />
-        )}
-      </button>
     </aside>
   );
 }
